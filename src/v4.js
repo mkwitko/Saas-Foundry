@@ -37,14 +37,14 @@ function inside(root, relative) {
   return resolved;
 }
 function readLock(projectRoot) {
-  const file = path.join(projectRoot, LOCK_PATH);
+  const file = inside(projectRoot, LOCK_PATH);
   if (!fs.existsSync(file)) return { schema_version: "0.4", resources: {} };
   const parsed = parseYaml(fs.readFileSync(file, "utf8"));
   if (!parsed || typeof parsed.resources !== "object" || Array.isArray(parsed.resources)) throw new Error("Resource lockfile is invalid; refusing to modify it.");
   return parsed;
 }
 function writeLock(projectRoot, lock) {
-  const file = path.join(projectRoot, LOCK_PATH);
+  const file = inside(projectRoot, LOCK_PATH);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const temp = file + ".tmp-" + process.pid;
   fs.writeFileSync(temp, stringifyYaml(lock), { flag: "wx", encoding: "utf8" });
@@ -81,6 +81,7 @@ function collectFiles(sourceRoot, sourcePath, allowScripts) {
     files.push({ source_path: path.basename(start), content: content.toString("utf8"), bytes: content.length, sha256: sha256(content) });
   } else walk(start, "");
   if (!files.length) throw new Error("No supported files found in selected resource path.");
+  if (files.length > 200 || files.reduce((sum, file) => sum + file.bytes, 0) > 2 * 1024 * 1024) throw new Error("Resource exceeds v0.4 limits (200 files / 2 MiB).");
   return files.sort((a,b)=>a.source_path.localeCompare(b.source_path));
 }
 function inspectGitSource(resource, sourceDir, requestedCommit) {
@@ -133,12 +134,14 @@ export function buildResourceInstallPlan({ projectRoot, registry, resourceId, so
     throw new Error("License attestation does not match catalog license: expected " + resource.license + ".");
   }
   const git = inspectGitSource(resource, sourceDir, commit);
-  const sourceRel = safeRelative(sourcePath, "source path");
+  const sourceRel = sourcePath === "." ? "." : safeRelative(sourcePath, "source path");
   const files = collectFiles(git.root, sourceRel, allowScripts);
   const dest = validateTarget(target ?? ".foundry/resources/" + resourceId, resourceId);
   const lock = existingLock ?? readLock(root);
   const existing = lock.resources[resourceId];
   if (existing && existing.target !== dest) throw new Error("Resource is already installed at " + existing.target + "; uninstall it before changing target.");
+  const targetAbs = inside(root, dest);
+  if (fs.existsSync(targetAbs) && !fs.statSync(targetAbs).isDirectory()) throw new Error("Resource target exists and is not a directory.");
   const planned = planFiles(root, dest, files);
   const safe = planned.every(x => x.action !== "conflict");
   return {
@@ -164,7 +167,8 @@ export function executeResourceInstall(plan) {
     if (file.action === "create" && fs.existsSync(destination)) throw new Error("Destination changed after dry-run: " + file.path);
   }
   const created = [];
-  const tempLock = path.join(root, LOCK_PATH + ".tmp-" + process.pid);
+  inside(root, LOCK_PATH);
+  const tempLock = inside(root, LOCK_PATH + ".tmp-" + process.pid);
   try {
     for (const file of plan.files) {
       if (file.action === "unchanged") continue;
