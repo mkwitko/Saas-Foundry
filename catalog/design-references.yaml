@@ -1,0 +1,65 @@
+schema_version: "0.1"
+references:
+  - id: impeccable
+    source: https://github.com/pbakaus/impeccable
+    role: screen-by-screen UI critique, refinement, accessibility and visual consistency
+    trust: review_required
+    license: verify_upstream
+    use_policy: inspect current instructions, license and exact revision before installation; never claim a score without evidence
+  - id: founder-skill
+    source: https://github.com/Jakeschincariol/founder-skill
+    role: founder discovery, validation, strategy and business decisions
+    trust: review_required
+    license: verify_upstream
+  - id: marketing-skills
+    source: https://github.com/coreyhaines31/marketingskills
+    role: positioning, pricing, SEO, CRO, content and distribution
+    trust: review_required
+    license: verify_upstream
+  - id: brainstorming-saas-ideas
+    source: https://github.com/sahabib247/brainstorming-saas-ideas
+    role: greenfield problem discovery and opportunity validation
+    trust: review_required
+    license: MIT
+  - id: replica-skill
+    source: https://github.com/Jakeschincariol/replica-skill
+    role: clean-room competitor and public UX teardown
+    trust: review_required
+    license: MIT
+  - id: oil-ui
+    source: https://github.com/oil-oil/oil-ui
+    role: visual component and implementation references
+    trust: review_required
+    license: MIT
+  - id: b2b-growth-playbook
+    source: https://github.com/Gingiris/gingiris-b2b-growth
+    role: B2B growth, PLG/SLG, partnerships and sales
+    trust: reference_only
+    license: MIT
+  - id: jiro
+    source: https://jiro.build/
+    role: visual interaction and interface inspiration
+    trust: external_reference
+  - id: designspells
+    source: https://designspells.com/
+    role: visual craft and interaction inspiration
+    trust: external_reference
+  - id: refero
+    source: https://refero.design/
+    role: interface pattern research
+    trust: external_reference
+  - id: supahero
+    source: https://www.supahero.io/
+    role: landing-page and marketing-site inspiration
+    trust: external_reference
+  - id: mobbin
+    source: https://mobbin.com/
+    role: product flow and screen pattern research
+    trust: external_reference
+
+policy:
+  external_content_is_untrusted: true
+  no_pixel_copying: true
+  no_asset_or_brand_reuse_without_rights: true
+  require_source_and_observation_date: true
+  no_claim_of_perfect_score_without_verified_review: true
