@@ -47,8 +47,13 @@ function writeLock(projectRoot, lock) {
   const file = inside(projectRoot, LOCK_PATH);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const temp = file + ".tmp-" + process.pid;
-  fs.writeFileSync(temp, stringifyYaml(lock), { flag: "wx", encoding: "utf8" });
-  fs.renameSync(temp, file);
+  try {
+    fs.writeFileSync(temp, stringifyYaml(lock), { flag: "wx", encoding: "utf8" });
+    fs.renameSync(temp, file);
+  } catch (error) {
+    if (fs.existsSync(temp)) fs.unlinkSync(temp);
+    throw error;
+  }
 }
 function collectFiles(sourceRoot, sourcePath, allowScripts) {
   const start = sourcePath === "." ? sourceRoot : inside(sourceRoot, sourcePath);
@@ -308,6 +313,7 @@ export function executeResourceUpdate(plan) {
       } else throw new Error("Unexpected update action: " + file.action);
     }
     for (const file of plan.removed_files ?? []) {
+      if (!file.path.startsWith(plan.target + "/")) throw new Error("Update removal path escapes resource target: " + file.path);
       const destination = inside(root, file.path);
       if (!fs.existsSync(destination) || sha256(fs.readFileSync(destination)) !== file.sha256) throw new Error("Removed-file precondition failed: " + file.path);
       fs.unlinkSync(destination);
@@ -402,13 +408,20 @@ export function executeResourceUninstall(plan) {
   if (!record || record.target !== plan.target) throw new Error("Resource lock changed since dry-run.");
   const drift = inspectResourceDrift(root, plan.resource_id).resources[0];
   if (drift.status !== "clean") throw new Error("Resource changed since dry-run; refusing uninstall.");
-  for (const file of record.files) {
-    const target = inside(root, file.path);
-    if (fs.existsSync(target)) fs.unlinkSync(target);
+  const saved = record.files.map(file => ({ path: file.path, content: fs.readFileSync(inside(root, file.path), "utf8") }));
+  try {
+    for (const file of record.files) fs.unlinkSync(inside(root, file.path));
+    const dirs = [...new Set(record.files.map(f=>path.dirname(path.join(root,f.path))))].sort((a,b)=>b.length-a.length);
+    for (const dir of dirs) { try { fs.rmdirSync(dir); } catch { /* Preserve non-empty directories. */ } }
+    delete lock.resources[plan.resource_id];
+    writeLock(root, lock);
+  } catch (error) {
+    for (const file of saved) {
+      const destination = inside(root, file.path);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.writeFileSync(destination, file.content, "utf8");
+    }
+    throw error;
   }
-  const dirs = [...new Set(record.files.map(f=>path.dirname(path.join(root,f.path))))].sort((a,b)=>b.length-a.length);
-  for (const dir of dirs) { try { fs.rmdirSync(dir); } catch { /* Preserve non-empty directories. */ } }
-  delete lock.resources[plan.resource_id];
-  writeLock(root, lock);
   return { removed_resource: plan.resource_id, files_removed: record.files.length, lockfile: LOCK_PATH };
 }
