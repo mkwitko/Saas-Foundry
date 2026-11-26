@@ -113,6 +113,8 @@ The business correctly prohibits invented testimonials and metrics. The key asse
 | Launch and distribution | Recommended now | Execute the existing narrow channel plan; do not add more channels yet |
 | Activation and onboarding | Recommended now | First-value definition and conversion path need measurement |
 | Retention and customer success | Recommended now | Establish learning and support cadence during the pilot |
+| Customer support loop | Already satisfied | Help center, status page and support requirements exist; route repeated issues into the product backlog |
+| Legal and compliance review | Specialist required | Legal drafts and product safeguards exist, but health-data handling, provider terms, WhatsApp policies and marketing claims need qualified review |
 | Conversion optimization | After event mapping | Landing/demo/trial conversion needs a trustworthy funnel before experiments |
 | Revenue operations | After first trials | Trial-to-paid, payment recovery and revenue cohorts need observed subscription data |
 | Proof and advocacy | After pilot outcomes | Case studies and referrals need verified outcomes and explicit permission |
