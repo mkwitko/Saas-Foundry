@@ -1,6 +1,6 @@
 # Architecture
 
-Status: v0.6 with evidence intelligence, provenance-pinned resource adapters, sanitized agent-assisted code audits, an end-to-end Claude Code operator skill, and a reviewed acquisition-source registry. The skill coordinates research and local work; external actions remain approval-gated.
+Status: v0.7 with evidence intelligence, provenance-pinned resource adapters, sanitized agent-assisted code audits, a project-local Claude Code bootstrapper and one-command launcher, a unified greenfield/existing workflow, and a reviewed acquisition-source registry. External actions remain approval-gated.
 
 ## Design goals
 

@@ -1,6 +1,6 @@
 {
   "name": "saas-foundry",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "description": "Evidence-first SaaS operating system with agent-assisted product intelligence and end-to-end founder workflow",
   "type": "module",
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/snapshot.js && node --check src/agents.js && node --check src/cli.js && node --check tests/acquisition-catalog.test.js"
+    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/snapshot.js && node --check src/agents.js && node --check src/init.js && node --check src/run.js && node --check src/cli.js && node --check tests/acquisition-catalog.test.js && node --check tests/init.test.js"
   },
   "dependencies": {
     "yaml": "^2.8.1"
