@@ -194,7 +194,7 @@ export function buildApplyPlan(projectRoot, moduleIds, registry) {
     const current = exists && fs.statSync(destination).isFile() ? fs.readFileSync(destination, "utf8") : null;
     return {
       id, path: relative, action: !exists ? "create" : current === content ? "unchanged" : "conflict",
-      sha256: hash(content), bytes: Buffer.byteLength(content)
+      sha256: hash(content), bytes: Buffer.byteLength(content), content
     };
   });
   return {
@@ -253,7 +253,7 @@ export function rollbackAppliedModule(projectRoot, moduleId) {
   const content = fs.readFileSync(target, "utf8");
   if (hash(content) !== record.sha256) throw new Error("Artifact changed since apply; refusing destructive rollback.");
   fs.unlinkSync(target);
-  fs.rmSync(path.dirname(target), { recursive: false });
+  try { fs.rmdirSync(path.dirname(target)); } catch { /* Preserve non-empty directories. */ }
   delete lock.modules[moduleId];
   fs.writeFileSync(lockPath, JSON.stringify(lock, null, 2) + "\n", "utf8");
   return { removed: record.path, preserved_modified_files: true };
