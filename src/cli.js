@@ -30,7 +30,7 @@ Usage:
   foundry install <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--target <path>] [--allow-scripts] [--execute]
   foundry drift <project-path> [--resource <id>]
   foundry update <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--allow-scripts] [--execute]
-  foundry rollback-resource <project-path> --resource <id>
+  foundry rollback-resource <project-path> --resource <id> [--execute]
   foundry uninstall <project-path> --resource <id> [--execute]
 
 Options:
