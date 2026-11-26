@@ -45,10 +45,12 @@ function appendIntake(projectRoot, mode, answers) {
   const heading = "\n\n## Intake " + new Date().toISOString() + " (" + mode + ")\n\n";
   const body = entries.map(([question, answer]) => "### " + question + "\n\n" + answer + "\n").join("\n");
   fs.appendFileSync(file, heading + body, { encoding: "utf8", mode: 0o600 });
+  fs.chmodSync(file, 0o600);
   return file;
 }
 
 async function collectFounderContext(rl, mode) {
+  process.stdout.write("Não informe senhas, tokens, dados de pacientes ou conversas privadas.\\n");
   process.stdout.write(mode === "new"
     ? "\nVamos estruturar a oportunidade antes de decidir o que construir. Você pode pular qualquer pergunta.\n"
     : "\nVamos entender o negócio e o principal gargalo antes de propor mudanças. Você pode pular qualquer pergunta.\n");
