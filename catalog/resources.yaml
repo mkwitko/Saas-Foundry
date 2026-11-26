@@ -1,0 +1,145 @@
+schema_version: "0.1"
+
+# This is a discovery shortlist, not an approved install list.
+# Every resource must be re-reviewed and pinned before installation or execution.
+resources:
+  - id: marketing-skills
+    type: skill_collection
+    source: https://github.com/coreyhaines31/marketingskills
+    use: CRO, positioning, pricing, SEO, content, sales and marketing workflows.
+    license: verify_upstream
+    status: review_before_install
+    notes: Primary marketing reference; choose individual skills, not the whole collection.
+
+  - id: brainstorming-saas-ideas
+    type: skill
+    source: https://github.com/sahabib247/brainstorming-saas-ideas
+    use: Structured opportunity discovery, screening, validation plan, kill criteria.
+    license: MIT
+    status: review_before_install
+    notes: Greenfield only unless a project is entering a genuinely new market.
+
+  - id: founder-skill
+    type: skill_collection
+    source: https://github.com/Jakeschincariol/founder-skill
+    use: Founder strategy, business planning, offer and validation workflows.
+    license: verify_upstream
+    status: review_before_install
+    notes: Avoid duplicating existing founder docs; select only missing workflows.
+
+  - id: replica-skill
+    type: skill_collection
+    source: https://github.com/Jakeschincariol/replica-skill
+    use: Public competitor teardown, review mining, product and design analysis.
+    license: MIT
+    status: review_before_install
+    notes: Clean-room learning only. No copying source, brand, content, assets or private APIs.
+
+  - id: impeccable
+    type: skill_collection
+    source: https://github.com/pbakaus/impeccable
+    use: Design critique, UI polish, consistency and accessibility review.
+    license: verify_upstream
+    status: review_before_install
+    notes: Use as a review capability, not a replacement for product design decisions.
+
+  - id: oil-ui
+    type: skill_collection
+    source: https://github.com/oil-oil/oil-ui
+    use: Visual reference research, design directions and implementation review.
+    license: MIT
+    status: review_before_install
+    notes: Review hosted/pro features and any additional service terms before use.
+
+  - id: b2b-growth-playbook
+    type: reference_library
+    source: https://github.com/Gingiris/gingiris-b2b-growth
+    use: B2B growth strategy, PLG/SLG, channel, partnerships and sales collateral.
+    license: MIT
+    status: reference_only
+    notes: Strategic reference, not a live data feed.
+
+  - id: startup-ideas-reddit
+    type: dataset
+    source: https://github.com/fayerman-source/startup-ideas
+    use: Profession-oriented problem hypotheses linked to original discussions.
+    license: MIT
+    status: reference_only
+    notes: Dataset entries are hypotheses, not verified willingness to pay.
+
+  - id: app-ideas-from-reddit
+    type: dataset
+    source: https://github.com/theomarsoliman/app-ideas-from-reddit
+    use: Raw demand signals and threads from people asking for software.
+    license: MIT
+    status: reference_only
+    notes: Read original threads; do not republish comments as Foundry-owned content.
+
+  - id: software-income-playbooks
+    type: playbook_collection
+    source: https://github.com/cporter202/software-income-playbooks
+    use: Service-first workflows that may later become recurring software.
+    license: verify_upstream
+    status: reference_only
+    notes: Validate API costs, affiliate relationships, terms and source rights.
+
+  - id: startup-perks-dataset
+    type: dataset
+    source: https://github.com/yumaheymans/startupperks-open-dataset
+    use: Find credits and startup programs for software, infra, AI and GTM.
+    license: CC-BY-4.0
+    status: review_before_use
+    notes: Attribute StartupPerks and re-check eligibility and expiry with the provider.
+
+  - id: startup-distribution-directories
+    type: directory
+    source: https://github.com/mmccaff/PlacesToPostYourStartup
+    use: Seed list of launch sites, directories and communities.
+    license: CC0-1.0
+    status: review_before_use
+    notes: Verify audience fit, current submission rules and anti-spam policy before use.
+
+  - id: free-developer-services
+    type: directory
+    source: https://github.com/kebbbnnn/Awesome-Free-Developer-Services
+    use: Discover free tiers for hosting, databases, analytics, email and observability.
+    license: verify_upstream
+    status: reference_only
+    notes: Pricing and free-tier limits are volatile; confirm official vendor terms.
+
+  - id: posthog
+    type: product
+    source: https://posthog.com/
+    use: Product analytics, funnels, cohorts, experiments and session replay where lawful.
+    license: vendor_product
+    status: candidate
+    notes: Check data residency, privacy controls, pricing and whether existing telemetry is sufficient.
+
+  - id: google-search-console
+    type: integration
+    source: https://developers.google.com/webmaster-tools
+    use: Search performance, sitemap submission and URL inspection.
+    license: vendor_api
+    status: candidate
+    notes: Use official API and explicit site-owner authorization.
+
+  - id: vercel-skills-cli
+    type: installer
+    source: https://github.com/vercel-labs/skills
+    use: Install and manage skills for supported coding agents.
+    license: verify_upstream
+    status: candidate
+    notes: Low-level skill installer only; Foundry remains responsible for project-aware selection and review.
+
+approval_policy:
+  install_requires:
+    - canonical_source
+    - exact_commit_or_version
+    - content_hash
+    - license_and_terms_review
+    - instruction_and_script_review
+  data_requires:
+    - provenance
+    - checked_at
+    - freshness_expectation
+    - usage_rights
