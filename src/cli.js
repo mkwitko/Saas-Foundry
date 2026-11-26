@@ -18,7 +18,7 @@ const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 
 const [command, ...rest] = process.argv.slice(2);
 
 function usage() {
-  return `SaaS Foundry CLI v0.7.0
+  return `SaaS Foundry CLI v0.8.0
 
 Usage:
   foundry scan <project-path> [--format json|md] [--out <file>]
