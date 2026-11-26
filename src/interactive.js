@@ -50,7 +50,7 @@ function appendIntake(projectRoot, mode, answers) {
 }
 
 async function collectFounderContext(rl, mode) {
-  process.stdout.write("Não informe senhas, tokens, dados de pacientes ou conversas privadas.\\n");
+  process.stdout.write("Não informe senhas, tokens, dados de pacientes ou conversas privadas.\n");
   process.stdout.write(mode === "new"
     ? "\nVamos estruturar a oportunidade antes de decidir o que construir. Você pode pular qualquer pergunta.\n"
     : "\nVamos entender o negócio e o principal gargalo antes de propor mudanças. Você pode pular qualquer pergunta.\n");
