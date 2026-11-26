@@ -33,7 +33,7 @@ function resolveTarget(target, destination) {
 function agentArgs(agent, prompt) {
   if (agent === "claude") return [prompt];
   if (agent === "codex") return [prompt];
-  if (agent === "opencode") return ["run", prompt];
+  if (agent === "opencode") return ["mini", "--prompt", prompt];
   throw new Error("Unsupported agent: " + agent);
 }
 
