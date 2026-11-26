@@ -1,0 +1,61 @@
+schema_version: "0.1"
+reviewed_at: "2026-11-26"
+purpose: "Discovery seeds for acquisition research. Not endorsements and not permission for automated submission."
+
+sources:
+  - id: startup-directory-index
+    repository: "https://github.com/mmmmingos/where-to-submit-your-startup"
+    license: MIT
+    role: primary_structured_directory_discovery
+    trust: candidate_data_requires_destination_verification
+    useful_for: [directory_discovery, pricing_and_submission_requirements, freshness_triage]
+    constraints:
+      - preserve_license_and_copyright_notice
+      - verify_destination_url_and_current_submission_rules
+      - do_not_assume_listing_generates_traffic_or_customers
+      - no_bulk_submission
+    freshness_policy: "Use upstream last-checked date as a signal; independently re-check before recommending submission."
+
+  - id: awesome-startup-directories
+    repository: "https://github.com/submit-directories/awesome-startup-directories"
+    license: CC0_declared_by_upstream
+    role: broad_channel_discovery
+    trust: unverified_candidate
+    useful_for: [startup_directories, launch_platforms, communities, marketplaces, industry_media]
+    constraints:
+      - verify_pricing_and_audience_claims
+      - inspect_destination_terms_and_eligibility
+      - no_bulk_submission
+    freshness_policy: "Record upstream verification date where available and independently re-check."
+
+  - id: places-to-post-your-startup
+    repository: "https://github.com/mmccaff/PlacesToPostYourStartup"
+    license: CC0_declared_by_upstream
+    role: historical_discovery_seed
+    trust: unverified_candidate
+    useful_for: [subreddit_discovery, startup_community_discovery, website_discovery]
+    constraints:
+      - check_each_community_current_rules
+      - no_unsolicited_dm_or_repetitive_promotion
+      - no_scraping_against_platform_terms
+      - no_bulk_submission
+    freshness_policy: "Treat entries as stale until independently verified."
+
+approval_gates: [outreach, public_posting, directory_submission, paid_listing, ad_spend, production_change]
+record_fields:
+  - source_id
+  - record_id
+  - channel_type
+  - destination_url
+  - audience
+  - geography
+  - eligibility
+  - pricing
+  - promotion_rules
+  - submission_requirements
+  - upstream_last_checked
+  - foundry_verified_at
+  - evidence_urls
+  - confidence
+  - status
+  - next_review_at
