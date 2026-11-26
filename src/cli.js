@@ -7,7 +7,7 @@ import {
   scanRepository, buildPlan, validateProject, loadFoundryContext,
   formatMarkdownScan, formatMarkdownPlan
 } from "./core.js";
-import { buildEvidenceReport, diffScans, selectModules, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "./v3.js";
+import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "./v3.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -21,7 +21,7 @@ Usage:
   foundry doctor <project-path> [--strict]
   foundry evidence <scan.json> [--format json|md] [--out <file>]
   foundry diff <previous-scan.json> <current-scan.json> [--format json|md]
-  foundry select <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
+  foundry context <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]\n  foundry select <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
   foundry apply <project-path> --module <id[,id...]> [--execute]
   foundry rollback <project-path> --module <id>
 
@@ -90,7 +90,7 @@ async function main(){
     emit({kind:"scan",data:result},options);
     return;
   }
-  if(["plan","doctor","select","apply","rollback"].includes(command)){
+  if(["plan","doctor","context","select","apply","rollback"].includes(command)){
     if(positional.length!==1) throw new Error(`${command} requires exactly one project path.`);
     const foundryRoot=path.resolve(options.foundry ?? FOUNDRY_ROOT);
     const {projectRoot,manifest,registry}=loadFoundryContext(positional[0],foundryRoot);
@@ -114,10 +114,12 @@ async function main(){
       const result=rollbackAppliedModule(projectRoot,options.module);
       emit({kind:"rollback",data:result},options,"json"); return;
     }
-    if(command==="select"){
+    if(command==="select" || command==="context"){
       const scan=options.scan ? loadJson(options.scan) : scanRepository(projectRoot);
-      const result=selectModules(manifest,registry,scan,{stage:options.stage,bottleneck:options.bottleneck,capacity:options.capacity});
-      emit({kind:"selection",data:result},options,"json"); return;
+      const selection=selectModules(manifest,registry,scan,{stage:options.stage,bottleneck:options.bottleneck,capacity:options.capacity});
+      if(command==="select") emit({kind:"selection",data:selection},options,"json");
+      else emit({kind:"context",data:buildAgentContext(manifest,scan,selection)},options,"json");
+      return;
     }
     if(command==="apply"){
       if(!options.module) throw new Error("apply requires --module <id[,id...]>.");
