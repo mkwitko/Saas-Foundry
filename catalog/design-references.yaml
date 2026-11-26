@@ -4,18 +4,18 @@ references:
     source: https://github.com/pbakaus/impeccable
     role: screen-by-screen UI critique, refinement, accessibility and visual consistency
     trust: review_required
-    license: verify_upstream
+    license: Apache-2.0
     use_policy: inspect current instructions, license and exact revision before installation; never claim a score without evidence
   - id: founder-skill
     source: https://github.com/Jakeschincariol/founder-skill
     role: founder discovery, validation, strategy and business decisions
     trust: review_required
-    license: verify_upstream
+    license: MIT
   - id: marketing-skills
     source: https://github.com/coreyhaines31/marketingskills
     role: positioning, pricing, SEO, CRO, content and distribution
     trust: review_required
-    license: verify_upstream
+    license: MIT
   - id: brainstorming-saas-ideas
     source: https://github.com/sahabib247/brainstorming-saas-ideas
     role: greenfield problem discovery and opportunity validation
