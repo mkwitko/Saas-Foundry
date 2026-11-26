@@ -1,6 +1,6 @@
 ---
 name: foundry-run
-description: Run the complete SaaS Foundry lifecycle for a GitHub repository: understand the product and code, research the market and competitors, validate positioning and pricing, find qualified acquisition channels and leads, implement justified improvements, and maintain a measurable execution loop. Use when the user gives a GitHub repository URL and asks Claude to handle the SaaS workflow end to end.
+description: Run the complete SaaS Foundry lifecycle for a new or existing SaaS from the current project folder: founder discovery, market validation, product and design quality, engineering, security, launch, sales and growth. Use when the user starts Foundry or asks for end-to-end SaaS work.
 ---
 
 # SaaS Foundry — end-to-end operator
