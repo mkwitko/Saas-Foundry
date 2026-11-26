@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
-import { buildEvidenceReport, diffScans, selectModules, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "../src/v3.js";
+import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "../src/v3.js";
 
 const registry = parseYaml(fs.readFileSync(new URL("../catalog/modules.yaml", import.meta.url), "utf8"));
 const manifest = {
@@ -71,5 +71,27 @@ test("apply refuses to overwrite a pre-existing runbook", () => {
     assert.equal(fs.readFileSync(target, "utf8"), "user content");
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("agent context is compact, agent-neutral and includes operating guardrails", () => {
+  const result = selectModules(manifest, registry, scan(["README.md"], {}), { bottleneck: "Real buyer proof and demos", capacity: "medium" });
+  const context = buildAgentContext(manifest, scan(["README.md"], {}), result);
+  assert.equal(context.context_version, "0.3.0");
+  assert.ok(context.recommended_modules.some(x => x.id === "sales-pipeline"));
+  assert.ok(context.operating_rules.some(x => x.includes("explicit human approval")));
+  assert.equal(JSON.stringify(context).includes("patient_message_body"), false);
+});
+
+test("apply rejects symlinked artifact directories", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-v3-symlink-"));
+  const outside = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-v3-outside-"));
+  fs.mkdirSync(path.join(root, ".foundry"), { recursive: true });
+  try {
+    fs.symlinkSync(outside, path.join(root, ".foundry", "modules"), "dir");
+    assert.throws(() => buildApplyPlan(root, ["sales-pipeline"], registry), /symlink/);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(outside, { recursive: true, force: true });
   }
 });
