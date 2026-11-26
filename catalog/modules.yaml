@@ -19,7 +19,7 @@ modules:
     triggers: [pre_build, weak_conversion, new_offer, new_segment]
     inputs: [problem_brief, interview_access, offer_hypothesis]
     outputs: [interview_synthesis, validation_plan, kill_criteria]
-    requires: [opportunity-intelligence]
+    requires: []
     risk: medium
     ia_chat: recommended
 
