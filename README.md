@@ -90,7 +90,7 @@ Do not create a second business plan, another generic idea generator, or duplica
 From the folder you want Foundry to work in:
 
 ~~~bash
-npx saas-foundry
+npx -y github:mkwitko/Saas-Foundry
 ~~~
 
 The interactive launcher detects whether the current folder already contains a project, then lets you choose:
@@ -105,11 +105,7 @@ The launcher detects Claude Code, Codex CLI and OpenCode, lets you choose an ins
 
 ### Run directly from GitHub during development
 
-Until the package is published to npm, use:
-
-~~~bash
-npx -y github:mkwitko/Saas-Foundry
-~~~
+**The GitHub command above is the currently available command.** The shorter `npx saas-foundry` command will become available only after the package is published to npm; it is not published yet.
 
 For an explicit existing GitHub repository, the previous launcher remains available:
 
@@ -118,6 +114,71 @@ npx -y github:mkwitko/Saas-Foundry run https://github.com/OWNER/REPOSITORY
 ~~~
 
 Node.js 20+, npm/npx and an authenticated coding agent are required to execute the full workflow. The npm package must be published by its owner before the short npx saas-foundry command becomes available. See [standalone CLI and founder intake](docs/standalone-and-intake.md).
+
+## Skills, repositories and design references
+
+The Foundry separates **built-in workflows**, **third-party skills**, **reference libraries**, **datasets**, and **visual inspiration**. A catalog entry does not mean a resource is installed or actively connected.
+
+### Engineering quality
+
+| Resource | Purpose | Current status |
+|---|---|---|
+| [Ponytail](https://github.com/DietrichGebert/ponytail) | Minimal complete changes, reuse-first, YAGNI and concise implementation | **Catalogued; recommended for coding tasks; not auto-installed** |
+| [Clean Code Skills](https://github.com/gosukiwi/clean-code-skills) | Clean Code review for TypeScript, React, Python and CSS | **Catalogued; install only relevant tracks; not auto-installed** |
+| Foundry engineering baseline | Security, privacy, tests, maintainability, performance and operations | **Built in** |
+
+Ponytail is the default implementation stance: prefer the smallest complete solution, reuse existing patterns, avoid unnecessary dependencies and abstractions, and retain tests and safety controls. It is not permission to golf code, omit validation, or sacrifice readability. Clean Code Skills adds stack-specific review; do not install every language track into every project.
+
+### Founder, product and growth resources
+
+| Resource | Purpose | Current status |
+|---|---|---|
+| [Founder Skill](https://github.com/Jakeschincariol/founder-skill) | Founder strategy, validation, pricing, offer, operations and launch | **Catalogued; selected workflows only; review before install** |
+| [Marketing Skills](https://github.com/coreyhaines31/marketingskills) | Positioning, pricing, SEO, CRO, content, analytics and distribution | **Catalogued; selected workflows only; review before install** |
+| [Replica Skill](https://github.com/Jakeschincariol/replica-skill) | Clean-room competitor, UX and feature research | **Catalogued; review before install** |
+| [Brainstorming SaaS Ideas](https://github.com/sahabib247/brainstorming-saas-ideas) | Greenfield opportunity discovery and validation | **Catalogued; greenfield only; review before install** |
+| [B2B SaaS Growth Playbook](https://github.com/Gingiris/gingiris-b2b-growth) | B2B growth, PLG/SLG, partnerships and sales | **Reference-only** |
+| [Oil UI](https://github.com/oil-oil/oil-ui) | AI-assisted visual directions and UI review | **Catalogued as a skill; review before install** |
+| [Impeccable](https://github.com/pbakaus/impeccable) | UI critique, polish, accessibility and consistency | **Required design-review workflow; installed project-locally only after upstream review; not preinstalled** |
+
+### Design inspiration and pattern research
+
+These references are listed in `catalog/design-references.yaml` and used by the product-design workflow. They are not bundled design systems or automatic API integrations.
+
+| Reference | Best use | Current status |
+|---|---|---|
+| [Jiro](https://jiro.build/) | Interaction details and visual craft | **External reference only** |
+| [Design Spells](https://designspells.com/) | Micro-interactions and visual details | **External reference only** |
+| [Refero](https://refero.design/) | Real product screens and interface patterns | **External reference only; no API/MCP connected** |
+| [Supahero](https://www.supahero.io/) | Hero sections and marketing-site patterns | **External reference only** |
+| [Mobbin](https://mobbin.com/) | Mobile app screens and end-to-end flows | **External reference only; account/subscription may be required** |
+
+The workflow studies multiple references, records the source and observed pattern, and makes an original design decision. It does not copy screens, assets, branding or proprietary content.
+
+### Data, directories and service discovery
+
+| Resource | Purpose | Current status |
+|---|---|---|
+| [Startup Ideas from Reddit](https://github.com/fayerman-source/startup-ideas) | Problem hypotheses linked to discussions | **Dataset/reference only; verify original sources** |
+| [App Ideas from Reddit](https://github.com/theomarsoliman/app-ideas-from-reddit) | Raw demand signals and discussion links | **Dataset/reference only; not proof of willingness to pay** |
+| [Software Income Playbooks](https://github.com/cporter202/software-income-playbooks) | Service-first revenue ideas | **Reference only; license/terms need verification** |
+| [StartupPerks dataset](https://github.com/yumaheymans/startupperks-open-dataset) | Startup credits and programs | **Review before use; attribution and eligibility checks required** |
+| [PlacesToPostYourStartup](https://github.com/mmccaff/PlacesToPostYourStartup) | Launch directories and communities | **Review before use; check current rules and audience fit** |
+| [Awesome Free Developer Services](https://github.com/kebbbnnn/Awesome-Free-Developer-Services) | Free-tier discovery | **Reference only; verify current official pricing and terms** |
+| [PostHog](https://posthog.com/) | Product analytics and experiments | **Candidate integration; not connected** |
+| [Google Search Console](https://developers.google.com/webmaster-tools) | Search performance and indexing | **Candidate integration; requires site-owner authorization** |
+| [Vercel Skills CLI](https://github.com/vercel-labs/skills) | Install/manage skills across agents | **Installer candidate; not the Foundry planner** |
+
+### What “integrated” means
+
+- **Built in:** Foundry-owned code, modules, templates or workflows shipped here.
+- **Orchestrated:** The workflow knows when and how to use a resource, but it may still need installation or user access.
+- **Catalogued:** Source and purpose are registered; no installation or live connection is implied.
+- **Reference only:** Used for research; not copied into the project.
+- **Candidate:** Possible vendor/API integration that has not been connected.
+- **Installed in a target project:** The exact reviewed revision is installed and verified in that project.
+
+See [the full ecosystem register and integration roadmap](docs/ecosystem-and-integrations.md), [resource catalog](catalog/resources.yaml), [design references](catalog/design-references.yaml), and [security/provenance policy](docs/security-and-provenance.md).
 
 ## Use the Foundry today
 
