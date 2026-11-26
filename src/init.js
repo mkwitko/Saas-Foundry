@@ -18,7 +18,7 @@ function detectMode(projectRoot) {
   const knownProjectFiles = [
     "package.json", "pnpm-workspace.yaml", "pyproject.toml", "Cargo.toml",
     "go.mod", "Gemfile", "composer.json", "pom.xml", "build.gradle",
-    "README.md", "src", "app", "apps", "web", "server"
+    "src", "app", "apps", "web", "server"
   ];
   return knownProjectFiles.some(name => fs.existsSync(path.join(projectRoot, name))) ? "existing" : "new";
 }
