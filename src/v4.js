@@ -347,6 +347,23 @@ export function executeResourceUpdate(plan) {
   }
   return { updated: plan.resource_id, from_commit: previous.source_commit, to_commit: plan.source_commit, history: historyRelative };
 }
+export function buildResourceRollbackPlan(projectRoot, resourceId) {
+  const root = fs.realpathSync(path.resolve(projectRoot));
+  const lock = readLock(root);
+  const current = lock.resources[resourceId];
+  if (!current?.previous_version) throw new Error("No previous version is recorded for this resource.");
+  const drift = inspectResourceDrift(root, resourceId).resources[0];
+  const historyFile = inside(root, current.previous_version);
+  if (!fs.existsSync(historyFile)) throw new Error("Resource update history is missing.");
+  const history = JSON.parse(fs.readFileSync(historyFile, "utf8"));
+  return {
+    schema_version: "0.4", operation: "rollback-update", mode: "dry_run",
+    project_root: root, resource_id: resourceId, safe: drift.status === "clean",
+    current_commit: current.source_commit, restore_commit: history.record?.source_commit ?? null,
+    drift, history: current.previous_version,
+    policy: "Rollback restores the previous pinned snapshot only when the current installed files match the lockfile."
+  };
+}
 export function rollbackResourceUpdate(projectRoot, resourceId) {
   const root = fs.realpathSync(path.resolve(projectRoot));
   const lock = readLock(root);
