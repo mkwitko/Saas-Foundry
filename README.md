@@ -71,6 +71,16 @@ skills/                  Foundry-owned agent workflows
 templates/               Reusable business and execution artifacts
 ```
 
+## Product quality and commercial validation
+
+The Foundry's default implementation profile for new web SaaS is **React + TypeScript + Node.js + TypeScript** (Fastify preferred for new APIs), while preserving an existing stack unless there is a concrete reason to migrate.
+
+It does not treat "build the idea" as the first step. For greenfield ideas it challenges the buyer/problem, researches alternatives, scores commercial viability, simulates skeptical purchase decisions, tests pricing and unit economics, and defines a real validation experiment before recommending an MVP. Simulated buyers are explicitly not customer evidence.
+
+For existing products it reviews the complete React UI and customer journey: landing page, offer, pricing, onboarding, core workflows, trust, accessibility, responsive states, activation, conversion and retention. It also evaluates the sales path from qualified lead through paid customer and renewal.
+
+See [Product and Commercial Review](docs/product-and-commercial-review.md), [Design Quality Gates](docs/design-quality-gates.md), and [Engineering and Operations](docs/engineering-and-operations-playbook.md).
+
 ## First adoption: ia-chat
 
 The initial report is in [projects/ia-chat/](projects/ia-chat/).
