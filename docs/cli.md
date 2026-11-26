@@ -72,3 +72,8 @@ Doctor checks required manifest fields, known module IDs, duplicate classificati
 - No generated scan history or freshness cache yet.
 - No JSON Schema engine; doctor currently validates the core manifest contract and module references directly.
 - No tests were run against a production project or production data.
+
+
+## Interactive standalone mode (v0.8)
+
+Run `npx saas-foundry` from the target directory. The CLI detects existing project markers, asks whether to use the current directory or create a new SaaS workspace, collects optional founder context, detects Claude Code/Codex/OpenCode, installs the project-local workflow and launches the selected agent. See [standalone CLI and founder intake](standalone-and-intake.md).

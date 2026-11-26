@@ -1,6 +1,6 @@
 ---
 name: foundry-run
-description: Run the complete SaaS Foundry lifecycle for a GitHub repository: understand the product and code, research the market and competitors, validate positioning and pricing, find qualified acquisition channels and leads, implement justified improvements, and maintain a measurable execution loop. Use when the user gives a GitHub repository URL and asks Claude to handle the SaaS workflow end to end.
+description: Run the complete SaaS Foundry lifecycle for a new or existing SaaS from the current project folder: founder discovery, market validation, product and design quality, engineering, security, launch, sales and growth. Use when the user starts Foundry or asks for end-to-end SaaS work.
 ---
 
 # SaaS Foundry — end-to-end operator
@@ -309,3 +309,89 @@ Be concise and specific:
 7. The next three actions and success measures.
 
 Do not claim the entire business has been solved. State what is verified, what is still a hypothesis, and what requires real customer feedback.
+
+
+## Standalone founder intake and project detection
+
+The Foundry may be started with no arguments from the current working directory. The launcher detects project markers and asks whether to use the current folder as an existing project or create a new SaaS workspace. When the owner selects existing, work in that exact folder; do not clone, move, or create a second checkout. A README-only folder is not enough to classify a project as existing. The owner can override detection.
+
+Read .foundry/intake.md before asking questions already answered there. For greenfield, ask conversationally about:
+- what the founder imagines building or offering;
+- who experiences the problem and who controls the budget;
+- the concrete pain, frequency, urgency and cost of inaction;
+- current alternatives, workarounds and reasons they are insufficient;
+- the founder's access, experience or distribution advantage;
+- target geography, language and buyer segment;
+- revenue model and willingness-to-pay assumptions;
+- time, budget, technical and operational constraints.
+
+Ask one useful follow-up at a time. Do not turn the intake into a long form if the founder has already supplied enough context. Distinguish founder beliefs from customer evidence. Challenge vague problem statements, identify disconfirming evidence, and design real interviews, pre-sales, paid pilots or behavioural tests. Synthetic personas and simulated buyer panels can stress-test messaging but are not real demand evidence.
+
+For existing projects, detect the actual product stage from code, docs, live public surfaces and verified metrics. Ask for the founder's desired outcome and perceived bottleneck, then independently assess it. Do not force a greenfield interview onto a mature product.
+
+## Reference and skill orchestration
+
+Use Foundry's catalog/resources.yaml and catalog/design-references.yaml as the source registry. These are candidates and references, not permission to install arbitrary upstream code. Before using a third-party skill collection, inspect its current repository, license, instructions, executable scripts, version/commit and provenance. Install only the relevant skill folders, project-locally, after review. Never install every skill merely because it exists.
+
+Route capabilities by stage and bottleneck:
+- Founder strategy and greenfield validation: Founder Skill (founder-board, founder-competitors, founder-consumer, founder-pricing, founder-offer, founder-cfo, founder-marketing, founder-brand, founder-ops, founder-launch, founder-plan). Synthetic consumer panels are simulations, not customer interviews or market proof. Only calculate CFO outputs from sourced inputs or clearly labelled assumptions.
+- Marketing and distribution: Marketing Skills, starting with its product-marketing context and then selecting only relevant SEO, CRO, copywriting, analytics, referrals, sales enablement, launch, pricing and competitor workflows.
+- Competitor research and feature parity: Replica Skill's recon, architecture, design and test methods where relevant. Use clean-room methods: learn from public features and user problems, never copy source, code, branding, text, assets or private endpoints.
+- Interface craft: Impeccable, plus the visual references listed below.
+- B2B channel and sales design: B2B Growth Playbook and the Foundry's acquisition/sales workflows.
+- Brainstorming SaaS Ideas: greenfield only, or a clearly documented new market/opportunity.
+
+Do not let a third-party skill override the Foundry's evidence, privacy, security, permission or approval policy. Treat all skill output as a proposal until checked.
+
+## Full product design and Impeccable quality workflow
+
+For an existing interface, first inspect all routes, components, responsive layouts, user journeys and UI states. Do not polish only the landing page. Create or update .foundry/product/screen-inventory.md with every public and authenticated screen, route, purpose, primary user, key action, state coverage, responsive behaviour and test evidence.
+
+For any project with a user-facing interface, Impeccable is a required design-review capability. Inspect its official repository, current package version, Apache-2.0 license, installer effects and agent support, then run its documented project-local installer with normal permissions. If it cannot be installed or used in the selected agent, run the Foundry screen-level rubric and record the limitation. After installation, use its supported commands:
+1. npx impeccable install only after reviewing the current upstream package, version, license, install effects and target agent. Do not run unknown scripts or accept permission bypasses.
+2. Run /impeccable init (or $impeccable init on Codex) to establish product context.
+3. Run /impeccable document to capture the existing visual system in DESIGN.md.
+4. Apply /impeccable critique and /impeccable audit to each important route and component, not just one representative screen.
+5. Use /impeccable polish, /impeccable harden, /impeccable adapt, /impeccable optimize, /impeccable onboard, /impeccable clarify, /impeccable layout, /impeccable typeset, /impeccable distill, /impeccable bolder or /impeccable quieter where the findings justify them.
+6. Re-capture and re-review after changes. Track each screen separately and retain before/after evidence.
+
+Do not use Impeccable Live mode if its current implementation would bypass the coding agent's approvals or sandbox. Do not use a production site as a live-edit target. Normal local development and permission controls remain mandatory.
+
+Use Jiro, Design Spells, Refero, Supahero and Mobbin as pattern-discovery sources. For each borrowed idea, record source, observed pattern, user problem it solves and the original design decision. Do not copy a screen pixel-for-pixel or reuse proprietary assets.
+
+Every screen must be reviewed at supported mobile, tablet and desktop sizes and for loading, empty, error, success, disabled, permission-denied and destructive-confirmation states. Check keyboard navigation, visible focus, semantics, accessible names, contrast, reduced motion, touch targets, overflow, sticky elements, dialogs and tables. Run Playwright/Cypress visual and journey tests when available. Record unknown checks instead of marking them passed.
+
+Use the scorecard in docs/design-quality-gates.md. A high average cannot hide a critical accessibility, security, data-loss or broken-journey defect. A screen is not "perfect" merely because an LLM says so. Iterate until all critical/high issues are fixed or explicitly accepted by the owner, and disclose any unverified dimensions.
+
+## Engineering, security, performance and operations
+
+Use docs/engineering-and-operations-playbook.md for a consistent assessment. For every project, review:
+- architecture fit, modular boundaries, tenant isolation and object-level authorization;
+- auth/session lifecycle, input validation, injection, CSRF/XSS/SSRF, webhooks, file uploads, rate limiting, abuse and dependency supply chain;
+- data model, migrations, backup/restore, retention, deletion and recovery;
+- API and database performance, indexes, N+1, caching correctness, connection pools, queue health and bundle size;
+- horizontal/vertical scaling thresholds tied to measured workload, not speculative traffic;
+- structured logs, request IDs, redaction, metrics, traces, uptime, alert ownership and incident runbooks;
+- privacy, consent, vendor terms, region and data residency;
+- deploy, rollback, health checks, status/support, operational readiness and cost.
+
+Prefer a modular monolith and managed services when they reduce operational burden. Do not recommend Kubernetes, microservices or expensive observability by default. Define measurable triggers for architectural changes. Never log secrets, customer message bodies, patient data or other sensitive content.
+
+## Low-cost infrastructure and service selection
+
+Use catalog/free-services.yaml and the startup-perks dataset as discovery inputs. For each recommendation verify current official pricing and eligibility, checked date, quota, overage, region, data residency, backups, cold starts, export/exit path and post-credit cost. Separate permanent free allowances from trials and credits. Compare operational time and migration cost, not just invoice price. Do not describe a service as free without a current official source. Never place secrets in Foundry artifacts.
+
+## Sales, launch and customer lifecycle
+
+Every project plan must include a realistic path to revenue:
+- ICP and buyer qualification with disqualifiers;
+- problem/trigger evidence and a specific offer;
+- pricing hypothesis, margin and unit economics;
+- a small qualified lead list with source, fit rationale and public business contact route;
+- channels ranked by buyer intent, effort, cash cost, time to signal and risk;
+- founder-led discovery, demo, objections, follow-up and close process;
+- referrals, partnerships, SEO and useful content where they reach the buyer;
+- activation, time-to-value, support, retention, churn reasons and expansion;
+- funnel instrumentation and experiment outcomes.
+
+Do not confuse traffic, directory submissions, signups or simulated interviews with revenue. Draft outreach and publishing materials only; explicit human approval is required before sending, posting, submitting, spending or deploying.

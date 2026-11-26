@@ -85,32 +85,39 @@ The repository already has substantial product and founder documentation, a work
 
 Do not create a second business plan, another generic idea generator, or duplicate product features already present in ia-chat.
 
-## Start any project with one command
+## Start SaaS Foundry with one command
 
-The Foundry supports both existing repositories and greenfield projects through the same project-local entry point. No global skill installation is required.
+From the folder you want Foundry to work in:
 
-Existing GitHub repository:
+~~~bash
+npx saas-foundry
+~~~
+
+The interactive launcher detects whether the current folder already contains a project, then lets you choose:
+
+1. **Existing project** — works directly inside the current folder. It does not clone or move the repository.
+2. **New SaaS** — uses an empty current folder, or creates a named child workspace when the current folder already contains files.
+3. **Exit**.
+
+It asks a short founder interview about the idea, buyer, pain, current alternatives, urgency, founder advantage, geography, revenue hypothesis and constraints. For an existing product, it asks about the customer, perceived bottleneck, evidence and desired outcome. Answers are saved in .foundry/intake.md and treated as founder-reported context, not proof of demand.
+
+The launcher detects Claude Code, Codex CLI and OpenCode, lets you choose an installed agent, installs the project-local Foundry skill and starts the workflow. If no agent is installed, it prepares the workspace and explains what to install. No global skill is required.
+
+### Run directly from GitHub during development
+
+Until the package is published to npm, use:
+
+~~~bash
+npx -y github:mkwitko/Saas-Foundry
+~~~
+
+For an explicit existing GitHub repository, the previous launcher remains available:
 
 ~~~bash
 npx -y github:mkwitko/Saas-Foundry run https://github.com/OWNER/REPOSITORY
 ~~~
 
-Existing local checkout (run from its root):
-
-~~~bash
-npx -y github:mkwitko/Saas-Foundry run .
-~~~
-
-New project:
-
-~~~bash
-mkdir my-saas && cd my-saas
-npx -y github:mkwitko/Saas-Foundry run . --mode new
-~~~
-
-The launcher installs the local Claude Code skill, creates minimal Foundry state without overwriting existing files, and starts Claude Code with the complete workflow. Existing projects receive an adopt/improve workflow; new projects start with buyer/problem discovery and validation before product implementation.
-
-See [project bootstrap](docs/project-bootstrap.md) for requirements, private-repository authentication, agent options and safety boundaries. A GitHub URL pasted into a Claude session without the Foundry skill available cannot load the workflow by itself; use the launcher above or install the skill globally once.
+Node.js 20+, npm/npx and an authenticated coding agent are required to execute the full workflow. The npm package must be published by its owner before the short npx saas-foundry command becomes available. See [standalone CLI and founder intake](docs/standalone-and-intake.md).
 
 ## Use the Foundry today
 
@@ -140,7 +147,7 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 ## Current maturity
 
-This repository now contains a **v0.7 local CLI, project bootstrapper, and Claude Code workflow launcher** with scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, provenance-pinned resource install/update/drift/rollback/uninstall, project-local skill installation, and a one-command Claude Code launcher.
+This repository now contains a **v0.8 interactive standalone CLI, project detector, founder intake, multi-agent launcher and project-local workflow** with interactive onboarding, founder intake, scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, provenance-pinned resource install/update/drift/rollback/uninstall, project-local skill installation, and a one-command Claude Code launcher.
 
 Available v0.4 commands:
 
@@ -163,7 +170,7 @@ foundry uninstall . --resource impeccable
 
 Use `foundry apply`, `install`, `update`, `uninstall`, and `rollback-resource` without `--execute` to preview. Add `--execute` only after reviewing the plan. Resource install also requires `--reviewed` and a license attestation. See [docs/cli-v0.4.md](docs/cli-v0.4.md) for the full lifecycle.
 
-The agent audit has not been run against the local ia-chat checkout by this release. The v0.6 skill is a workflow definition; it does not mean the end-to-end workflow has already been executed on ia-chat.
+The agent audit has not been run against the local ia-chat checkout by this release. The standalone launcher and end-to-end workflow still require a real local execution test before being treated as production-ready. The v0.6 skill is a workflow definition; it does not mean the end-to-end workflow has already been executed on ia-chat.
 
 ## Safety and trust
 

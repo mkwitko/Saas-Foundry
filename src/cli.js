@@ -12,14 +12,16 @@ import { listInstallableResources, buildResourceInstallPlan, executeResourceInst
 import { runCodeAudit } from "./agents.js";
 import { initializeProject } from "./init.js";
 import { runFoundry } from "./run.js";
+import { runInteractive } from "./interactive.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
 
 function usage() {
-  return `SaaS Foundry CLI v0.7.0
+  return `SaaS Foundry CLI v0.8.0
 
 Usage:
+  foundry [interactive]
   foundry scan <project-path> [--format json|md] [--out <file>]
   foundry plan <project-path> [--scan <scan.json>] [--format json|md] [--out <file>]
   foundry doctor <project-path> [--strict]
@@ -34,7 +36,10 @@ Usage:
   foundry drift <project-path> [--resource <id>]
   foundry update <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--allow-scripts] [--execute]
   foundry rollback-resource <project-path> --resource <id> [--execute]
-  foundry uninstall <project-path> --resource <id> [--execute]\n  foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]\n  foundry run <project-path|github-url> [--dir <path>] [--mode auto|new|existing]\n  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
+  foundry uninstall <project-path> --resource <id> [--execute]
+  foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]
+  foundry run <project-path|github-url> [--dir <path>] [--mode auto|new|existing] [--agent claude|codex|opencode]
+  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
 
 Options:
   --format   Output format (default: md for scan/plan, json for doctor)
@@ -83,13 +88,16 @@ function loadJson(file){
   return JSON.parse(raw);
 }
 async function main(){
-  if(!command || command==="help" || command==="--help" || command==="-h"){
+  if(!command || command==="interactive") {
+    await runInteractive({ cwd: process.cwd() }); return;
+  }
+  if(command==="help" || command==="--help" || command==="-h"){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
   if(command==="run") {
     if(positional.length!==1) throw new Error("run requires exactly one project path or GitHub URL.");
-    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto"});
+    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto",agent:options.agent ?? "claude"});
     process.stdout.write(JSON.stringify(result,null,2)+"\\n"); return;
   }
   if(command==="init") {

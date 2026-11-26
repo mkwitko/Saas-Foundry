@@ -1,10 +1,10 @@
 {
   "name": "saas-foundry",
-  "version": "0.7.0",
-  "private": true,
-  "description": "Evidence-first SaaS operating system with agent-assisted product intelligence and end-to-end founder workflow",
+  "version": "0.8.0",
+  "description": "Founder-first SaaS operating system for discovery, validation, product quality, engineering and growth",
   "type": "module",
   "bin": {
+    "saas-foundry": "./bin/foundry.js",
     "foundry": "./bin/foundry.js"
   },
   "engines": {
@@ -12,9 +12,28 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/snapshot.js && node --check src/agents.js && node --check src/init.js && node --check src/run.js && node --check src/cli.js && node --check tests/acquisition-catalog.test.js && node --check tests/init.test.js"
+    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/snapshot.js && node --check src/agents.js && node --check src/init.js && node --check src/run.js && node --check src/cli.js && node --check src/project-detection.js && node --check src/interactive.js && node --check tests/project-detection.test.js",
+    "prepublishOnly": "npm run check && npm test"
   },
   "dependencies": {
     "yaml": "^2.8.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mkwitko/Saas-Foundry.git"
+  },
+  "homepage": "https://github.com/mkwitko/Saas-Foundry#readme",
+  "bugs": {
+    "url": "https://github.com/mkwitko/Saas-Foundry/issues"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "skills/",
+    "catalog/",
+    "docs/",
+    "schemas/",
+    "templates/",
+    "README.md"
+  ]
 }

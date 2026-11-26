@@ -7,7 +7,7 @@ resources:
     type: skill_collection
     source: https://github.com/coreyhaines31/marketingskills
     use: CRO, positioning, pricing, SEO, content, sales and marketing workflows.
-    license: verify_upstream
+    license: MIT
     status: review_before_install
     notes: Primary marketing reference; choose individual skills, not the whole collection.
 
@@ -23,7 +23,7 @@ resources:
     type: skill_collection
     source: https://github.com/Jakeschincariol/founder-skill
     use: Founder strategy, business planning, offer and validation workflows.
-    license: verify_upstream
+    license: MIT
     status: review_before_install
     notes: Avoid duplicating existing founder docs; select only missing workflows.
 
@@ -39,7 +39,7 @@ resources:
     type: skill_collection
     source: https://github.com/pbakaus/impeccable
     use: Design critique, UI polish, consistency and accessibility review.
-    license: verify_upstream
+    license: Apache-2.0
     status: review_before_install
     notes: Use as a review capability, not a replacement for product design decisions.
 

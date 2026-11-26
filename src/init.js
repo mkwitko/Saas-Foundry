@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -9,6 +10,26 @@ function writeIfAbsent(filePath, content) {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
   fs.writeFileSync(filePath, content, { encoding: "utf8", flag: "wx" });
   return { path: filePath, status: "created" };
+}
+
+const LEGACY_FOUNDRY_SKILL_BLOBS = new Set([
+  "25c7bce808785b13f125c321fc5eea45f44ce2fd"
+]);
+
+function gitBlobSha(content) {
+  const body = Buffer.from(content, "utf8");
+  return createHash("sha1").update("blob " + body.length + "\0").update(body).digest("hex");
+}
+
+function writeOrUpgradeFoundrySkill(filePath, content) {
+  if (!fs.existsSync(filePath)) return writeIfAbsent(filePath, content);
+  const existing = fs.readFileSync(filePath, "utf8");
+  if (existing === content) return { path: filePath, status: "current" };
+  if (LEGACY_FOUNDRY_SKILL_BLOBS.has(gitBlobSha(existing))) {
+    fs.writeFileSync(filePath, content, { encoding: "utf8", mode: 0o600 });
+    return { path: filePath, status: "updated" };
+  }
+  return { path: filePath, status: "preserved" };
 }
 
 function detectMode(projectRoot) {
@@ -40,7 +61,7 @@ export function initializeProject({ projectPath, mode = "auto", agent = "claude"
       }[agent]];
 
   const skill = fs.readFileSync(path.join(ROOT, "skills/foundry-run/SKILL.md"), "utf8");
-  const results = targets.map(relative => writeIfAbsent(path.join(projectRoot, relative), skill));
+  const results = targets.map(relative => writeOrUpgradeFoundrySkill(path.join(projectRoot, relative), skill));
   const state = `schema_version: "0.1"
 project_mode: ${resolvedMode}
 initialized_at: ${new Date().toISOString()}
