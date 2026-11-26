@@ -56,10 +56,10 @@ This project has the Foundry workflow installed locally.
 
 - Project mode at bootstrap: ${resolvedMode}
 - Agent entry point: ${agent}
-- Primary skill: `.claude/skills/foundry-run/SKILL.md` (Claude Code) or the corresponding agent skill directory.
-- Persistent run state: `.foundry/state.yaml`
+- Primary skill: .claude/skills/foundry-run/SKILL.md for Claude Code, or the corresponding agent skill directory.
+- Persistent run state: .foundry/state.yaml
 
-Start the `foundry-run` skill. It will inspect this repository, confirm whether the project is greenfield or existing, and run the same end-to-end lifecycle with the appropriate branch. Do not replace existing project instructions or product documentation.
+Start the foundry-run skill. It will inspect this repository, confirm whether the project is greenfield or existing, and run the same end-to-end lifecycle with the appropriate branch. Do not replace existing project instructions or product documentation.
 `;
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/README.md"), readme));
   return {
