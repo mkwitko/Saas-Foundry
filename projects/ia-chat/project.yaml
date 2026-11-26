@@ -1,0 +1,125 @@
+schema_version: "0.1"
+
+project:
+  id: ia-chat
+  name: Consultório Aberto
+  repository: https://github.com/mkwitko/ia-chat
+  mode: adopt
+  stage: pilot-preparation
+  last_scanned_at: "2026-11-26T00:00:00-03:00"
+
+business:
+  model: Multi-tenant B2B SaaS subscription
+  market: WhatsApp reception, lead conversion, scheduling and customer follow-up for small service businesses
+  geography:
+    - Brazil
+  icp:
+    - Solo health and wellness professionals who receive customer enquiries on WhatsApp
+    - First learning segment: chiropractors and adjacent professionals reached through trusted referrals
+  pricing:
+    - Essencial: R$ 197/month (documented offer; confirm current public plan before selling)
+    - Agenda: R$ 297/month (main documented offer; validate with real buyers)
+    - Pro and Clínica are documented as future tiers, not currently for sale
+  current_bottleneck: "Real-buyer proof and a measurable, repeatable path from referral/demo to activation and paid conversion"
+
+product:
+  category: AI-assisted WhatsApp reception and scheduling SaaS
+  value_proposition: "Respond to customers and book appointments while the professional is busy, keeping the owner in control."
+  maturity: "Product foundation and core workflows exist; real-customer validation and growth loop remain early."
+  first_value_hypothesis: "A new business reaches value when its WhatsApp is connected and the assistant completes its first useful customer interaction, ideally an appointment booking, without the owner having to type the reply."
+  existing_capabilities:
+    - WhatsApp channel abstraction and Cloud API integration path
+    - Human handoff and approval-first autonomy
+    - Appointment scheduling and Google Calendar availability integration
+    - Business profile, service, price, hours and approved FAQ configuration
+    - Waitlist and invitation-based onboarding
+    - Customer/contact and lead workflow surfaces
+    - Lead follow-up configuration
+    - Referral code, link and waitlist attribution
+    - Google review request configuration
+    - Public website, pricing page, calculator, help center and status page
+    - Operational observability and AI usage/cost tracking
+
+technology:
+  languages:
+    - TypeScript
+  frameworks:
+    - Node.js 24+
+    - Fastify
+    - React
+    - Vite
+    - Astro
+    - Prisma
+    - Vitest
+  infrastructure:
+    - pnpm monorepo
+    - PostgreSQL
+    - pg-boss
+    - Docker Compose
+    - Cloudflare Pages / Cloudflare infrastructure
+    - Vercel AI Gateway
+    - Sentry
+    - Axiom
+    - Langfuse
+  data_sensitivity: health
+  scan_exclusions:
+    - .env and all secret or credential files
+    - Production database, backups and dumps
+    - Real patient/customer message bodies
+    - Patient clinical information
+    - Personal contact data and uploaded attachments
+    - Raw production logs and browser profiles
+
+goals:
+  primary: "Prove that the current offer solves a sufficiently urgent problem and create a measurable, founder-operable path to the first 10 paying customers."
+  success_signals:
+    - Real buyer interviews and demonstrations, not simulated panels
+    - WhatsApp-connected trials and paid conversions tracked by acquisition source
+    - Time from invitation to first useful result measured
+    - Actual AI, channel and support costs reconciled with the CFO model
+    - Retention and cancellation reasons observed before adding another customer segment
+  review_cadence: Weekly founder review; monthly pricing, channel and retention review
+
+modules:
+  enabled:
+    - business-validation
+    - analytics-instrumentation
+    - sales-pipeline
+    - launch-and-distribution
+    - activation-and-onboarding
+    - retention-and-customer-success
+  deferred:
+    - seo-and-content
+    - referrals-and-partnerships
+    - competitor-intelligence
+  blocked:
+    - opportunity-intelligence
+    - engineering-quality
+
+source_documents:
+  - path: CLAUDE.md
+    role: Project instructions and non-negotiable engineering/product constraints
+  - path: PRODUCT.md
+    role: Product purpose, users and value proposition
+  - path: docs/spec/README.md
+    role: Accepted hypotheses and open decisions
+  - path: docs/spec/09-site-aquisicao-suporte.md
+    role: Acquisition site, SEO, onboarding and support requirements
+  - path: docs/spec/11-pequenos-negocios.md
+    role: Small-business positioning, lead stages and pilot metrics
+  - path: docs/plan/IMPLEMENTACAO.md
+    role: Delivery plan and acceptance criteria
+  - path: docs/plan/TASKS.md
+    role: Implementation checklist
+  - path: founder/marketing.md
+    role: Channel plan and founder-led marketing
+  - path: founder/offer.md
+    role: Current offer and buyer objections
+  - path: founder/pricing.md
+    role: Pricing hypotheses and price test
+  - path: founder/launch.md
+    role: Launch gates and planned sales motion
+  - path: founder/ops.md
+    role: Founder operating cadence and capacity
+  - path: docs/observabilidade.md
+    role: Operational and AI observability
