@@ -14,7 +14,7 @@ const SKIP_DIRS = new Set([
 ]);
 const SENSITIVE_NAME = /(^\.env($|\.)|secret|credential|token|private.?key|\.pem$|\.p12$|\.pfx$|\.key$|\.dump$|\.sql$|\.sqlite|\.db$|backup|patient|medical.?record|message.?body|attachment)/i;
 const TEXT_DOC = /^(README|AGENTS|CLAUDE|PRODUCT|DESIGN|ROADMAP|CONTRIBUTING|SECURITY|PRIVACY|CHANGELOG)(\.[^.]+)?$/i;
-const SAFE_DOC_EXT = new Set([".md", ".mdx", ".txt", ".yaml", ".yml", ".json"]);
+const SAFE_DOC_EXT = new Set([".md", ".mdx", ".txt"]);
 const STATUS_KEYS = ["enabled", "deferred", "blocked", "already_satisfied", "not_applicable", "specialist_required"];
 
 function sha256(value) {
