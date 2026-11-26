@@ -106,5 +106,8 @@ A UI release is ready only when:
 
 - Setup/context: `npx impeccable install`, `/impeccable init`, `/impeccable document`.
 - Review: `/impeccable critique` for UX heuristics and `/impeccable audit` for accessibility, performance, theming and responsive findings.
-- Refinement: `/impeccable polish`, `/impeccable harden`, `/impeccable adapt`, `/impeccable optimize`, `/impeccable onboard`, plus targeted typography, layout, content and hierarchy commands.
+- Steering and craft: `/impeccable bolder`, `quieter`, `distill`, `colorize`, `typeset`, `layout`, `animate`, `delight` and `overdrive` when they serve the product rather than add decoration.
+- Refinement: `/impeccable polish`, `harden`, `clarify`, `adapt`, `optimize` and `onboard`, plus targeted typography, layout, content and hierarchy commands.
+- Planning and extraction: `/impeccable shape` before a new UX flow and `/impeccable extract` when repeated patterns should become design-system components.
+- Iteration: `/impeccable generate` for controlled variants. `live` is disabled by default unless its current permission model is reviewed; `craft` is deprecated.
 - Use `live` only when its permissions and local-only behaviour have been independently reviewed. Do not use any mode that disables approvals or sandboxing.
