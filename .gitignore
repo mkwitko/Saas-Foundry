@@ -1,0 +1,5 @@
+node_modules/
+.npm/
+.foundry/reports/
+*.log
+.DS_Store
