@@ -86,7 +86,12 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="init") {\n    if(positional.length!==1) throw new Error("init requires exactly one project path.");\n    const result=initializeProject({projectPath:positional[0],mode:options.mode ?? "auto",agent:options.agent ?? "claude"});\n    emit({kind:"init",data:result},options,"json"); return;\n  }\n  if(command==="agent-audit") {
+  if(command==="init") {
+    if(positional.length!==1) throw new Error("init requires exactly one project path.");
+    const result=initializeProject({projectPath:positional[0],mode:options.mode ?? "auto",agent:options.agent ?? "claude"});
+    emit({kind:"init",data:result},options,"json"); return;
+  }
+  if(command==="agent-audit") {
     if(positional.length!==1) throw new Error("agent-audit requires exactly one project path.");
     const timeoutMs=options["timeout-ms"] === undefined ? undefined : Number(options["timeout-ms"]);
     if(timeoutMs !== undefined && (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 600000)) throw new Error("--timeout-ms must be an integer from 1000 to 600000.");
