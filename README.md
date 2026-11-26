@@ -87,7 +87,21 @@ Do not create a second business plan, another generic idea generator, or duplica
 
 ## Use the Foundry today
 
-The project-aware planner and scanner are not implemented yet, but the initial workflows are already packaged as standard agent skills:
+The first local CLI is now available for read-only repository scanning, deterministic module planning, and manifest diagnostics. See [docs/cli.md](docs/cli.md).
+
+Install dependencies in the Foundry checkout and link the command:
+
+```bash
+npm install
+npm link
+foundry scan ../ia-chat
+foundry doctor ../ia-chat
+foundry plan ../ia-chat
+```
+
+The scanner does not read arbitrary source-code bodies, secrets, databases, patient data, or production logs. The planner does not install modules or modify the target repository.
+
+The initial workflows are also packaged as standard agent skills:
 
 - `foundry-adopt` — inspect an existing repository and create an evidence-backed adoption plan.
 - `growth-loop` — review acquisition, activation, revenue and retention, then choose one experiment.
@@ -97,7 +111,7 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 ## Current maturity
 
-This repository starts as a **documented v0.1 operating model**. The Vercel Skills CLI can install the packaged workflows; the Foundry-specific project-aware planner, automated scanner, lockfile, module installer and integrations are future implementation work. The commands below are design targets, not currently executable commands.
+This repository now contains a **v0.2 local CLI** for scan, plan and doctor, plus installable agent skills. Automated module installation, resource lockfile, connector integrations, and a richer source-aware scanner remain future work.
 
 Planned interface:
 
