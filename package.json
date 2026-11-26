@@ -1,8 +1,8 @@
 {
   "name": "saas-foundry",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
-  "description": "Evidence-first SaaS project intelligence with pinned resource adapters and safe lifecycle management",
+  "description": "Evidence-first SaaS project intelligence with safe agent-assisted code audits and pinned resource adapters",
   "type": "module",
   "bin": {
     "foundry": "./bin/foundry.js"
@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/cli.js"
+    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/snapshot.js && node --check src/agents.js && node --check src/cli.js"
   },
   "dependencies": {
     "yaml": "^2.8.1"
