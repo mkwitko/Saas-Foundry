@@ -138,8 +138,32 @@ approval_policy:
     - content_hash
     - license_and_terms_review
     - instruction_and_script_review
+    - explicit_human_review_attestation
   data_requires:
     - provenance
     - checked_at
     - freshness_expectation
     - usage_rights
+
+installation_policy:
+  adapter: local_git_checkout
+  installable_types: [skill, skill_collection, template, workflow, playbook_collection]
+  reference_only_types: [dataset, directory, integration, product, reference_library, installer]
+  allowed_targets:
+    - .foundry/resources/<resource-id>
+    - .agents/skills/<resource-id>
+    - .claude/skills/<resource-id>
+    - .opencode/skills/<resource-id>
+    - .codex/skills/<resource-id>
+  require_exact_origin_match: true
+  require_exact_commit_sha: true
+  require_human_review: true
+  require_license_attestation: true
+  execute_resource_files: false
+  fetch_remote_sources: false
+  max_files: 200
+  max_total_bytes: 2097152
+  max_file_bytes: 524288
+  reject_symlinks: true
+  reject_binary_files: true
+  script_extensions_require_opt_in: [.js, .mjs, .cjs, .ts, .py, .sh]
