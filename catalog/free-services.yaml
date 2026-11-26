@@ -1,0 +1,31 @@
+schema_version: "0.1"
+purpose: "Discovery index for low-cost and free-tier infrastructure; all terms must be re-verified against official provider pages."
+categories:
+  hosting:
+    evaluation: [runtime_limits, build_minutes, bandwidth, sleep_or_cold_start, custom_domains, region, egress_cost]
+  database:
+    evaluation: [storage, compute_hours, connection_limits, backups, point_in_time_recovery, region, data_residency, egress]
+  auth:
+    evaluation: [monthly_active_users, organizations, mfa, enterprise_features, audit_logs, exportability]
+  email:
+    evaluation: [monthly_sends, daily_limits, domains, deliverability, suppression, logs, overage]
+  analytics:
+    evaluation: [events, retention, session_replay_privacy, data_residency, export, sampling]
+  observability:
+    evaluation: [log_ingestion, retention, traces, metrics, alerting, cardinality_limits, overage]
+  storage:
+    evaluation: [capacity, egress, object_size, lifecycle, encryption, backup]
+  automation:
+    evaluation: [runs, execution_minutes, concurrency, secrets, retention]
+  startup_credits:
+    evaluation: [eligibility, expiry, eligible_products, geography, renewal, post_credit_price]
+rules:
+  - "Do not describe a service as free without a current official pricing source and checked_at date."
+  - "Separate always-free allowances, time-limited trials, startup credits and open-source self-hosting."
+  - "Show quota, overage price, region, data residency, cold-start, backup and exit path."
+  - "Include founder operations and migration cost when comparing self-hosted options."
+  - "Never choose a free tier for sensitive production data without contractual and privacy review."
+  - "Do not store provider credentials in project docs or Foundry state."
+seed_sources:
+  - https://github.com/kebbbnnn/Awesome-Free-Developer-Services
+  - https://github.com/yumaheymans/startupperks-open-dataset
