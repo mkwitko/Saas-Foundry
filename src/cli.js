@@ -7,17 +7,24 @@ import {
   scanRepository, buildPlan, validateProject, loadFoundryContext,
   formatMarkdownScan, formatMarkdownPlan
 } from "./core.js";
+import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "./v3.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
 
 function usage() {
-  return `SaaS Foundry CLI v0.2.0
+  return `SaaS Foundry CLI v0.3.0
 
 Usage:
   foundry scan <project-path> [--format json|md] [--out <file>]
   foundry plan <project-path> [--scan <scan.json>] [--format json|md] [--out <file>]
   foundry doctor <project-path> [--strict]
+  foundry evidence <scan.json> [--format json|md] [--out <file>]
+  foundry diff <previous-scan.json> <current-scan.json> [--format json|md]
+  foundry context <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
+  foundry select <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
+  foundry apply <project-path> --module <id[,id...]> [--execute]
+  foundry rollback <project-path> --module <id>
 
 Options:
   --format   Output format (default: md for scan/plan, json for doctor)
@@ -36,8 +43,8 @@ function parseArgs(args) {
   const options={};
   for(let i=0;i<args.length;i++){
     const arg=args[i];
-    if(arg==="--strict"){ options.strict=true; continue; }
-    if(["--format","--out","--scan","--foundry"].includes(arg)){
+    if(arg==="--strict" || arg==="--execute"){ options[arg.slice(2)]=true; continue; }
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -68,13 +75,23 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="evidence"){
+    if(positional.length!==1) throw new Error("evidence requires one scan JSON file.");
+    const report=buildEvidenceReport(loadJson(positional[0]));
+    emit({kind:"evidence",data:report},options,"json"); return;
+  }
+  if(command==="diff"){
+    if(positional.length!==2) throw new Error("diff requires previous and current scan JSON files.");
+    const report=diffScans(loadJson(positional[0]),loadJson(positional[1]));
+    emit({kind:"diff",data:report},options,"json"); return;
+  }
   if(command==="scan"){
     if(positional.length!==1) throw new Error("scan requires exactly one project path.");
     const result=scanRepository(positional[0]);
     emit({kind:"scan",data:result},options);
     return;
   }
-  if(command==="plan" || command==="doctor"){
+  if(["plan","doctor","context","select","apply","rollback"].includes(command)){
     if(positional.length!==1) throw new Error(`${command} requires exactly one project path.`);
     const foundryRoot=path.resolve(options.foundry ?? FOUNDRY_ROOT);
     const {projectRoot,manifest,registry}=loadFoundryContext(positional[0],foundryRoot);
@@ -92,7 +109,29 @@ async function main(){
       if(!report.data.valid) process.exitCode=1;
       return;
     }
-    if(!validation.valid) throw new Error("Project manifest/catalog validation failed. Run 'foundry doctor <path>' for details.");
+    if(!validation.valid) throw new Error("Project manifest/catalog validation failed. Run doctor to inspect the manifest.");
+    if(command==="rollback"){
+      if(!options.module) throw new Error("rollback requires --module <id>.");
+      const result=rollbackAppliedModule(projectRoot,options.module);
+      emit({kind:"rollback",data:result},options,"json"); return;
+    }
+    if(command==="select" || command==="context"){
+      const scan=options.scan ? loadJson(options.scan) : scanRepository(projectRoot);
+      const selection=selectModules(manifest,registry,scan,{stage:options.stage,bottleneck:options.bottleneck,capacity:options.capacity});
+      if(command==="select") emit({kind:"selection",data:selection},options,"json");
+      else emit({kind:"context",data:buildAgentContext(manifest,scan,selection)},options,"json");
+      return;
+    }
+    if(command==="apply"){
+      if(!options.module) throw new Error("apply requires --module <id[,id...]>.");
+      const ids=options.module.split(",").map(x=>x.trim()).filter(Boolean);
+      const plan=buildApplyPlan(projectRoot,ids,registry);
+      if(options.execute){
+        const result=executeApplyPlan(plan);
+        emit({kind:"apply",data:{plan,result}},options,"json");
+      } else emit({kind:"apply",data:plan},options,"json");
+      return;
+    }
     let scan;
     if(options.scan) scan=loadJson(options.scan);
     else scan=scanRepository(projectRoot);
