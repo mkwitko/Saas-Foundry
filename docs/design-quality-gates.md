@@ -100,3 +100,11 @@ A UI release is ready only when:
 - visual checks and automated tests pass where available;
 - performance budgets and key web vitals have been measured or explicitly marked unknown;
 - design decisions and exceptions are recorded.
+
+
+### Impeccable command coverage
+
+- Setup/context: `npx impeccable install`, `/impeccable init`, `/impeccable document`.
+- Review: `/impeccable critique` for UX heuristics and `/impeccable audit` for accessibility, performance, theming and responsive findings.
+- Refinement: `/impeccable polish`, `/impeccable harden`, `/impeccable adapt`, `/impeccable optimize`, `/impeccable onboard`, plus targeted typography, layout, content and hierarchy commands.
+- Use `live` only when its permissions and local-only behaviour have been independently reviewed. Do not use any mode that disables approvals or sandboxing.
