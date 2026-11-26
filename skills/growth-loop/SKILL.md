@@ -1,5 +1,5 @@
 ---
-name: foundry-growth-loop
+name: growth-loop
 description: Diagnose SaaS acquisition, activation, revenue, retention and referral using metric definitions and observed evidence. Use for weekly growth reviews or when a product has traffic but weak conversion or retention.
 ---
 
