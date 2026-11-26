@@ -122,3 +122,10 @@ test("uninstall preserves untracked files inside an installed resource directory
     assert.equal(fs.readFileSync(extra,"utf8"),"not owned by Foundry");
   } finally { fs.rmSync(f.root,{recursive:true,force:true}); }
 });
+
+test("installer rejects sensitive-looking filenames even when extension is text",()=>{
+  const f=fixture();
+  fs.writeFileSync(path.join(f.source,"secrets.json"),"{\"token\":\"example\"}");
+  try { assert.throws(()=>buildResourceInstallPlan(f.args()),/Sensitive-looking file/); }
+  finally { fs.rmSync(f.root,{recursive:true,force:true}); }
+});
