@@ -1,6 +1,6 @@
 # Architecture
 
-Status: v0.7 with evidence intelligence, provenance-pinned resource adapters, sanitized agent-assisted code audits, a project-local Claude Code bootstrapper and one-command launcher, a unified greenfield/existing workflow, and a reviewed acquisition-source registry. External actions remain approval-gated.
+Status: v0.8 with an interactive standalone CLI, current-directory project detection, founder intake, multi-agent project-local launcher, evidence intelligence, provenance-pinned resource adapters, sanitized code audits, and explicit product/design/engineering quality gates. External actions remain approval-gated.
 
 ## Design goals
 
@@ -172,3 +172,13 @@ A prior approval for one action does not authorize repeated or broader actions.
 - Automatic cold outreach or mass directory submissions.
 - A competitor-cloning tool.
 - A product analytics platform that duplicates PostHog or existing product telemetry.
+
+
+### v0.8 — Standalone founder workflow
+- Interactive `npx` entry point with no required arguments.
+- Current-directory detection and explicit new/existing project selection.
+- Founder intake persisted locally and passed to the selected agent.
+- Claude Code, Codex CLI and OpenCode launch adapters.
+- Product-wide screen inventory and Impeccable review loop.
+- Founder, marketing, competitor, design, engineering, security, cost, sales and retention playbooks.
+- Screen-level quality gates with evidence and release blockers.
