@@ -207,7 +207,11 @@ export function inspectResourceDrift(projectRoot, resourceId) {
   const entries = resourceId ? [[resourceId, lock.resources[resourceId]]] : Object.entries(lock.resources);
   const reports = entries.map(([id, record]) => {
     if (!record) throw new Error("Resource is not in lockfile: " + id);
-    const expected = new Map((record.files ?? []).map(f => [f.path, f]));
+    validateTarget(record.target, id);
+    const expected = new Map((record.files ?? []).map(f => {
+      if (!f.path.startsWith(record.target + "/")) throw new Error("Lockfile file path is outside the resource target: " + f.path);
+      return [f.path, f];
+    }));
     const actual = [];
     for (const [relative, file] of expected) {
       const absolute = inside(root, relative);
@@ -236,6 +240,131 @@ export function inspectResourceDrift(projectRoot, resourceId) {
     return { id, target: record.target, source_commit: record.source_commit, status: actual.length || extra.length ? "drift" : "clean", changed: actual, extra };
   });
   return { checked_at: new Date().toISOString(), resources: reports, summary: { clean: reports.filter(x=>x.status==="clean").length, drifted: reports.filter(x=>x.status==="drift").length } };
+}
+export function buildResourceUpdatePlan(args) {
+  const root = fs.realpathSync(path.resolve(args.projectRoot));
+  const lock = readLock(root);
+  const previous = lock.resources[args.resourceId];
+  if (!previous) throw new Error("Resource is not installed: " + args.resourceId);
+  const currentDrift = inspectResourceDrift(root, args.resourceId).resources[0];
+  if (currentDrift.status !== "clean") throw new Error("Installed resource has drift; reconcile local changes before updating.");
+  const next = buildResourceInstallPlan({ ...args, existingLock: lock });
+  if (next.target !== previous.target) throw new Error("Resource update cannot change its target directory.");
+  const previousFiles = new Map(previous.files.map(file => [file.path, file]));
+  const nextPaths = new Set(next.files.map(file => file.path));
+  for (const file of next.files) {
+    if (file.action === "conflict") {
+      const old = previousFiles.get(file.path);
+      if (!old || old.sha256 !== sha256(fs.readFileSync(inside(root, file.path)))) continue;
+      file.action = "update";
+    }
+  }
+  next.removed_files = previous.files.filter(file => !nextPaths.has(file.path)).map(file => ({ path: file.path, sha256: file.sha256 }));
+  next.previous_version = { source_commit: previous.source_commit, files: previous.files };
+  next.operation = "update";
+  next.safe = next.files.every(file => ["create", "unchanged", "update"].includes(file.action));
+  return next;
+}
+export function executeResourceUpdate(plan) {
+  if (!plan?.safe || plan.operation !== "update") throw new Error("Resource update plan is invalid or contains conflicts.");
+  const root = fs.realpathSync(plan.project_root);
+  const lock = readLock(root);
+  const previous = lock.resources[plan.resource_id];
+  if (!previous || previous.source_commit !== plan.previous_version?.source_commit) throw new Error("Resource lock changed since update preview.");
+  if (inspectResourceDrift(root, plan.resource_id).resources[0].status !== "clean") throw new Error("Installed resource changed since update preview.");
+  const historyRelative = HISTORY_ROOT + "/" + plan.resource_id + "/" + previous.source_commit + ".json";
+  const historyFile = inside(root, historyRelative);
+  if (fs.existsSync(historyFile)) throw new Error("Update history already exists for this source revision.");
+  const history = {
+    resource_id: plan.resource_id, record: previous,
+    files: previous.files.map(file => ({ path: file.path, content: fs.readFileSync(inside(root, file.path), "utf8") }))
+  };
+  const created = [];
+  const changed = [];
+  const tempHistory = historyFile + ".tmp-" + process.pid;
+  try {
+    fs.mkdirSync(path.dirname(historyFile), { recursive: true });
+    fs.writeFileSync(tempHistory, JSON.stringify(history, null, 2), { encoding: "utf8", flag: "wx" });
+    fs.renameSync(tempHistory, historyFile);
+    for (const file of plan.files) {
+      const destination = inside(root, file.path);
+      if (file.action === "unchanged") continue;
+      if (file.action === "create") {
+        fs.mkdirSync(path.dirname(destination), { recursive: true });
+        inside(root, file.path);
+        fs.writeFileSync(destination, file.content, { encoding: "utf8", flag: "wx" });
+        created.push(file.path);
+      } else if (file.action === "update") {
+        const old = fs.readFileSync(destination);
+        if (sha256(old) !== plan.previous_version.files.find(x => x.path === file.path)?.sha256) throw new Error("File changed during update: " + file.path);
+        const temp = destination + ".foundry-update-" + process.pid;
+        fs.writeFileSync(temp, file.content, { encoding: "utf8", flag: "wx" });
+        fs.renameSync(temp, destination);
+        changed.push(file.path);
+      } else throw new Error("Unexpected update action: " + file.action);
+    }
+    for (const file of plan.removed_files ?? []) {
+      const destination = inside(root, file.path);
+      if (!fs.existsSync(destination) || sha256(fs.readFileSync(destination)) !== file.sha256) throw new Error("Removed-file precondition failed: " + file.path);
+      fs.unlinkSync(destination);
+      changed.push(file.path);
+    }
+    const next = readLock(root);
+    next.resources[plan.resource_id] = {
+      type: plan.resource_type, source: plan.source, source_path: plan.source_path,
+      source_commit: plan.source_commit, target: plan.target, license: plan.license_attestation,
+      reviewed: true, scripts_allowed: plan.scripts_allowed, installed_at: new Date().toISOString(),
+      files: plan.files.map(file => ({ path: file.path, sha256: file.sha256, bytes: file.bytes })),
+      previous_version: historyRelative
+    };
+    writeLock(root, next);
+  } catch (error) {
+    if (fs.existsSync(tempHistory)) fs.unlinkSync(tempHistory);
+    // Restore the prior snapshot from the immutable history file.
+    if (fs.existsSync(historyFile)) {
+      const saved = JSON.parse(fs.readFileSync(historyFile, "utf8"));
+      for (const file of plan.files) {
+        const destination = inside(root, file.path);
+        if (fs.existsSync(destination)) {
+          const newHash = plan.files.find(x => x.path === file.path)?.sha256;
+          if (newHash && sha256(fs.readFileSync(destination)) === newHash && !saved.files.some(x => x.path === file.path)) fs.unlinkSync(destination);
+        }
+      }
+      for (const file of saved.files) {
+        const destination = inside(root, file.path);
+        fs.mkdirSync(path.dirname(destination), { recursive: true });
+        fs.writeFileSync(destination, file.content, "utf8");
+      }
+      const restored = readLock(root);
+      restored.resources[plan.resource_id] = saved.record;
+      writeLock(root, restored);
+      fs.unlinkSync(historyFile);
+    }
+    throw error;
+  }
+  return { updated: plan.resource_id, from_commit: previous.source_commit, to_commit: plan.source_commit, history: historyRelative };
+}
+export function rollbackResourceUpdate(projectRoot, resourceId) {
+  const root = fs.realpathSync(path.resolve(projectRoot));
+  const lock = readLock(root);
+  const current = lock.resources[resourceId];
+  if (!current?.previous_version) throw new Error("No previous version is recorded for this resource.");
+  if (inspectResourceDrift(root, resourceId).resources[0].status !== "clean") throw new Error("Current resource has drift; refusing rollback.");
+  const historyFile = inside(root, current.previous_version);
+  if (!fs.existsSync(historyFile)) throw new Error("Resource update history is missing.");
+  const history = JSON.parse(fs.readFileSync(historyFile, "utf8"));
+  for (const file of current.files) {
+    const destination = inside(root, file.path);
+    if (fs.existsSync(destination)) fs.unlinkSync(destination);
+  }
+  for (const file of history.files) {
+    const destination = inside(root, file.path);
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.writeFileSync(destination, file.content, "utf8");
+  }
+  lock.resources[resourceId] = history.record;
+  writeLock(root, lock);
+  return { rolled_back: resourceId, restored_commit: history.record.source_commit, retained_history: current.previous_version };
 }
 export function buildResourceUninstallPlan(projectRoot, resourceId) {
   const root = fs.realpathSync(path.resolve(projectRoot));
