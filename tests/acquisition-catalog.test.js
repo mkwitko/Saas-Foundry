@@ -99,5 +99,5 @@ test("React and Node profile is documented and linked from README", () => {
   assert.ok(readme.includes("docs/product-and-commercial-review.md"));
   assert.ok(profile.includes("React"));
   assert.ok(profile.includes("Fastify"));
-  assert.ok(profile.includes("Do not migrate") || profile.includes("Do not force migrations"));
+  assert.ok(profile.includes("not a mandate to migrate"));
 });
