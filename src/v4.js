@@ -246,10 +246,13 @@ export function buildResourceUpdatePlan(args) {
   const lock = readLock(root);
   const previous = lock.resources[args.resourceId];
   if (!previous) throw new Error("Resource is not installed: " + args.resourceId);
+  if (!Array.isArray(previous.files) || !previous.source_commit) throw new Error("Installed resource lock entry is incomplete.");
+
   const currentDrift = inspectResourceDrift(root, args.resourceId).resources[0];
   if (currentDrift.status !== "clean") throw new Error("Installed resource has drift; reconcile local changes before updating.");
   const next = buildResourceInstallPlan({ ...args, existingLock: lock });
   if (next.target !== previous.target) throw new Error("Resource update cannot change its target directory.");
+  if (next.source_commit === previous.source_commit) throw new Error("The selected checkout is already the installed version.");
   const previousFiles = new Map(previous.files.map(file => [file.path, file]));
   const nextPaths = new Set(next.files.map(file => file.path));
   for (const file of next.files) {
@@ -288,6 +291,7 @@ export function executeResourceUpdate(plan) {
     fs.renameSync(tempHistory, historyFile);
     for (const file of plan.files) {
       const destination = inside(root, file.path);
+      if (!file.path.startsWith(plan.target + "/") || sha256(file.content) !== file.sha256) throw new Error("Update plan integrity check failed: " + file.path);
       if (file.action === "unchanged") continue;
       if (file.action === "create") {
         fs.mkdirSync(path.dirname(destination), { recursive: true });
@@ -326,8 +330,7 @@ export function executeResourceUpdate(plan) {
       for (const file of plan.files) {
         const destination = inside(root, file.path);
         if (fs.existsSync(destination)) {
-          const newHash = plan.files.find(x => x.path === file.path)?.sha256;
-          if (newHash && sha256(fs.readFileSync(destination)) === newHash && !saved.files.some(x => x.path === file.path)) fs.unlinkSync(destination);
+          if (created.includes(file.path)) fs.unlinkSync(destination);
         }
       }
       for (const file of saved.files) {
