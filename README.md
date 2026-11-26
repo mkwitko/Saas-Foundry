@@ -125,7 +125,7 @@ foundry doctor
 foundry sync
 ```
 
-The first implementation milestone is to make the project manifest, module registry, evidence model, and read-only adoption workflow reliable before building automation.
+The current milestone is to harden the CLI with repeatable checks, realistic fixtures, and feedback from the first ia-chat scan.
 
 ## Safety and trust
 
