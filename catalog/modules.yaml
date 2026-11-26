@@ -1,0 +1,191 @@
+schema_version: "0.1"
+
+# A module is a bounded workflow with a business purpose and explicit outputs.
+# It is not synonymous with a skill, connector, template, dataset, or package.
+modules:
+  - id: opportunity-intelligence
+    group: strategy
+    purpose: Discover recurring, costly problems in reachable buyer segments.
+    triggers: [greenfield, new_segment, weak_problem_evidence]
+    inputs: [buyer_segments, primary_sources, founder_access]
+    outputs: [problem_briefs, evidence_map, opportunity_shortlist]
+    requires: []
+    risk: low
+    ia_chat: optional_later
+
+  - id: business-validation
+    group: strategy
+    purpose: Test urgency, access, buying authority, willingness to pay, and pilot commitment.
+    triggers: [pre_build, weak_conversion, new_offer, new_segment]
+    inputs: [problem_brief, interview_access, offer_hypothesis]
+    outputs: [interview_synthesis, validation_plan, kill_criteria]
+    requires: [opportunity-intelligence]
+    risk: medium
+    ia_chat: recommended
+
+  - id: competitor-intelligence
+    group: strategy
+    purpose: Maintain a dated, source-backed view of alternatives, positioning, pricing, and customer complaints.
+    triggers: [new_market, pricing_review, positioning_review]
+    inputs: [competitor_list, public_sources, target_segment]
+    outputs: [competitor_matrix, differentiation_hypotheses, objection_map]
+    requires: []
+    risk: medium
+    ia_chat: optional_later
+
+  - id: positioning-and-offer
+    group: strategy
+    purpose: Turn validated buyer pains into a focused promise, offer, proof plan, and objection handling.
+    triggers: [weak_conversion, new_segment, launch, offer_review]
+    inputs: [buyer_evidence, product_capabilities, competitor_matrix]
+    outputs: [positioning_brief, offer, proof_requirements, objection_library]
+    requires: [business-validation]
+    risk: low
+    ia_chat: already_satisfied
+
+  - id: pricing-and-unit-economics
+    group: strategy
+    purpose: Connect willingness-to-pay evidence, packaging, variable costs, margins, and capacity.
+    triggers: [pricing_review, paid_conversion, margin_risk, expansion]
+    inputs: [cost_data, customer_segments, observed_purchases]
+    outputs: [pricing_hypotheses, unit_economics, price_test]
+    requires: [business-validation]
+    risk: medium
+    ia_chat: already_satisfied
+
+  - id: product-strategy
+    group: product
+    purpose: Prioritize customer outcomes and roadmap bets against evidence and capacity.
+    triggers: [roadmap_overload, weak_activation, new_segment]
+    inputs: [customer_feedback, usage_metrics, strategy]
+    outputs: [opportunity_solution_tree, outcome_roadmap, decision_records]
+    requires: []
+    risk: low
+    ia_chat: already_satisfied
+
+  - id: product-design
+    group: product
+    purpose: Establish product-specific UX direction, flows, interface states, and quality review.
+    triggers: [new_surface, redesign, usability_problem]
+    inputs: [personas, workflows, design_constraints, references]
+    outputs: [design_brief, flow_specs, design_review]
+    requires: [product-strategy]
+    risk: low
+    ia_chat: already_satisfied
+
+  - id: engineering-quality
+    group: delivery
+    purpose: Improve implementation quality, architecture, security, testing, and release safety.
+    triggers: [engineering_risk, release, reliability_issue]
+    inputs: [repository, stack, quality_gates, threat_model]
+    outputs: [technical_plan, test_plan, reviewed_changes]
+    requires: []
+    risk: high
+    ia_chat: already_satisfied
+
+  - id: sales-pipeline
+    group: go_to_market
+    purpose: Turn reachable prospects into qualified conversations, demos, offers, and paid customers.
+    triggers: [founder_led_sales, weak_pipeline, launch]
+    inputs: [icp, offer, prospect_sources, objections]
+    outputs: [pipeline_stages, prospect_briefs, demo_script, follow_up_plan]
+    requires: [positioning-and-offer]
+    risk: high
+    ia_chat: recommended
+
+  - id: launch-and-distribution
+    group: go_to_market
+    purpose: Select a small set of channels and run compliant, measurable distribution experiments.
+    triggers: [launch, low_traffic, new_segment]
+    inputs: [icp, offer, channel_hypotheses, capacity]
+    outputs: [channel_plan, launch_checklist, experiment_backlog]
+    requires: [positioning-and-offer]
+    risk: high
+    ia_chat: recommended
+
+  - id: seo-and-content
+    group: acquisition
+    purpose: Earn qualified organic demand with technically sound pages and genuinely useful content.
+    triggers: [search_demand, organic_channel, content_gap]
+    inputs: [search_intent, buyer_questions, product_proof, site_inventory]
+    outputs: [seo_audit, topic_map, content_briefs, measurement_plan]
+    requires: [positioning-and-offer]
+    risk: medium
+    ia_chat: recommended_after_pilot
+
+  - id: analytics-instrumentation
+    group: measurement
+    purpose: Define privacy-safe events, funnels, cohorts, attribution, and decision dashboards.
+    triggers: [no_funnel_visibility, launch, activation_problem, retention_problem]
+    inputs: [business_model, user_journeys, privacy_constraints, metric_definitions]
+    outputs: [event_taxonomy, funnel_spec, metric_dictionary, dashboard_spec]
+    requires: []
+    risk: high
+    ia_chat: recommended
+
+  - id: activation-and-onboarding
+    group: lifecycle
+    purpose: Help new customers reach a verified first value quickly and reliably.
+    triggers: [onboarding_dropoff, slow_time_to_value, trial_conversion_problem]
+    inputs: [onboarding_flow, activation_hypothesis, support_feedback]
+    outputs: [activation_definition, onboarding_experiments, lifecycle_messages]
+    requires: [analytics-instrumentation]
+    risk: medium
+    ia_chat: recommended
+
+  - id: retention-and-customer-success
+    group: lifecycle
+    purpose: Detect lost value, churn risk, support patterns, and repeat usage before expansion.
+    triggers: [churn, low_usage, support_load, post_pilot]
+    inputs: [cohorts, product_usage, cancellation_reasons, support_cases]
+    outputs: [retention_cohorts, health_signals, customer_success_playbook]
+    requires: [analytics-instrumentation]
+    risk: high
+    ia_chat: recommended
+
+  - id: referrals-and-partnerships
+    group: distribution
+    purpose: Build permission-based customer referrals and trusted channel partnerships.
+    triggers: [customer_proof, referral_signal, founder_network]
+    inputs: [customer_evidence, partner_types, incentive_economics]
+    outputs: [referral_loop, partner_brief, enablement_assets]
+    requires: [sales-pipeline]
+    risk: high
+    ia_chat: recommended
+
+  - id: customer-support-loop
+    group: lifecycle
+    purpose: Convert support issues and repeated questions into product improvements and reusable help.
+    triggers: [support_volume, recurring_issue, onboarding_friction]
+    inputs: [sanitized_support_topics, product_areas, help_center]
+    outputs: [support_taxonomy, help_backlog, product_feedback_loop]
+    requires: []
+    risk: medium
+    ia_chat: already_satisfied
+
+  - id: founder-operations
+    group: operations
+    purpose: Coordinate founder capacity, cash, delivery, risk, and weekly decision cadence.
+    triggers: [solo_founder, service_capacity, cash_constraint, scale]
+    inputs: [unit_economics, capacity, risks, pipeline]
+    outputs: [weekly_operating_review, cash_runway, capacity_plan]
+    requires: [pricing-and-unit-economics]
+    risk: medium
+    ia_chat: already_satisfied
+
+  - id: legal-and-compliance-review
+    group: governance
+    purpose: Track legal, privacy, platform, and sector obligations with qualified professional review.
+    triggers: [sensitive_data, regulated_industry, new_channel, new_country]
+    inputs: [data_map, vendors, claims, workflows]
+    outputs: [risk_register, review_checklist, owner_actions]
+    requires: []
+    risk: critical
+    ia_chat: specialist_required
+
+selection_rules:
+  - Never enable every module by default.
+  - Never rerun a module whose outputs are current and whose evidence remains valid.
+  - A module marked already_satisfied may be reopened only when new evidence invalidates its output.
+  - Analytics and lifecycle modules must respect project privacy constraints and existing observability systems.
+  - Critical or specialist-required work must not be represented as legal, tax, medical, or security certification.
