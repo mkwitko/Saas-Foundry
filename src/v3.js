@@ -78,8 +78,8 @@ export function diffScans(previous, current) {
 function inferBottleneck(value) {
   const text = String(value ?? "").toLowerCase();
   for (const key of Object.keys(bottleneckTriggers)) if (text.includes(key)) return key;
+  if (/lead|prospect|demo|sales|sell|conversion|referral/.test(text)) return "sales";
   if (/buyer|validat|interview|demand|problem|pilot/.test(text)) return "validation";
-  if (/lead|prospect|demo|sales|sell|conversion/.test(text)) return "sales";
   if (/traffic|acqui|seo|organic|reach/.test(text)) return "acquisition";
   if (/activat|onboard|setup|first value/.test(text)) return "activation";
   if (/retent|churn|cancel|usage|support/.test(text)) return "retention";
