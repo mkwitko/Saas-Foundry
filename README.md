@@ -101,7 +101,7 @@ foundry select ../ia-chat --capacity low
 foundry context ../ia-chat --format json --out /tmp/ia-chat-context.json
 ```
 
-The scanner does not read arbitrary source-code bodies, secrets, databases, patient data, or production logs. Planning and resource inspection are read-only. Resource installation is dry-run by default and requires an explicit human review attestation and `--execute`.
+The metadata scanner does not read arbitrary source-code bodies. The opt-in `agent-audit` command reads eligible source files through a bounded sanitized snapshot and excludes secrets, databases, patient data, logs, binary files, dependencies and symlinks. Planning and resource inspection are read-only. Resource installation is dry-run by default and requires an explicit human review attestation and `--execute`.
 
 The initial workflows are also packaged as standard agent skills:
 
@@ -113,7 +113,7 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 ## Current maturity
 
-This repository now contains a **v0.4 local CLI** with scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, and provenance-pinned resource install/update/drift/rollback/uninstall.
+This repository now contains a **v0.5 local CLI** with scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, and provenance-pinned resource install/update/drift/rollback/uninstall.
 
 Available v0.4 commands:
 
@@ -136,7 +136,7 @@ foundry uninstall . --resource impeccable
 
 Use `foundry apply`, `install`, `update`, `uninstall`, and `rollback-resource` without `--execute` to preview. Add `--execute` only after reviewing the plan. Resource install also requires `--reviewed` and a license attestation. See [docs/cli-v0.4.md](docs/cli-v0.4.md) for the full lifecycle.
 
-The next validation step is to run the v0.3 workflow against the local ia-chat checkout, review the generated shortlist, and only then apply selected Foundry runbooks. The scanner has not been run against that local checkout by this release.
+The next validation step is to run `foundry agent-audit` against a local checkout after reviewing snapshot exclusions and model-provider data policies. The agent audit has not been run against the local ia-chat checkout by this release.
 
 ## Safety and trust
 
