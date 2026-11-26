@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://saas-foundry.local/schemas/project.schema.json",
+  "$id": "https://raw.githubusercontent.com/mkwitko/Saas-Foundry/main/schemas/project.schema.json",
   "title": "SaaS Foundry project manifest",
   "type": "object",
   "required": [
