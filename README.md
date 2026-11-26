@@ -87,7 +87,7 @@ Do not create a second business plan, another generic idea generator, or duplica
 
 ## Use the Foundry today
 
-The first local CLI is now available for read-only repository scanning, deterministic module planning, and manifest diagnostics. See [docs/cli.md](docs/cli.md).
+The first local CLI is now available for read-only repository scanning, deterministic module planning, and manifest diagnostics. See [docs/cli.md](docs/cli.md) and [the v0.3 command guide](docs/cli-v0.3.md).
 
 Install dependencies in the Foundry checkout and link the command:
 
@@ -97,6 +97,8 @@ npm link
 foundry scan ../ia-chat
 foundry doctor ../ia-chat
 foundry plan ../ia-chat
+foundry select ../ia-chat --capacity low
+foundry context ../ia-chat --format json --out /tmp/ia-chat-context.json
 ```
 
 The scanner does not read arbitrary source-code bodies, secrets, databases, patient data, or production logs. The planner does not install modules or modify the target repository.
@@ -111,7 +113,7 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 ## Current maturity
 
-This repository now contains a **v0.2 local CLI** for scan, plan and doctor, plus installable agent skills. Automated module installation, resource lockfile, connector integrations, and a richer source-aware scanner remain future work.
+This repository now contains a **v0.3 local CLI** with scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, and safe runbook apply/rollback. Third-party skill, connector, dataset, and dependency installation remain future work.
 
 Planned interface:
 
