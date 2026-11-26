@@ -85,7 +85,34 @@ The repository already has substantial product and founder documentation, a work
 
 Do not create a second business plan, another generic idea generator, or duplicate product features already present in ia-chat.
 
-## Give Claude one GitHub URL\n\nThe recommended entry point is the [foundry-run skill](skills/foundry-run/SKILL.md). Install it once globally for Claude Code:\n\n~~~bash\nnpx skills add mkwitko/Saas-Foundry --skill foundry-run -g -a claude-code\n~~~\n\nThen give Claude Code a target repository URL and ask it to run the complete Foundry workflow. It will inspect the product and code, research the market and competitors, assess ICP/offer/pricing, identify acquisition channels and qualified prospects, prepare validation and growth experiments, implement justified local improvements on a feature branch, run checks, and maintain a persistent .foundry workspace.\n\nThe [one-prompt guide](docs/one-prompt-workflow.md) contains the exact prompt. External actions (outreach, publishing, directory submissions, paid spend, deployment and production changes) remain approval-gated. Research coverage depends on the tools available in the Claude Code session.\n\n## Use the Foundry today
+## Start any project with one command
+
+The Foundry supports both existing repositories and greenfield projects through the same project-local entry point. No global skill installation is required.
+
+Existing GitHub repository:
+
+~~~bash
+npx -y github:mkwitko/Saas-Foundry run https://github.com/OWNER/REPOSITORY
+~~~
+
+Existing local checkout (run from its root):
+
+~~~bash
+npx -y github:mkwitko/Saas-Foundry run .
+~~~
+
+New project:
+
+~~~bash
+mkdir my-saas && cd my-saas
+npx -y github:mkwitko/Saas-Foundry run . --mode new
+~~~
+
+The launcher installs the local Claude Code skill, creates minimal Foundry state without overwriting existing files, and starts Claude Code with the complete workflow. Existing projects receive an adopt/improve workflow; new projects start with buyer/problem discovery and validation before product implementation.
+
+See [project bootstrap](docs/project-bootstrap.md) for requirements, private-repository authentication, agent options and safety boundaries. A GitHub URL pasted into a Claude session without the Foundry skill available cannot load the workflow by itself; use the launcher above or install the skill globally once.
+
+## Use the Foundry today
 
 The first local CLI is now available for read-only repository scanning, deterministic module planning, and manifest diagnostics. See [docs/cli.md](docs/cli.md), [the v0.3 command guide](docs/cli-v0.3.md), and [the v0.4 resource lifecycle guide](docs/cli-v0.4.md).
 
@@ -113,7 +140,7 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 ## Current maturity
 
-This repository now contains a **v0.6 local CLI and Claude Code operating skill** with scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, and provenance-pinned resource install/update/drift/rollback/uninstall.
+This repository now contains a **v0.7 local CLI, project bootstrapper, and Claude Code workflow launcher** with scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, provenance-pinned resource install/update/drift/rollback/uninstall, project-local skill installation, and a one-command Claude Code launcher.
 
 Available v0.4 commands:
 
