@@ -85,9 +85,19 @@ The repository already has substantial product and founder documentation, a work
 
 Do not create a second business plan, another generic idea generator, or duplicate product features already present in ia-chat.
 
+## Use the Foundry today
+
+The project-aware planner and scanner are not implemented yet, but the initial workflows are already packaged as standard agent skills:
+
+- `foundry-adopt` — inspect an existing repository and create an evidence-backed adoption plan.
+- `growth-loop` — review acquisition, activation, revenue and retention, then choose one experiment.
+- `foundry-sales-review` — review founder-led sales, demos, objections and follow-up.
+
+Install only the skill needed in a target project. See [docs/using-skills.md](docs/using-skills.md). Reusable interview, prospect, experiment, metric, case-study and weekly-review templates live in `templates/`.
+
 ## Current maturity
 
-This repository starts as a **documented v0.1 operating model**. The CLI, automated scanner, installer, lockfile, and integrations are future implementation work; the commands below are design targets, not currently executable commands.
+This repository starts as a **documented v0.1 operating model**. The Vercel Skills CLI can install the packaged workflows; the Foundry-specific project-aware planner, automated scanner, lockfile, module installer and integrations are future implementation work. The commands below are design targets, not currently executable commands.
 
 Planned interface:
 
