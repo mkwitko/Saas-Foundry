@@ -161,6 +161,64 @@ Set founder check-ins at activation, a few days after activation, end of trial, 
 - No bulk-generated location pages or unsupported comparison claims.
 - Referral and partner activity has an owner, consent path and measurable next step.
 
+## Sprint 4b — Conversion optimization
+
+Run only after the relevant funnel steps can be measured.
+
+### Work
+
+1. Observe real prospects using the landing page and public demonstration.
+2. Identify one meaningful friction point at a time: CTA comprehension, demo start, waitlist form, invitation redemption, setup completion, or connection.
+3. Use usability sessions and sequential changes first. The early sample is too small for confident multi-variant statistical claims.
+4. Keep the promise, price and trust explanation consistent across the site, demo and invitation.
+5. Do not use fake scarcity, hidden fees, preselected consent, misleading testimonials or cancellation friction.
+
+### Acceptance
+
+- Every change has a baseline, one primary metric and guardrails.
+- The change is reviewed with real buyer behaviour.
+- Conversion lift is not claimed without a usable sample and denominator.
+- Customer trust and clarity do not regress.
+
+## Sprint 5 — Revenue operations
+
+Begin after real trials and subscriptions exist.
+
+### Work
+
+1. Reconcile trial start, trial expiry, subscription start, payment success/failure, cancellation and refund events with the billing provider.
+2. Separate MRR, cash collected, overdue invoices and one-time revenue.
+3. Measure trial-to-paid conversion by cohort and price shown.
+4. Track failed-payment recovery and involuntary churn without adding aggressive dunning.
+5. Reconcile actual AI, WhatsApp, payment, infrastructure, support and onboarding costs against the CFO estimate.
+6. Use the existing billing and operator surfaces; do not introduce a second billing system.
+
+### Acceptance
+
+- Revenue metrics reconcile to provider and database records.
+- Cancellation and failed-payment reasons are available as controlled values.
+- Contribution margin and founder time are visible per account or cohort.
+- Pricing changes require a recorded decision and real buyer evidence.
+
+## Sprint 6 — Proof and advocacy
+
+Begin only after customers have reached measurable outcomes.
+
+### Work
+
+1. Use `templates/case-study.md` to capture the pilot baseline, outcome, period, caveats and customer approval.
+2. Store consent and approved claims separately from the marketing draft.
+3. Extend referral measurement from signup to activation and paid conversion where the product can reliably link the journey.
+4. Do not define rewards until referral quality, conversion and contribution margin are known.
+5. Ask for reviews only through the project's compliant, consent-aware flow.
+
+### Acceptance
+
+- Every public customer claim has a source and explicit approval.
+- No private conversation or clinical information is included.
+- Referral reporting distinguishes signup, activation and payment.
+- No referral reward is promised before its terms and economics are approved.
+
 ## Weekly founder review
 
 Keep the review to these questions:
