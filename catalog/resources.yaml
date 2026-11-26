@@ -3,6 +3,30 @@ schema_version: "0.1"
 # This is a discovery shortlist, not an approved install list.
 # Every resource must be re-reviewed and pinned before installation or execution.
 resources:
+  - id: ponytail
+    type: skill
+    source: https://github.com/DietrichGebert/ponytail
+    use: Minimal complete code changes, reuse-first implementation, YAGNI, concise diffs and safety-preserving engineering.
+    license: MIT
+    status: review_before_install
+    notes: Recommended for coding tasks. Use full by default; lite for straightforward work and ultra only when requested. Never let brevity override readability, boundary validation, error handling, security, accessibility or tests.
+
+  - id: clean-code-skills
+    type: skill_collection
+    source: https://github.com/gosukiwi/clean-code-skills
+    use: Clean Code reviews and stack-specific guidance for TypeScript, React, Python and CSS.
+    license: MIT
+    status: review_before_install
+    notes: Install only clean-code plus the relevant language/framework tracks. Do not install the entire collection indiscriminately.
+
+  - id: refero-design
+    type: skill_collection
+    source: https://github.com/referodesign/refero_skill
+    use: Research-first UI design using visual styles, real screens and product flows; optional Refero MCP research.
+    license: verify_upstream
+    status: review_before_install
+    notes: Separate from refero.design as a visual reference site. Verify current license, skill instructions and MCP availability before installation.
+
   - id: marketing-skills
     type: skill_collection
     source: https://github.com/coreyhaines31/marketingskills
