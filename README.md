@@ -79,7 +79,7 @@ It does not treat "build the idea" as the first step. For greenfield ideas it ch
 
 For existing products it reviews the complete React UI and customer journey: landing page, offer, pricing, onboarding, core workflows, trust, accessibility, responsive states, activation, conversion and retention. It also evaluates the sales path from qualified lead through paid customer and renewal.
 
-See [Product and Commercial Review](docs/product-and-commercial-review.md), [Design Quality Gates](docs/design-quality-gates.md), and [Engineering and Operations](docs/engineering-and-operations-playbook.md).
+See [Product and Commercial Review](docs/product-and-commercial-review.md), [React + Node Project Profile](docs/react-node-project-profile.md), [Design Quality Gates](docs/design-quality-gates.md), and [Engineering and Operations](docs/engineering-and-operations-playbook.md).
 
 ## First adoption: ia-chat
 
