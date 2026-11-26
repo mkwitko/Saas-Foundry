@@ -50,7 +50,8 @@ function parseArgs(args) {
 function emit(value, options, defaultFormat="md") {
   const format=options.format ?? defaultFormat;
   if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");
-  const payload=value?.data ?? value;\n  const output=format==="json" ? JSON.stringify(payload,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : JSON.stringify(value.data,null,2)+"\n");
+  const payload=value?.data ?? value;
+  const output=format==="json" ? JSON.stringify(payload,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : JSON.stringify(value.data,null,2)+"\n");
   if(options.out){
     const destination=path.resolve(options.out);
     fs.mkdirSync(path.dirname(destination),{recursive:true});
