@@ -7,7 +7,7 @@ const EXCLUDED_DIRS = new Set([
   ".next", ".turbo", ".cache", ".venv", "venv", "__pycache__",
   ".idea", ".vscode", ".ssh", ".aws", ".azure", ".gnupg", ".kube"
 ]);
-const EXCLUDED_FILES = /(^\.env($|\.)|secret|credential|token|private.?key|firebase-adminsdk|^\.npmrc$|^\.netrc$|^\.pypirc$|^id_(rsa|ed25519)$|\.(tfstate|tfvars|pem|key|p12|pfx|crt|cer|sqlite|sqlite3|db|dump|log|bak|backup))$/i;
+const EXCLUDED_FILES = /(^\.env($|\.)|.*(secret|credential|token|private.?key|firebase-adminsdk).*|^\.npmrc$|^\.netrc$|^\.pypirc$|^id_(rsa|ed25519)$|\.(tfstate|tfvars|pem|key|p12|pfx|crt|cer|sqlite|sqlite3|db|dump|log|bak|backup))$/i;
 const MAX_FILES = 5000;
 const MAX_BYTES = 20 * 1024 * 1024;
 const MAX_FILE_BYTES = 1024 * 1024;
