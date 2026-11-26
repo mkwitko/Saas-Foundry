@@ -1,6 +1,6 @@
 # Architecture
 
-Status: v0.5 local CLI with evidence intelligence, safe module runbooks, provenance-pinned resource adapters, lockfile, drift detection, guarded updates, rollback, uninstall, and sanitized agent-assisted static code audits. Remote fetching, package execution, and automatic isolated-branch PRs remain future work.
+Status: v0.6 with evidence intelligence, provenance-pinned resource adapters, sanitized agent-assisted code audits, an end-to-end Claude Code operator skill, and a reviewed acquisition-source registry. The skill coordinates research and local work; external actions remain approval-gated.
 
 ## Design goals
 
