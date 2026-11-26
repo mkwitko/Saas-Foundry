@@ -35,7 +35,7 @@ Usage:
   foundry drift <project-path> [--resource <id>]
   foundry update <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--allow-scripts] [--execute]
   foundry rollback-resource <project-path> --resource <id> [--execute]
-  foundry uninstall <project-path> --resource <id> [--execute]\n  foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]\n  foundry run <project-path|github-url> [--dir <path>] [--mode auto|new|existing]\n  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
+  foundry uninstall <project-path> --resource <id> [--execute]\n  foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]\n  foundry run <project-path|github-url> [--dir <path>] [--mode auto|new|existing] [--agent claude|codex|opencode]\n  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
 
 Options:
   --format   Output format (default: md for scan/plan, json for doctor)
