@@ -85,7 +85,14 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="agent-audit") {\n    if(positional.length!==1) throw new Error("agent-audit requires exactly one project path.");\n    const timeoutMs=options["timeout-ms"] === undefined ? undefined : Number(options["timeout-ms"]);\n    if(timeoutMs !== undefined && (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 600000)) throw new Error("--timeout-ms must be an integer from 1000 to 600000.");\n    const report=runCodeAudit({projectRoot:positional[0],agent:options.agent ?? "claude",timeoutMs});\n    emit({kind:"agent-audit",data:report},options,"json"); return;\n  }\n  if(command==="resources"){
+  if(command==="agent-audit") {
+    if(positional.length!==1) throw new Error("agent-audit requires exactly one project path.");
+    const timeoutMs=options["timeout-ms"] === undefined ? undefined : Number(options["timeout-ms"]);
+    if(timeoutMs !== undefined && (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 600000)) throw new Error("--timeout-ms must be an integer from 1000 to 600000.");
+    const report=runCodeAudit({projectRoot:positional[0],agent:options.agent ?? "claude",timeoutMs});
+    emit({kind:"agent-audit",data:report},options,"json"); return;
+  }
+  if(command==="resources"){
     const registry=parseYaml(fs.readFileSync(path.join(path.resolve(options.foundry ?? FOUNDRY_ROOT),"catalog/resources.yaml"),"utf8"));
     emit({kind:"resources",data:listInstallableResources(registry)},options,"json"); return;
   }
