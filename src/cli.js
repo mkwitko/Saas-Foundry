@@ -11,6 +11,7 @@ import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, build
 import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall, buildResourceUpdatePlan, executeResourceUpdate, buildResourceRollbackPlan, rollbackResourceUpdate } from "./v4.js";
 import { runCodeAudit } from "./agents.js";
 import { initializeProject } from "./init.js";
+import { runFoundry } from "./run.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -33,7 +34,7 @@ Usage:
   foundry drift <project-path> [--resource <id>]
   foundry update <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--allow-scripts] [--execute]
   foundry rollback-resource <project-path> --resource <id> [--execute]
-  foundry uninstall <project-path> --resource <id> [--execute]\n  foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]\n  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
+  foundry uninstall <project-path> --resource <id> [--execute]\n  foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]\n  foundry run <project-path|github-url> [--dir <path>] [--mode auto|new|existing]\n  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
 
 Options:
   --format   Output format (default: md for scan/plan, json for doctor)
@@ -55,7 +56,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -86,6 +87,11 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="run") {
+    if(positional.length!==1) throw new Error("run requires exactly one project path or GitHub URL.");
+    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto"});
+    process.stdout.write(JSON.stringify(result,null,2)+"\\n"); return;
+  }
   if(command==="init") {
     if(positional.length!==1) throw new Error("init requires exactly one project path.");
     const result=initializeProject({projectPath:positional[0],mode:options.mode ?? "auto",agent:options.agent ?? "claude"});
