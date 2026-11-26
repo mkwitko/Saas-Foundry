@@ -29,3 +29,73 @@ rules:
 seed_sources:
   - https://github.com/kebbbnnn/Awesome-Free-Developer-Services
   - https://github.com/yumaheymans/startupperks-open-dataset
+
+providers:
+  hosting:
+    - name: Cloudflare Workers and Pages
+      url: https://developers.cloudflare.com/workers/platform/pricing/
+      status: candidate
+    - name: Vercel
+      url: https://vercel.com/pricing
+      status: candidate
+    - name: Netlify
+      url: https://www.netlify.com/pricing/
+      status: candidate
+    - name: Render
+      url: https://render.com/pricing
+      status: candidate
+  database:
+    - name: Supabase
+      url: https://supabase.com/pricing
+      status: candidate
+    - name: Neon
+      url: https://neon.com/pricing
+      status: candidate
+    - name: Turso
+      url: https://turso.tech/pricing
+      status: candidate
+  cache_and_queue:
+    - name: Upstash
+      url: https://upstash.com/pricing
+      status: candidate
+  email:
+    - name: Resend
+      url: https://resend.com/pricing
+      status: candidate
+    - name: Brevo
+      url: https://www.brevo.com/pricing/
+      status: candidate
+  analytics:
+    - name: PostHog
+      url: https://posthog.com/pricing
+      status: candidate
+  logs_and_observability:
+    - name: Sentry
+      url: https://sentry.io/pricing/
+      status: candidate
+    - name: Grafana Cloud
+      url: https://grafana.com/pricing/
+      status: candidate
+    - name: Better Stack
+      url: https://betterstack.com/pricing
+      status: candidate
+    - name: UptimeRobot
+      url: https://uptimerobot.com/pricing/
+      status: candidate
+  developer_platform:
+    - name: GitHub Actions
+      url: https://github.com/pricing
+      status: candidate
+  cloud_credits:
+    - name: AWS Free Tier and Activate
+      url: https://aws.amazon.com/free/
+      status: candidate
+    - name: Google Cloud Free and Startup Program
+      url: https://cloud.google.com/free
+      status: candidate
+    - name: Oracle Cloud Free Tier
+      url: https://www.oracle.com/cloud/free/
+      status: candidate
+    - name: Microsoft for Startups
+      url: https://www.microsoft.com/startups
+      status: candidate
