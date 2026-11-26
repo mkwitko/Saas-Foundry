@@ -108,3 +108,17 @@ test("installer rejects symlinked resource files",()=>{
   try { assert.throws(()=>buildResourceInstallPlan(f.args()),/symlink/); }
   finally { fs.rmSync(f.root,{recursive:true,force:true}); }
 });
+
+test("uninstall preserves untracked files inside an installed resource directory",()=>{
+  const f=fixture();
+  try {
+    executeResourceInstall(buildResourceInstallPlan(f.args()));
+    const extra=path.join(f.project,".agents/skills/demo-skill/LOCAL-NOTES.md");
+    fs.writeFileSync(extra,"not owned by Foundry");
+    const plan=buildResourceUninstallPlan(f.project,"demo-skill");
+    assert.equal(plan.safe,true);
+    const result=executeResourceUninstall(plan);
+    assert.deepEqual(result.preserved_untracked_files,[".agents/skills/demo-skill/LOCAL-NOTES.md"]);
+    assert.equal(fs.readFileSync(extra,"utf8"),"not owned by Foundry");
+  } finally { fs.rmSync(f.root,{recursive:true,force:true}); }
+});
