@@ -8,13 +8,13 @@ import {
   formatMarkdownScan, formatMarkdownPlan
 } from "./core.js";
 import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "./v3.js";
-import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall, buildResourceUpdatePlan, executeResourceUpdate, rollbackResourceUpdate } from "./v4.js";
+import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall, buildResourceUpdatePlan, executeResourceUpdate, buildResourceRollbackPlan, rollbackResourceUpdate } from "./v4.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
 
 function usage() {
-  return `SaaS Foundry CLI v0.3.0
+  return `SaaS Foundry CLI v0.4.0
 
 Usage:
   foundry scan <project-path> [--format json|md] [--out <file>]
@@ -130,8 +130,12 @@ async function main(){
     }
     if(command==="rollback-resource"){
       if(!options.resource) throw new Error("rollback-resource requires --resource <id>.");
-      const result=rollbackResourceUpdate(projectRoot,options.resource);
-      emit({kind:"resource-rollback",data:result},options,"json"); return;
+      const plan=buildResourceRollbackPlan(projectRoot,options.resource);
+      if(options.execute){
+        const result=rollbackResourceUpdate(projectRoot,options.resource);
+        emit({kind:"resource-rollback",data:{plan,result}},options,"json");
+      } else emit({kind:"resource-rollback",data:plan},options,"json");
+      return;
     }
     if(command==="update"){
       for(const key of ["resource","from","commit","license"]) if(!options[key]) throw new Error("update requires --"+key+" <value>.");
