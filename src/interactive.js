@@ -96,10 +96,10 @@ export async function runInteractive({ cwd = process.cwd() } = {}) {
     if (mode === "exit") return { cancelled: true };
 
     let projectRoot = detection.root;
+    let projectName = null;
     if (mode === "new") {
-      const suggested = path.basename(detection.root) === path.parse(detection.root).root ? "meu-saas" : path.basename(detection.root);
-      const name = (await ask(rl, "Nome provisório do projeto", false)) || suggested;
-      projectRoot = resolveNewWorkspace({ cwd: detection.root, name });
+      projectName = (await ask(rl, "Nome provisório do projeto", false)) || "meu-saas";
+      projectRoot = resolveNewWorkspace({ cwd: detection.root, name: projectName });
     } else if (!detection.existing) {
       const confirm = await choose(rl, "Esta pasta não parece conter um projeto. Como deseja continuar?", [
         { value: "continue", label: "Usar esta pasta como projeto existente mesmo assim" },
@@ -108,13 +108,14 @@ export async function runInteractive({ cwd = process.cwd() } = {}) {
       ], "new");
       if (confirm === "exit") return { cancelled: true };
       if (confirm === "new") {
-        const name = await ask(rl, "Nome provisório do projeto", false);
-        projectRoot = resolveNewWorkspace({ cwd: detection.root, name });
+        projectName = await ask(rl, "Nome provisório do projeto", false);
+        projectRoot = resolveNewWorkspace({ cwd: detection.root, name: projectName });
         mode = "new";
       }
     }
 
     const answers = await collectFounderContext(rl, mode);
+    if (projectName) answers["Nome provisório do projeto"] = projectName;
     const installedAgents = detectAvailableAgents();
     const agentOptions = installedAgents.length
       ? installedAgents.map(agent => ({ value: agent, label: agent === "claude" ? "Claude Code" : agent === "codex" ? "Codex CLI" : "OpenCode" }))
