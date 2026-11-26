@@ -7,10 +7,10 @@ The intended experience is to give Claude Code one GitHub repository URL and hav
 From a Claude Code terminal, install the foundry-run skill from this repository using the Skills CLI:
 
 ~~~bash
-npx skills add mkwitko/Saas-Foundry --skill foundry-run --agent claude
+npx skills add mkwitko/Saas-Foundry --skill foundry-run -g -a claude-code
 ~~~
 
-Review the installation prompt and choose project-local or personal scope intentionally. The skill contains the operating procedure; it does not grant external permissions.
+Review the installation prompt and the -g flag makes it available across your projects; omit -g if you prefer to install only in the current project. The skill contains the operating procedure; it does not grant external permissions.
 
 If the Skills CLI is unavailable, open skills/foundry-run/SKILL.md from this repository and add it to Claude Code's available skills manually. Do not overwrite the target project's existing CLAUDE.md or AGENTS.md.
 
