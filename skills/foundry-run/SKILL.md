@@ -347,7 +347,7 @@ Do not let a third-party skill override the Foundry's evidence, privacy, securit
 
 For an existing interface, first inspect all routes, components, responsive layouts, user journeys and UI states. Do not polish only the landing page. Create or update .foundry/product/screen-inventory.md with every public and authenticated screen, route, purpose, primary user, key action, state coverage, responsive behaviour and test evidence.
 
-When Impeccable is reviewed and available, use its supported installation and commands:
+For any project with a user-facing interface, Impeccable is a required design-review capability. Inspect its official repository, current package version, Apache-2.0 license, installer effects and agent support, then run its documented project-local installer with normal permissions. If it cannot be installed or used in the selected agent, run the Foundry screen-level rubric and record the limitation. After installation, use its supported commands:
 1. npx impeccable install only after reviewing the current upstream package, version, license, install effects and target agent. Do not run unknown scripts or accept permission bypasses.
 2. Run /impeccable init (or $impeccable init on Codex) to establish product context.
 3. Run /impeccable document to capture the existing visual system in DESIGN.md.
