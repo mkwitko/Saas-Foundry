@@ -5,7 +5,7 @@ import path from "node:path";
 const EXCLUDED_DIRS = new Set([
   ".git", "node_modules", "vendor", "dist", "build", "coverage",
   ".next", ".turbo", ".cache", ".venv", "venv", "__pycache__",
-  ".idea", ".vscode"
+  ".idea", ".vscode", ".ssh", ".aws", ".azure", ".gnupg", ".kube"
 ]);
 const EXCLUDED_FILES = /(^\.env($|\.)|secret|credential|token|private.?key|\.(pem|key|p12|pfx|crt|cer|sqlite|sqlite3|db|dump|log|bak|backup)$/i;
 const MAX_FILES = 5000;
