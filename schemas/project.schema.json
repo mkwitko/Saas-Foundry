@@ -231,6 +231,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "specialist_required": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
