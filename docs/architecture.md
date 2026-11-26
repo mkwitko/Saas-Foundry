@@ -1,6 +1,6 @@
 # Architecture
 
-Status: operating model v0.1. The CLI and automated scanner are not implemented yet.
+Status: v0.2 local CLI for scan, plan and doctor. Automated installation and runtime verification remain future work.
 
 ## Design goals
 
