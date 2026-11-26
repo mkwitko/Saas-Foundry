@@ -392,13 +392,16 @@ export function rollbackResourceUpdate(projectRoot, resourceId) {
   writeLock(root, lock);
   return { rolled_back: resourceId, restored_commit: history.record.source_commit, retained_history: current.previous_version };
 }
+function uninstallSafe(drift) {
+  return drift.changed.length === 0 && drift.extra.every(file => file.status === "untracked");
+}
 export function buildResourceUninstallPlan(projectRoot, resourceId) {
   const root = fs.realpathSync(path.resolve(projectRoot));
   const lock = readLock(root);
   const record = lock.resources[resourceId];
   if (!record) throw new Error("Resource is not installed: " + resourceId);
   const drift = inspectResourceDrift(root, resourceId).resources[0];
-  return { schema_version: "0.4", operation: "uninstall", mode: "dry_run", project_root: root, resource_id: resourceId, target: record.target, safe: drift.status === "clean", drift, policy: "Only unchanged files listed in the resource lock may be removed. Modified or untracked files are never deleted." };
+  return { schema_version: "0.4", operation: "uninstall", mode: "dry_run", project_root: root, resource_id: resourceId, target: record.target, safe: uninstallSafe(drift), drift, policy: "Only unchanged files listed in the resource lock may be removed. Modified, untracked and symlinked files are never deleted." };
 }
 export function executeResourceUninstall(plan) {
   if (!plan?.safe || plan.mode !== "dry_run") throw new Error("Uninstall is unsafe because drift or conflicts were detected.");
@@ -407,7 +410,7 @@ export function executeResourceUninstall(plan) {
   const record = lock.resources[plan.resource_id];
   if (!record || record.target !== plan.target) throw new Error("Resource lock changed since dry-run.");
   const drift = inspectResourceDrift(root, plan.resource_id).resources[0];
-  if (drift.status !== "clean") throw new Error("Resource changed since dry-run; refusing uninstall.");
+  if (!uninstallSafe(drift)) throw new Error("Resource changed since dry-run; refusing uninstall.");
   const saved = record.files.map(file => ({ path: file.path, content: fs.readFileSync(inside(root, file.path), "utf8") }));
   try {
     for (const file of record.files) fs.unlinkSync(inside(root, file.path));
@@ -423,5 +426,5 @@ export function executeResourceUninstall(plan) {
     }
     throw error;
   }
-  return { removed_resource: plan.resource_id, files_removed: record.files.length, lockfile: LOCK_PATH };
+  return { removed_resource: plan.resource_id, files_removed: record.files.length, preserved_untracked_files: plan.drift.extra.filter(x=>x.status==="untracked").map(x=>x.path), lockfile: LOCK_PATH };
 }
