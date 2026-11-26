@@ -65,20 +65,21 @@ modules:
 
   - id: product-design
     group: product
-    purpose: Establish product-specific UX direction, flows, interface states, and quality review.
-    triggers: [new_surface, redesign, usability_problem]
-    inputs: [personas, workflows, design_constraints, references]
-    outputs: [design_brief, flow_specs, design_review]
+    purpose: Establish a distinctive product design system and review every user-facing screen, route, responsive breakpoint, and interaction state.
+    triggers: [new_surface, redesign, usability_problem, design_quality_gap, accessibility_gap]
+    inputs: [personas, workflows, route_inventory, design_constraints, references, current_screenshots]
+    outputs: [design_brief, design_tokens, screen_inventory, flow_specs, per_screen_quality_scorecards, accessibility_findings, visual_regression_plan]
+
     requires: [product-strategy]
     risk: low
     ia_chat: already_satisfied
 
   - id: engineering-quality
     group: delivery
-    purpose: Improve implementation quality, architecture, security, testing, and release safety.
-    triggers: [engineering_risk, release, reliability_issue]
-    inputs: [repository, stack, quality_gates, threat_model]
-    outputs: [technical_plan, test_plan, reviewed_changes]
+    purpose: Improve implementation quality, architecture, tenant isolation, security, privacy, scalability, performance, observability, cost efficiency, testing, and release safety.
+    triggers: [engineering_risk, release, reliability_issue, security_gap, performance_regression, scaling_threshold]
+    inputs: [repository, stack, workload_evidence, quality_gates, threat_model, data_sensitivity, budget_constraints]
+    outputs: [architecture_assessment, threat_model, performance_budgets, observability_plan, cost_and_free_tier_comparison, test_plan, reviewed_changes, release_runbook]
     requires: []
     risk: high
     ia_chat: already_satisfied
