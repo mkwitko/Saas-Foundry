@@ -10,6 +10,7 @@ import {
 import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "./v3.js";
 import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall, buildResourceUpdatePlan, executeResourceUpdate, buildResourceRollbackPlan, rollbackResourceUpdate } from "./v4.js";
 import { runCodeAudit } from "./agents.js";
+import { initializeProject } from "./init.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -32,7 +33,7 @@ Usage:
   foundry drift <project-path> [--resource <id>]
   foundry update <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--allow-scripts] [--execute]
   foundry rollback-resource <project-path> --resource <id> [--execute]
-  foundry uninstall <project-path> --resource <id> [--execute]\n  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
+  foundry uninstall <project-path> --resource <id> [--execute]\n  foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]\n  foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
 
 Options:
   --format   Output format (default: md for scan/plan, json for doctor)
@@ -54,7 +55,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -85,7 +86,7 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="agent-audit") {
+  if(command==="init") {\n    if(positional.length!==1) throw new Error("init requires exactly one project path.");\n    const result=initializeProject({projectPath:positional[0],mode:options.mode ?? "auto",agent:options.agent ?? "claude"});\n    emit({kind:"init",data:result},options,"json"); return;\n  }\n  if(command==="agent-audit") {
     if(positional.length!==1) throw new Error("agent-audit requires exactly one project path.");
     const timeoutMs=options["timeout-ms"] === undefined ? undefined : Number(options["timeout-ms"]);
     if(timeoutMs !== undefined && (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 600000)) throw new Error("--timeout-ms must be an integer from 1000 to 600000.");
