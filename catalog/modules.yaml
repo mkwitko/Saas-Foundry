@@ -183,6 +183,46 @@ modules:
     risk: critical
     ia_chat: specialist_required
 
+  - id: customer-research-loop
+    group: learning
+    purpose: Turn customer interviews, support topics, cancellations and observed behaviour into evidence-backed product decisions.
+    triggers: [post_pilot, repeated_objection, churn_signal, roadmap_uncertainty]
+    inputs: [customer_interviews, sanitized_support_topics, product_metrics]
+    outputs: [voice_of_customer, pain_frequency_map, decision_backlog]
+    requires: []
+    risk: medium
+    ia_chat: recommended
+
+  - id: conversion-optimization
+    group: acquisition
+    purpose: Improve the conversion path across landing pages, demos, waitlists, invitations and trial signup.
+    triggers: [low_signup_rate, demo_dropoff, landing_page_change, trial_conversion_problem]
+    inputs: [funnel_data, user_feedback, offer, page_inventory]
+    outputs: [conversion_audit, experiment_backlog, revised_page_briefs]
+    requires: [analytics-instrumentation, positioning-and-offer]
+    risk: medium
+    ia_chat: recommended_after_measurement
+
+  - id: revenue-operations
+    group: monetization
+    purpose: Improve trial-to-paid conversion, subscription operations, failed-payment recovery, expansion and revenue reporting.
+    triggers: [trial_expiry, low_paid_conversion, involuntary_churn, expansion]
+    inputs: [subscription_data, pricing, billing_workflows, cancellation_reasons]
+    outputs: [revenue_funnel, billing_playbook, revenue_metrics, recovery_experiments]
+    requires: [analytics-instrumentation, pricing-and-unit-economics]
+    risk: high
+    ia_chat: recommended_after_first_trials
+
+  - id: proof-and-advocacy
+    group: distribution
+    purpose: Capture verified customer outcomes and turn them into permissioned case studies, reviews and referrals.
+    triggers: [pilot_outcome, customer_success, referral_opportunity]
+    inputs: [verified_outcomes, customer_permission, approved_brand_claims]
+    outputs: [case_study, testimonial_record, proof_library, advocacy_plan]
+    requires: [retention-and-customer-success]
+    risk: high
+    ia_chat: recommended_after_pilot
+
 selection_rules:
   - Never enable every module by default.
   - Never rerun a module whose outputs are current and whose evidence remains valid.
