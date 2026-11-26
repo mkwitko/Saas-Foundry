@@ -1,6 +1,6 @@
 # Architecture
 
-Status: v0.4 local CLI with evidence intelligence, safe module runbooks, provenance-pinned resource adapters, lockfile, drift detection, guarded updates, rollback, and uninstall. Remote fetching, package execution, and automatic isolated-branch PRs remain future work.
+Status: v0.5 local CLI with evidence intelligence, safe module runbooks, provenance-pinned resource adapters, lockfile, drift detection, guarded updates, rollback, uninstall, and sanitized agent-assisted static code audits. Remote fetching, package execution, and automatic isolated-branch PRs remain future work.
 
 ## Design goals
 
