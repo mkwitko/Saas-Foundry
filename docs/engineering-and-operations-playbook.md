@@ -45,3 +45,29 @@ A build plan is incomplete without a route to buyers. Define ICP, trigger, quali
 ## Operational readiness
 
 Before launch, verify health checks, error tracking, uptime monitoring, backups and restore, migration rollback, support route, incident owner, status communication, security contact, privacy policy, terms, data deletion, billing failure handling, and a release/rollback runbook. Production changes remain approval-gated.
+
+
+## Preferred implementation profile: React + Node.js
+
+For new web SaaS projects, React + TypeScript and Node.js + TypeScript are the default profile when they fit the product and team's capabilities. This is a starting preference, not a migration mandate. Preserve a working existing stack unless there is a measured business or engineering reason to change it.
+
+### React frontend
+- Reuse the framework already present (Next.js, Vite or another established React setup); do not introduce competing frameworks.
+- Prefer semantic HTML, accessible primitives, explicit loading/empty/error/success states and progressive enhancement.
+- Keep client-side state small. Prefer local state, URL state, server-state/query tooling or lightweight context according to ownership and lifecycle; do not add Redux by default.
+- Validate forms at boundaries with Zod or the existing schema tool; avoid divergent client/server contracts where shared schemas are practical.
+- Build components around repeated product patterns and real design-system needs, not every DOM element.
+- Test critical journeys with the existing Playwright/Cypress setup. Review visual changes at mobile, tablet and desktop widths.
+- Measure route-level Web Vitals, bundle size, hydration and interaction latency before optimizing.
+
+### Node.js backend
+- Prefer Fastify for new APIs when no established framework constrains the project; preserve Express, Nest or other working frameworks absent a clear migration case.
+- Use vertical slices: route/schema → authorization → service/use case → repository/data access → tests.
+- Validate all untrusted input at the boundary. Generate OpenAPI/Swagger from the same contract where practical.
+- Use PostgreSQL for relational and transactional workloads by default; use the existing ORM/query layer (Prisma or otherwise) and inspect generated SQL.
+- Enforce tenant and object-level authorization server-side. Add negative IDOR and cross-tenant tests.
+- Make retryable writes idempotent; use transactions for multi-record invariants and explicit concurrency control for race-prone flows.
+- Add Redis, queues, microservices or serverless only when measured workload or isolation needs justify them.
+
+### Release quality
+Require typecheck, lint, relevant unit/integration/E2E tests, reviewed database queries/indexes, security/privacy checks, measured performance budgets and a rollback/runbook. Prefer the smallest readable implementation, not code golf or speculative abstraction.
