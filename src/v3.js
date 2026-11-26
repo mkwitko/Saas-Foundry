@@ -146,7 +146,10 @@ export function selectModules(manifest, registry, scan, options = {}) {
   });
   const byId = new Map(candidates.map(x => [x.id, x]));
   for (const item of candidates) {
-    const unresolved = item.requires.filter(id => !byId.has(id) || byId.get(id).score < 0);
+    const unresolved = item.requires.filter(id => {
+      const dependency = byId.get(id);
+      return !dependency || (dependency.score < 0 && dependency.configured !== "already_satisfied");
+    });
     if (unresolved.length && item.score > 0) { item.score = 0; item.reasons.push("dependency not selected: " + unresolved.join(", ")); }
   }
   const selected = candidates.filter(x => x.score > 0).sort((a,b) => b.score-a.score || a.id.localeCompare(b.id));
