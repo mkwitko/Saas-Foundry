@@ -75,6 +75,21 @@ export function diffScans(previous, current) {
   };
 }
 
+function inferBottleneck(value) {
+  const text = String(value ?? "").toLowerCase();
+  for (const key of Object.keys(bottleneckTriggers)) if (text.includes(key)) return key;
+  if (/buyer|validat|interview|demand|problem|pilot/.test(text)) return "validation";
+  if (/lead|prospect|demo|sales|sell|conversion/.test(text)) return "sales";
+  if (/traffic|acqui|seo|organic|reach/.test(text)) return "acquisition";
+  if (/activat|onboard|setup|first value/.test(text)) return "activation";
+  if (/retent|churn|cancel|usage|support/.test(text)) return "retention";
+  if (/price|revenue|margin|billing|paid/.test(text)) return "revenue";
+  if (/reliab|bug|security|technical|engineering/.test(text)) return "reliability";
+  if (/privacy|legal|compliance|health data/.test(text)) return "compliance";
+  if (/product|roadmap|ux|usability/.test(text)) return "product";
+  return "validation";
+}
+
 const bottleneckTriggers = {
   validation: ["business-validation", "customer-research-loop"],
   sales: ["sales-pipeline", "positioning-and-offer", "launch-and-distribution"],
@@ -97,7 +112,7 @@ const stageBonus = {
 export function selectModules(manifest, registry, scan, options = {}) {
   if (!Array.isArray(registry?.modules)) throw new Error("A module registry is required.");
   const stage = options.stage ?? manifest?.project?.stage ?? "pilot";
-  const bottleneck = options.bottleneck ?? manifest?.business?.current_bottleneck ?? "validation";
+  const bottleneck = inferBottleneck(options.bottleneck ?? manifest?.business?.current_bottleneck ?? "validation");
   const capacity = options.capacity ?? "medium";
   const triggers = bottleneckTriggers[bottleneck] ?? [];
   const stageModules = stageBonus[stage] ?? stageBonus.pilot;
@@ -146,6 +161,57 @@ export function selectModules(manifest, registry, scan, options = {}) {
   };
 }
 
+export function buildAgentContext(manifest, scan, selection) {
+  return {
+    context_version: "0.3.0",
+    generated_at: new Date().toISOString(),
+    project: {
+      id: manifest.project?.id ?? null,
+      name: manifest.project?.name ?? null,
+      mode: manifest.project?.mode ?? null,
+      stage: manifest.project?.stage ?? null,
+      business_model: manifest.business?.model ?? null,
+      market: manifest.business?.market ?? null,
+      icp: manifest.business?.icp ?? [],
+      bottleneck: manifest.business?.current_bottleneck ?? null,
+      value_proposition: manifest.product?.value_proposition ?? null,
+      stack: {
+        languages: manifest.technology?.languages ?? [],
+        frameworks: manifest.technology?.frameworks ?? [],
+        infrastructure: manifest.technology?.infrastructure ?? []
+      },
+      data_sensitivity: manifest.technology?.data_sensitivity ?? "unknown"
+    },
+    repository: {
+      scanned_at: scan.scanned_at ?? null,
+      summary: scan.summary ?? {},
+      signals: scan.signals ?? {},
+      evidence: (scan.evidence ?? []).map(x => ({ capability: x.capability, status: x.status, references: x.evidence ?? [], limitation: x.note ?? null }))
+    },
+    recommended_modules: (selection.selected ?? []).map(x => ({ id: x.id, purpose: x.purpose, reasons: x.reasons, dependencies: x.requires })),
+    operating_rules: [
+      "Treat repository signals as evidence of presence, not proof of runtime behaviour or customer outcomes.",
+      "Keep assumptions, estimates, direct buyer evidence and observed behaviour separate.",
+      "Do not inspect secrets, patient/customer message bodies, production databases or raw logs.",
+      "Do not send outreach, publish, spend, or change production without explicit human approval.",
+      "Prefer the smallest action that addresses the declared bottleneck."
+    ]
+  };
+}
+
+function assertSafeDestination(root, relative) {
+  const parts = relative.split(/[\\/]+/);
+  let current = root;
+  for (const part of parts) {
+    if (!part || part === "." || part === "..") throw new Error("Unsafe apply path.");
+    current = path.join(current, part);
+    if (fs.existsSync(current) && fs.lstatSync(current).isSymbolicLink()) throw new Error("Refusing to follow symlink in apply path: " + relative);
+  }
+  const resolved = path.resolve(root, relative);
+  if (!resolved.startsWith(root + path.sep)) throw new Error("Apply path escapes project root.");
+  return resolved;
+}
+
 function safeModuleId(id) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) throw new Error("Invalid module id.");
   return id;
@@ -189,7 +255,7 @@ export function buildApplyPlan(projectRoot, moduleIds, registry) {
     if (!mod) throw new Error("Unknown module: " + id);
     const content = moduleArtifact(mod);
     const relative = ".foundry/modules/" + id + "/README.md";
-    const destination = path.join(root, relative);
+    const destination = assertSafeDestination(root, relative);
     const exists = fs.existsSync(destination);
     const current = exists && fs.statSync(destination).isFile() ? fs.readFileSync(destination, "utf8") : null;
     return {
@@ -221,8 +287,7 @@ export function executeApplyPlan(plan) {
   for (const item of plan.modules) {
     if (item.action === "unchanged") continue;
     if (item.action !== "create") throw new Error("Refusing to overwrite existing file: " + item.path);
-    const destination = path.resolve(root, item.path);
-    if (!destination.startsWith(root + path.sep)) throw new Error("Apply path escapes project root.");
+    const destination = assertSafeDestination(root, item.path);
     if (fs.existsSync(destination)) throw new Error("Destination appeared after dry-run: " + item.path);
     const modDir = path.dirname(destination);
     fs.mkdirSync(modDir, { recursive: true });
@@ -248,8 +313,8 @@ export function rollbackAppliedModule(projectRoot, moduleId) {
   const lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
   const record = lock.modules?.[moduleId];
   if (!record) throw new Error("Module is not recorded as applied: " + moduleId);
-  const target = path.resolve(root, record.path);
-  if (!target.startsWith(root + path.sep) || !fs.existsSync(target) || !fs.statSync(target).isFile()) throw new Error("Recorded artifact is missing or unsafe.");
+  const target = assertSafeDestination(root, record.path);
+  if (!fs.existsSync(target) || !fs.statSync(target).isFile()) throw new Error("Recorded artifact is missing or unsafe.");
   const content = fs.readFileSync(target, "utf8");
   if (hash(content) !== record.sha256) throw new Error("Artifact changed since apply; refusing destructive rollback.");
   fs.unlinkSync(target);
