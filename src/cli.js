@@ -8,6 +8,7 @@ import {
   formatMarkdownScan, formatMarkdownPlan
 } from "./core.js";
 import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "./v3.js";
+import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall } from "./v4.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -25,6 +26,10 @@ Usage:
   foundry select <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
   foundry apply <project-path> --module <id[,id...]> [--execute]
   foundry rollback <project-path> --module <id>
+  foundry resources [--format json|md]
+  foundry install <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--target <path>] [--allow-scripts] [--execute]
+  foundry drift <project-path> [--resource <id>]
+  foundry uninstall <project-path> --resource <id> [--execute]
 
 Options:
   --format   Output format (default: md for scan/plan, json for doctor)
@@ -35,7 +40,9 @@ Options:
 
 Safety:
   scan is read-only. It inventories paths and selected metadata/documents only.
-  plan and doctor do not modify the target project or execute project code.
+  plan, doctor, select, context, evidence, diff, resources and drift are read-only.
+  install and uninstall are dry-run by default; --execute is required to write.
+  install requires an explicit --reviewed attestation and never executes resource files.
 `;
 }
 function parseArgs(args) {
@@ -43,8 +50,8 @@ function parseArgs(args) {
   const options={};
   for(let i=0;i<args.length;i++){
     const arg=args[i];
-    if(arg==="--strict" || arg==="--execute"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity"].includes(arg)){
+    if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -75,6 +82,10 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="resources"){
+    const registry=parseYaml(fs.readFileSync(path.join(path.resolve(options.foundry ?? FOUNDRY_ROOT),"catalog/resources.yaml"),"utf8"));
+    emit({kind:"resources",data:listInstallableResources(registry)},options,"json"); return;
+  }
   if(command==="evidence"){
     if(positional.length!==1) throw new Error("evidence requires one scan JSON file.");
     const report=buildEvidenceReport(loadJson(positional[0]));
@@ -91,10 +102,11 @@ async function main(){
     emit({kind:"scan",data:result},options);
     return;
   }
-  if(["plan","doctor","context","select","apply","rollback"].includes(command)){
+  if(["plan","doctor","context","select","apply","rollback","install","drift","uninstall"].includes(command)){
     if(positional.length!==1) throw new Error(`${command} requires exactly one project path.`);
     const foundryRoot=path.resolve(options.foundry ?? FOUNDRY_ROOT);
     const {projectRoot,manifest,registry}=loadFoundryContext(positional[0],foundryRoot);
+    const resourceRegistry=parseYaml(fs.readFileSync(path.join(foundryRoot,"catalog/resources.yaml"),"utf8"));
     const validation=validateProject(manifest,registry);
     if(command==="doctor"){
       const report={kind:"doctor",data:{
@@ -110,6 +122,32 @@ async function main(){
       return;
     }
     if(!validation.valid) throw new Error("Project manifest/catalog validation failed. Run doctor to inspect the manifest.");
+    if(command==="drift"){
+      const report=inspectResourceDrift(projectRoot,options.resource);
+      emit({kind:"resource-drift",data:report},options,"json"); return;
+    }
+    if(command==="uninstall"){
+      if(!options.resource) throw new Error("uninstall requires --resource <id>.");
+      const plan=buildResourceUninstallPlan(projectRoot,options.resource);
+      if(options.execute){
+        const result=executeResourceUninstall(plan);
+        emit({kind:"resource-uninstall",data:{plan,result}},options,"json");
+      } else emit({kind:"resource-uninstall",data:plan},options,"json");
+      return;
+    }
+    if(command==="install"){
+      for(const key of ["resource","from","commit","license"]) if(!options[key]) throw new Error("install requires --"+key+" <value>.");
+      const plan=buildResourceInstallPlan({
+        projectRoot, registry:resourceRegistry, resourceId:options.resource, sourceDir:options.from,
+        sourcePath:options["source-path"] ?? ".", target:options.target, commit:options.commit,
+        license:options.license, reviewed:options.reviewed, allowScripts:options["allow-scripts"]
+      });
+      if(options.execute){
+        const result=executeResourceInstall(plan);
+        emit({kind:"resource-install",data:{plan,result}},options,"json");
+      } else emit({kind:"resource-install",data:plan},options,"json");
+      return;
+    }
     if(command==="rollback"){
       if(!options.module) throw new Error("rollback requires --module <id>.");
       const result=rollbackAppliedModule(projectRoot,options.module);
