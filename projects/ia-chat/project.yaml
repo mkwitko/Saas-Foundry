@@ -96,34 +96,13 @@ modules:
     - conversion-optimization
     - revenue-operations
     - proof-and-advocacy
-  blocked:
-    - opportunity-intelligence
+  already_satisfied:
+    - positioning-and-offer
+    - pricing-and-unit-economics
+    - product-strategy
+    - product-design
     - engineering-quality
-
-source_documents:
-  - path: CLAUDE.md
-    role: Project instructions and non-negotiable engineering/product constraints
-  - path: PRODUCT.md
-    role: Product purpose, users and value proposition
-  - path: docs/spec/README.md
-    role: Accepted hypotheses and open decisions
-  - path: docs/spec/09-site-aquisicao-suporte.md
-    role: Acquisition site, SEO, onboarding and support requirements
-  - path: docs/spec/11-pequenos-negocios.md
-    role: Small-business positioning, lead stages and pilot metrics
-  - path: docs/plan/IMPLEMENTACAO.md
-    role: Delivery plan and acceptance criteria
-  - path: docs/plan/TASKS.md
-    role: Implementation checklist
-  - path: founder/marketing.md
-    role: Channel plan and founder-led marketing
-  - path: founder/offer.md
-    role: Current offer and buyer objections
-  - path: founder/pricing.md
-    role: Pricing hypotheses and price test
-  - path: founder/launch.md
-    role: Launch gates and planned sales motion
-  - path: founder/ops.md
-    role: Founder operating cadence and capacity
-  - path: docs/observabilidade.md
-    role: Operational and AI observability
+    - customer-support-loop
+    - founder-operations
+  not_applicable:
+    - opportunity-intelligence
