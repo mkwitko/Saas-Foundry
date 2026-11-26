@@ -12,6 +12,7 @@ import { listInstallableResources, buildResourceInstallPlan, executeResourceInst
 import { runCodeAudit } from "./agents.js";
 import { initializeProject } from "./init.js";
 import { runFoundry } from "./run.js";
+import { runInteractive } from "./interactive.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -83,13 +84,16 @@ function loadJson(file){
   return JSON.parse(raw);
 }
 async function main(){
-  if(!command || command==="help" || command==="--help" || command==="-h"){
+  if(!command || command==="interactive") {
+    await runInteractive({ cwd: process.cwd() }); return;
+  }
+  if(command==="help" || command==="--help" || command==="-h"){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
   if(command==="run") {
     if(positional.length!==1) throw new Error("run requires exactly one project path or GitHub URL.");
-    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto"});
+    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto",agent:options.agent ?? "claude"});
     process.stdout.write(JSON.stringify(result,null,2)+"\\n"); return;
   }
   if(command==="init") {
