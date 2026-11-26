@@ -250,7 +250,7 @@ export function buildResourceUpdatePlan(args) {
 
   const currentDrift = inspectResourceDrift(root, args.resourceId).resources[0];
   if (currentDrift.status !== "clean") throw new Error("Installed resource has drift; reconcile local changes before updating.");
-  const next = buildResourceInstallPlan({ ...args, existingLock: lock });
+  const next = buildResourceInstallPlan({ ...args, target: args.target ?? previous.target, existingLock: lock });
   if (next.target !== previous.target) throw new Error("Resource update cannot change its target directory.");
   if (next.source_commit === previous.source_commit) throw new Error("The selected checkout is already the installed version.");
   const previousFiles = new Map(previous.files.map(file => [file.path, file]));
