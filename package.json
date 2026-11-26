@@ -1,7 +1,7 @@
 {
   "name": "saas-foundry",
   "version": "0.2.0",
-  "private": false,
+  "private": true,
   "description": "Evidence-first CLI for scanning and planning SaaS project capabilities",
   "type": "module",
   "bin": {
@@ -16,6 +16,5 @@
   },
   "dependencies": {
     "yaml": "^2.8.1"
-  },
-  "license": "MIT"
+  }
 }
