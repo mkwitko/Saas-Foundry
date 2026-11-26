@@ -8,7 +8,7 @@ import {
   formatMarkdownScan, formatMarkdownPlan
 } from "./core.js";
 import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, buildApplyPlan, executeApplyPlan, rollbackAppliedModule } from "./v3.js";
-import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall } from "./v4.js";
+import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall, buildResourceUpdatePlan, executeResourceUpdate, rollbackResourceUpdate } from "./v4.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -29,6 +29,8 @@ Usage:
   foundry resources [--format json|md]
   foundry install <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--target <path>] [--allow-scripts] [--execute]
   foundry drift <project-path> [--resource <id>]
+  foundry update <project-path> --resource <id> --from <git-checkout> --commit <sha> --license <id> --reviewed [--source-path <path>] [--allow-scripts] [--execute]
+  foundry rollback-resource <project-path> --resource <id>
   foundry uninstall <project-path> --resource <id> [--execute]
 
 Options:
@@ -102,7 +104,7 @@ async function main(){
     emit({kind:"scan",data:result},options);
     return;
   }
-  if(["plan","doctor","context","select","apply","rollback","install","drift","uninstall"].includes(command)){
+  if(["plan","doctor","context","select","apply","rollback","install","drift","uninstall","update","rollback-resource"].includes(command)){
     if(positional.length!==1) throw new Error(`${command} requires exactly one project path.`);
     const foundryRoot=path.resolve(options.foundry ?? FOUNDRY_ROOT);
     const {projectRoot,manifest,registry}=loadFoundryContext(positional[0],foundryRoot);
@@ -125,6 +127,24 @@ async function main(){
     if(command==="drift"){
       const report=inspectResourceDrift(projectRoot,options.resource);
       emit({kind:"resource-drift",data:report},options,"json"); return;
+    }
+    if(command==="rollback-resource"){
+      if(!options.resource) throw new Error("rollback-resource requires --resource <id>.");
+      const result=rollbackResourceUpdate(projectRoot,options.resource);
+      emit({kind:"resource-rollback",data:result},options,"json"); return;
+    }
+    if(command==="update"){
+      for(const key of ["resource","from","commit","license"]) if(!options[key]) throw new Error("update requires --"+key+" <value>.");
+      const plan=buildResourceUpdatePlan({
+        projectRoot, registry:resourceRegistry, resourceId:options.resource, sourceDir:options.from,
+        sourcePath:options["source-path"] ?? ".", target:options.target, commit:options.commit,
+        license:options.license, reviewed:options.reviewed, allowScripts:options["allow-scripts"]
+      });
+      if(options.execute){
+        const result=executeResourceUpdate(plan);
+        emit({kind:"resource-update",data:{plan,result}},options,"json");
+      } else emit({kind:"resource-update",data:plan},options,"json");
+      return;
     }
     if(command==="uninstall"){
       if(!options.resource) throw new Error("uninstall requires --resource <id>.");
