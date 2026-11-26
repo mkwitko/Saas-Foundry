@@ -86,7 +86,7 @@ export async function runInteractive({ cwd = process.cwd() } = {}) {
       process.stdout.write("Nenhum marcador de projeto encontrado nesta pasta.\n");
     }
 
-    const mode = await choose(rl, "Como deseja começar?", [
+    let mode = await choose(rl, "Como deseja começar?", [
       { value: "existing", label: "Usar o projeto desta pasta e analisá-lo automaticamente" },
       { value: "new", label: "Criar um SaaS novo neste workspace" },
       { value: "exit", label: "Sair" }
@@ -108,6 +108,7 @@ export async function runInteractive({ cwd = process.cwd() } = {}) {
       if (confirm === "new") {
         const name = await ask(rl, "Nome provisório do projeto", false);
         projectRoot = resolveNewWorkspace({ cwd: detection.root, name });
+        mode = "new";
       }
     }
 
