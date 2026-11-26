@@ -51,7 +51,7 @@ function writeLock(projectRoot, lock) {
   fs.renameSync(temp, file);
 }
 function collectFiles(sourceRoot, sourcePath, allowScripts) {
-  const start = inside(sourceRoot, sourcePath);
+  const start = sourcePath === "." ? sourceRoot : inside(sourceRoot, sourcePath);
   if (!fs.existsSync(start) || !fs.statSync(start).isDirectory()) throw new Error("Source path must be an existing directory inside the Git checkout.");
   const files = [];
   function walk(dir, relative) {
