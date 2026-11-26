@@ -115,19 +115,23 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 This repository now contains a **v0.3 local CLI** with scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, and safe runbook apply/rollback. Third-party skill, connector, dataset, and dependency installation remain future work.
 
-Planned interface:
+Available v0.3 commands:
 
 ```bash
-foundry new
-foundry adopt .
 foundry scan .
 foundry plan .
-foundry apply <module>
-foundry doctor
-foundry sync
+foundry doctor .
+foundry evidence scan.json
+foundry diff previous-scan.json current-scan.json
+foundry select . --capacity low
+foundry context . --format json
+foundry apply . --module sales-pipeline
+foundry rollback . --module sales-pipeline
 ```
 
-The current milestone is to harden the CLI with repeatable checks, realistic fixtures, and feedback from the first ia-chat scan.
+Use `foundry apply` without `--execute` to preview. Add `--execute` only after reviewing the dry-run.
+
+The next validation step is to run the v0.3 workflow against the local ia-chat checkout, review the generated shortlist, and only then apply selected Foundry runbooks. The scanner has not been run against that local checkout by this release.
 
 ## Safety and trust
 
