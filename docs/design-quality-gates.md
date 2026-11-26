@@ -1,6 +1,6 @@
 # Product and interface quality gates
 
-The Foundry treats product quality as a measurable delivery discipline, not a single visual score. A project can use a different visual language, but every user-facing screen must be reviewed against the same quality contract.
+The Foundry treats product quality as a measurable delivery discipline, not a single visual score. Review both visual/interface quality and whether the product helps the intended buyer understand, trust, adopt and pay for the promised outcome. A project can use a different visual language, but every user-facing screen and critical journey must be reviewed against the same quality contract.
 
 ## Reference routing
 
@@ -111,3 +111,28 @@ A UI release is ready only when:
 - Planning and extraction: `/impeccable shape` before a new UX flow and `/impeccable extract` when repeated patterns should become design-system components.
 - Iteration: `/impeccable generate` for controlled variants. `live` is disabled by default unless its current permission model is reviewed; `craft` is deprecated.
 - Use `live` only when its permissions and local-only behaviour have been independently reviewed. Do not use any mode that disables approvals or sandboxing.
+
+
+## Buyer-centred usability and conversion
+
+A visually polished interface can still fail commercially. Review the full journey from first impression to paid commitment and repeated value. For each critical journey, record user intent, expected outcome, friction, severity, evidence, likely impact and verification.
+
+### Public website and pricing
+- In five seconds, can the intended buyer identify what the product does, who it is for and the outcome?
+- Does the page describe a recognizable pain and trigger rather than only listing features?
+- Are offer scope, exclusions, price/buying path, setup effort and next action clear?
+- Are claims supported by a working demo, real customer evidence or explicit caveats?
+- Are trust objections (security, privacy, integration, migration, support, cancellation and ROI) answered near the decision?
+- Are CTAs concrete, consistent and measurable? Is there one primary action per page?
+- Do pricing tiers map to buyer value, usage and upgrade triggers?
+
+### In-product journey
+- Can a new user complete the core task without founder assistance?
+- Is first value reached quickly? Identify setup, permissions, integrations and data-import friction.
+- Are defaults sensible, advanced settings progressive, and empty/error states actionable?
+- Does the user understand AI/system actions, limitations, source data and recovery paths?
+- Are permissions, billing, destructive actions and data handling transparent?
+- Can the user see value before being asked to upgrade?
+
+### Conversion evidence
+Use funnel data and real user observation where available. If no baseline exists, mark it unknown and propose instrumentation or moderated task testing. Do not invent conversion rates or claim that a UI change will increase sales without an experiment. Separate observed usability failures from heuristic concerns and simulated buyer feedback.
