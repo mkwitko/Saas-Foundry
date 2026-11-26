@@ -1,6 +1,6 @@
 # Architecture
 
-Status: v0.2 local CLI for scan, plan and doctor. Automated installation and runtime verification remain future work.
+Status: v0.3 local CLI with evidence reports, scan diffs, heuristic module selection, agent-neutral context export, and guarded runbook apply/rollback. Runtime verification and third-party artifact installation remain future work.
 
 ## Design goals
 
@@ -142,16 +142,18 @@ A prior approval for one action does not authorize repeated or broader actions.
 - Module dependency and conflict validation.
 - Human-readable plan output.
 
-### v0.3 — Read-only scanner
-- Repository fingerprinting.
-- Evidence-backed capability report.
-- Explicit exclusions and scan summary.
-- Diffable scan snapshots.
+### v0.3 — Evidence and safe adoption (current)
+- Evidence IDs, confidence, and freshness metadata.
+- Diffable scan snapshots with path, signal, and capability changes.
+- Bottleneck/stage/capacity-aware module shortlist with explicit-decision precedence.
+- Agent-neutral project context export for Claude Code, OpenCode, Codex, and other agents.
+- Dry-run/apply/rollback for Foundry-generated module runbooks, with hash lock and no-overwrite/symlink protections.
 
-### v0.4 — Safe adoption
-- Install selected skills/templates into a project.
-- Dry-run, branch, rollback, and drift detection.
-- Preserve existing agent instructions.
+### v0.4 — Artifact adapters and drift control
+- Reviewed installation adapters for selected skills and templates.
+- Resource lockfile with source, version, hash, and license.
+- Drift detection and safe update workflow.
+- Optional isolated-branch changes with review gates.
 
 ### v0.5 — Learning loop
 - Experiment ledger.
