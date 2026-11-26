@@ -286,25 +286,43 @@ export function executeApplyPlan(plan) {
     lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
     if (!lock.modules || typeof lock.modules !== "object") throw new Error("Existing apply lock is invalid; refusing to modify it.");
   }
-  const created = [];
+  // Preflight every destination before writing any file.
   for (const item of plan.modules) {
-    if (item.action === "unchanged") continue;
-    if (item.action !== "create") throw new Error("Refusing to overwrite existing file: " + item.path);
-    const destination = assertSafeDestination(root, item.path);
-    if (fs.existsSync(destination)) throw new Error("Destination appeared after dry-run: " + item.path);
-    const modDir = path.dirname(destination);
-    fs.mkdirSync(modDir, { recursive: true });
-    const content = moduleArtifactFromPlan(item, plan);
-    if (hash(content) !== item.sha256) throw new Error("Generated content hash changed; rerun dry-run.");
-    fs.writeFileSync(destination, content, { encoding: "utf8", flag: "wx" });
-    lock.modules[item.id] = { path: item.path, sha256: item.sha256, applied_at: new Date().toISOString() };
-    created.push(item.path);
+    safeModuleId(item.id);
+    const expectedPath = ".foundry/modules/" + item.id + "/README.md";
+    if (item.path !== expectedPath || typeof item.content !== "string" || hash(item.content) !== item.sha256) {
+      throw new Error("Apply plan failed integrity validation for module: " + item.id);
+    }
+    const destination = assertSafeDestination(root, expectedPath);
+    if (item.action === "create" && fs.existsSync(destination)) throw new Error("Destination appeared after dry-run: " + item.path);
+    if (!["create", "unchanged"].includes(item.action)) throw new Error("Refusing to apply conflicting artifact: " + item.path);
   }
-  fs.mkdirSync(path.dirname(lockPath), { recursive: true });
+  const created = [];
   const temp = lockPath + ".tmp";
-  fs.writeFileSync(temp, JSON.stringify(lock, null, 2) + "\n", { encoding: "utf8", flag: "wx" });
-  fs.renameSync(temp, lockPath);
-  return { applied: created, unchanged: plan.modules.filter(x => x.action === "unchanged").map(x => x.path), lockfile: ".foundry/applied-modules.json" };
+  try {
+    for (const item of plan.modules) {
+      if (item.action === "unchanged") continue;
+      const destination = assertSafeDestination(root, item.path);
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      assertSafeDestination(root, item.path);
+      fs.writeFileSync(destination, item.content, { encoding: "utf8", flag: "wx" });
+      created.push({ path: destination, sha256: item.sha256, id: item.id });
+      lock.modules[item.id] = { path: item.path, sha256: item.sha256, applied_at: new Date().toISOString() };
+    }
+    fs.mkdirSync(path.dirname(lockPath), { recursive: true });
+    fs.writeFileSync(temp, JSON.stringify(lock, null, 2) + "\n", { encoding: "utf8", flag: "wx" });
+    fs.renameSync(temp, lockPath);
+  } catch (error) {
+    if (fs.existsSync(temp)) fs.unlinkSync(temp);
+    for (const item of created.reverse()) {
+      try {
+        if (fs.existsSync(item.path) && hash(fs.readFileSync(item.path, "utf8")) === item.sha256) fs.unlinkSync(item.path);
+        try { fs.rmdirSync(path.dirname(item.path)); } catch { /* Keep non-empty directories. */ }
+      } catch { /* Preserve files if cleanup cannot prove ownership. */ }
+    }
+    throw error;
+  }
+  return { applied: created.map(x => path.relative(root, x.path)), unchanged: plan.modules.filter(x => x.action === "unchanged").map(x => x.path), lockfile: ".foundry/applied-modules.json" };
 }
 
 // The plan embeds generated content only through its hash; rebuild from the registry at the CLI boundary.
@@ -316,6 +334,8 @@ export function rollbackAppliedModule(projectRoot, moduleId) {
   const lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
   const record = lock.modules?.[moduleId];
   if (!record) throw new Error("Module is not recorded as applied: " + moduleId);
+  const expectedPath = ".foundry/modules/" + moduleId + "/README.md";
+  if (record.path !== expectedPath) throw new Error("Apply lock path does not match the expected module artifact.");
   const target = assertSafeDestination(root, record.path);
   if (!fs.existsSync(target) || !fs.statSync(target).isFile()) throw new Error("Recorded artifact is missing or unsafe.");
   const content = fs.readFileSync(target, "utf8");
