@@ -21,7 +21,8 @@ Usage:
   foundry doctor <project-path> [--strict]
   foundry evidence <scan.json> [--format json|md] [--out <file>]
   foundry diff <previous-scan.json> <current-scan.json> [--format json|md]
-  foundry context <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]\n  foundry select <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
+  foundry context <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
+  foundry select <project-path> [--stage <stage>] [--bottleneck <name>] [--capacity low|medium|high]
   foundry apply <project-path> --module <id[,id...]> [--execute]
   foundry rollback <project-path> --module <id>
 
