@@ -1,6 +1,6 @@
 # Architecture
 
-Status: v0.3 local CLI with evidence reports, scan diffs, heuristic module selection, agent-neutral context export, and guarded runbook apply/rollback. Runtime verification and third-party artifact installation remain future work.
+Status: v0.4 local CLI with evidence intelligence, safe module runbooks, provenance-pinned resource adapters, lockfile, drift detection, guarded updates, rollback, and uninstall. Remote fetching, package execution, and automatic isolated-branch PRs remain future work.
 
 ## Design goals
 
@@ -149,17 +149,21 @@ A prior approval for one action does not authorize repeated or broader actions.
 - Agent-neutral project context export for Claude Code, OpenCode, Codex, and other agents.
 - Dry-run/apply/rollback for Foundry-generated module runbooks, with hash lock and no-overwrite/symlink protections.
 
-### v0.4 — Artifact adapters and drift control
-- Reviewed installation adapters for selected skills and templates.
-- Resource lockfile with source, version, hash, and license.
-- Drift detection and safe update workflow.
-- Optional isolated-branch changes with review gates.
+### v0.4 — Artifact adapters and drift control (current)
+- Local Git checkout adapter with catalog-origin and exact-commit verification.
+- Human review and license attestation before installation.
+- Agent-neutral quarantine plus supported Claude Code, OpenCode, Codex, and .agents skill targets.
+- Resource lockfile with source, commit, selected path, license, review flag, and per-file hashes.
+- Drift detection for missing, modified, untracked, and unsafe symlink files.
+- Dry-run install/update/uninstall/rollback; update snapshots and hash-guarded rollback.
+- No remote clone, dependency install, script execution, application-code changes, or automatic edits to agent instruction files.
 
 ### v0.5 — Learning loop
 - Experiment ledger.
 - Metric definitions and source mapping.
 - Weekly growth review.
 - Connector integrations where the project needs them.
+- Optional isolated-branch change proposals with review gates.
 
 ## Non-goals
 
