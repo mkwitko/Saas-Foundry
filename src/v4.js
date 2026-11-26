@@ -67,6 +67,9 @@ function collectFiles(sourceRoot, sourcePath, allowScripts) {
       if (entry.isSymbolicLink()) throw new Error("Resource contains a symlink; review and remove it before installation: " + rel);
       if (entry.isDirectory()) walk(absolute, rel);
       else if (entry.isFile()) {
+        if (/(^\\.env($|\\.)|secret|credential|token|private.?key|\\.pem$|\\.p12$|\\.pfx$|\\.key$|id_rsa|id_ed25519|service.?account)/i.test(entry.name)) {
+          throw new Error("Sensitive-looking file is not eligible for resource installation: " + rel);
+        }
         const ext = path.extname(entry.name).toLowerCase();
         if (!ALLOWED_EXTENSIONS.has(ext)) throw new Error("Unsupported resource file type: " + rel);
         if (!allowScripts && [".js", ".mjs", ".cjs", ".ts", ".py", ".sh"].includes(ext)) throw new Error("Resource contains executable/script-like files. Re-run with --allow-scripts only after reviewing them: " + rel);
@@ -79,6 +82,7 @@ function collectFiles(sourceRoot, sourcePath, allowScripts) {
     }
   }
   if (fs.statSync(start).isFile()) {
+    if (/(^\\.env($|\\.)|secret|credential|token|private.?key|\\.pem$|\\.p12$|\\.pfx$|\\.key$|id_rsa|id_ed25519|service.?account)/i.test(path.basename(start))) throw new Error("Sensitive-looking file is not eligible for resource installation.");
     const ext = path.extname(start).toLowerCase();
     if (!ALLOWED_EXTENSIONS.has(ext)) throw new Error("Unsupported resource file type.");
     const content = fs.readFileSync(start);
