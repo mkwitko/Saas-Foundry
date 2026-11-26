@@ -88,10 +88,14 @@ modules:
     - launch-and-distribution
     - activation-and-onboarding
     - retention-and-customer-success
+    - customer-research-loop
   deferred:
     - seo-and-content
     - referrals-and-partnerships
     - competitor-intelligence
+    - conversion-optimization
+    - revenue-operations
+    - proof-and-advocacy
   blocked:
     - opportunity-intelligence
     - engineering-quality
