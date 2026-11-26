@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://saas-foundry.local/schemas/project.schema.json",
+  "title": "SaaS Foundry project manifest",
+  "type": "object",
+  "required": ["schema_version", "project", "business", "product", "technology", "goals"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "const": "0.1" },
+    "project": {
+      "type": "object",
+      "required": ["id", "name", "repository", "mode", "stage"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "name": { "type": "string", "minLength": 1 },
+        "repository": { "type": "string", "format": "uri" },
+        "mode": { "enum": ["new", "adopt", "upgrade"] },
+        "stage": { "type": "string" },
+        "last_scanned_at": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "business": {
+      "type": "object",
+      "required": ["model", "market", "geography", "icp"],
+      "additionalProperties": false,
+      "properties": {
+        "model": { "type": "string" },
+        "market": { "type": "string" },
+        "geography": { "type": "array", "items": { "type": "string" } },
+        "icp": { "type": "array", "items": { "type": "string" } },
+        "pricing": { "type": "array", "items": { "type": "string" } },
+        "current_bottleneck": { "type": ["string", "null"] }
+      }
+    },
+    "product": {
+      "type": "object",
+      "required": ["category", "value_proposition", "maturity"],
+      "additionalProperties": false,
+      "properties": {
+        "category": { "type": "string" },
+        "value_proposition": { "type": "string" },
+        "maturity": { "type": "string" },
+        "first_value_hypothesis": { "type": ["string", "null"] },
+        "existing_capabilities": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "technology": {
+      "type": "object",
+      "required": ["languages", "frameworks", "data_sensitivity"],
+      "additionalProperties": false,
+      "properties": {
+        "languages": { "type": "array", "items": { "type": "string" } },
+        "frameworks": { "type": "array", "items": { "type": "string" } },
+        "infrastructure": { "type": "array", "items": { "type": "string" } },
+        "data_sensitivity": {
+          "enum": ["public", "internal", "personal", "sensitive", "health"]
+        },
+        "scan_exclusions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "goals": {
+      "type": "object",
+      "required": ["primary", "success_signals"],
+      "additionalProperties": false,
+      "properties": {
+        "primary": { "type": "string" },
+        "success_signals": { "type": "array", "items": { "type": "string" } },
+        "review_cadence": { "type": "string" }
+      }
+    },
+    "modules": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "array", "items": { "type": "string" } },
+        "deferred": { "type": "array", "items": { "type": "string" } },
+        "blocked": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "source_documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "role"],
+        "additionalProperties": false,
+        "properties": {
+          "path": { "type": "string" },
+          "role": { "type": "string" }
+        }
+      }
+    }
+  }
+}
