@@ -4,26 +4,27 @@
   "title": "SaaS Foundry project state",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "project_id", "updated_at", "status"],
+  "required": ["schema_version", "project_id", "project_mode", "workflow", "initialized_at", "updated_at", "status", "last_run", "next_action"],
   "properties": {
     "schema_version": { "const": "0.1" },
     "project_id": { "type": ["string", "null"] },
     "repository": { "type": ["string", "null"], "format": "uri" },
+    "project_mode": { "enum": ["new", "existing"] },
+    "workflow": { "const": "foundry-run" },
+    "initialized_at": { "type": "string", "format": "date-time" },
     "stage": { "type": ["string", "null"] },
-    "selected_task": {
-      "enum": ["auto", "full", "idea", "product", "sales", "growth", "review", null]
-    },
+    "selected_task": { "enum": ["auto", "full", "idea", "product", "sales", "growth", "review", null] },
     "current_bottleneck": { "type": ["string", "null"] },
     "status": { "enum": ["ready", "running", "blocked", "completed", "needs_owner"] },
     "updated_at": { "type": "string", "format": "date-time" },
     "last_run": {
       "type": ["object", "null"],
       "additionalProperties": false,
-      "required": ["run_id", "started_at", "status", "task", "agent"],
+      "required": ["run_id", "started_at", "status", "task", "agent", "modules_selected", "modules_completed", "blockers"],
       "properties": {
         "run_id": { "type": "string", "minLength": 1 },
         "started_at": { "type": "string", "format": "date-time" },
-        "completed_at": { "type": ["string", "null"], "format": "date-time" },
+        "completed_at": { "type": ["string", "null"] },
         "status": { "enum": ["running", "completed", "blocked", "failed"] },
         "task": { "enum": ["auto", "full", "idea", "product", "sales", "growth", "review"] },
         "agent": { "enum": ["claude", "codex", "opencode"] },
