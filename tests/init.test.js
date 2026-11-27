@@ -39,11 +39,13 @@ test("init detects existing projects and preserves user-owned files and artifact
     fs.mkdirSync(path.join(root, ".foundry"), { recursive: true });
     fs.writeFileSync(path.join(root, ".foundry/state.yaml"), "owner_state: keep\n");
     fs.writeFileSync(path.join(root, ".foundry/artifacts.yaml"), "owner_artifacts: keep\n");
+    fs.writeFileSync(path.join(root, ".foundry/shared-knowledge-and-artifact-contracts.md"), "owner_guide: keep\n");
     const result = initializeProject({ projectPath: root });
     assert.equal(result.project_mode, "existing");
     assert.equal(fs.readFileSync(path.join(root, ".claude/skills/foundry-run/SKILL.md"), "utf8"), "user-owned skill\n");
     assert.equal(fs.readFileSync(path.join(root, ".foundry/state.yaml"), "utf8"), "owner_state: keep\n");
     assert.equal(fs.readFileSync(path.join(root, ".foundry/artifacts.yaml"), "utf8"), "owner_artifacts: keep\n");
+    assert.equal(fs.readFileSync(path.join(root, ".foundry/shared-knowledge-and-artifact-contracts.md"), "utf8"), "owner_guide: keep\n");
     assert.ok(result.results.every(item => item.status === "preserved" || item.status === "created"));
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
