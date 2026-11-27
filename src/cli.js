@@ -99,6 +99,7 @@ function formatMarkdownStatus(status) {
     "## Evidence freshness",
     "- Claims: " + status.evidence.total_claims,
     "- Stale claims: " + status.evidence.stale_claims.length,
+    "- Unvalidated / synthetic claims: " + status.evidence.unvalidated_claims,
     "- Decisions: " + status.evidence.decisions,
     "- Active experiments: " + status.evidence.active_experiments,
     ...status.evidence.stale_claims.map(item => "- Stale: " + item.id + " — " + item.claim),
