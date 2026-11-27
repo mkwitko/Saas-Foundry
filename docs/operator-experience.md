@@ -72,7 +72,7 @@ The `review` task is different: it does not bootstrap the project, write run sta
 
 Every writable run follows the same short control loop:
 
-1. **Resume:** read `.foundry/state.yaml`, the last run report, accepted decisions and open experiments.
+1. **Resume:** read `.foundry/state.yaml`, `.foundry/evidence.yaml`, the last run report, accepted decisions and open experiments.
 2. **Inspect:** refresh only evidence relevant to the requested task; record scan scope and exclusions.
 3. **Select:** choose one primary bottleneck and at most two supporting modules unless `full` was explicitly selected.
 4. **Plan:** state the expected customer/business outcome, evidence required, effort, risk and acceptance criteria.
