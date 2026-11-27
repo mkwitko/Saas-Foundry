@@ -146,7 +146,29 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="artifacts") {\n    const [action, projectPath, ...extra] = positional;\n    if(!["validate","status","plan"].includes(action) || !projectPath || extra.length) throw new Error("Usage: artifacts <validate|status|plan> <project-path> [--changed <id[,id...]>].");\n    const workspace=loadArtifactWorkspace(projectPath);\n    if(action==="validate") {\n      const report=getArtifactWorkspaceReport(projectPath).validation;\n      emit({kind:"artifact-validation",data:report},options,"json");\n      if(!report.valid) process.exitCode=1;\n      return;\n    }\n    if(action==="status") {\n      const report=getArtifactWorkspaceReport(projectPath).status;\n      emit({kind:"artifact-status",data:report},options,"json");\n      if(!report.valid) process.exitCode=1;\n      return;\n    }\n    if(!options.changed) throw new Error("artifacts plan requires --changed <artifact-id[,artifact-id...]>.");\n    const report=buildArtifactHandoffPlan({...workspace,changedArtifactIds:options.changed.split(",").map(value=>value.trim()).filter(Boolean)});\n    emit({kind:"artifact-handoff-plan",data:report},options,"json");\n    if(!report.ready) process.exitCode=1;\n    return;\n  }\n  if(command==="customer-intel") {
+  if(command==="artifacts") {
+    const [action, projectPath, ...extra] = positional;
+    if(!["validate","status","plan"].includes(action) || !projectPath || extra.length) throw new Error("Usage: artifacts <validate|status|plan> <project-path> [--changed <id[,id...]>].");
+    const workspace=loadArtifactWorkspace(projectPath);
+    if(action==="validate") {
+      const report=getArtifactWorkspaceReport(projectPath).validation;
+      emit({kind:"artifact-validation",data:report},options,"json");
+      if(!report.valid) process.exitCode=1;
+      return;
+    }
+    if(action==="status") {
+      const report=getArtifactWorkspaceReport(projectPath).status;
+      emit({kind:"artifact-status",data:report},options,"json");
+      if(!report.valid) process.exitCode=1;
+      return;
+    }
+    if(!options.changed) throw new Error("artifacts plan requires --changed <artifact-id[,artifact-id...]>.");
+    const report=buildArtifactHandoffPlan({...workspace,changedArtifactIds:options.changed.split(",").map(value=>value.trim()).filter(Boolean)});
+    emit({kind:"artifact-handoff-plan",data:report},options,"json");
+    if(!report.ready) process.exitCode=1;
+    return;
+  }
+  if(command==="customer-intel") {
     const [action, projectPath, ...extra] = positional;
     if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: customer-intel report <project-path> [--input <sanitized-summary.json>].");
     const {file, report} = readCustomerIntelligenceInput(projectPath, options.input);
