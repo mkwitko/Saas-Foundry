@@ -142,7 +142,28 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="verify") {\n    if(positional.length!==1) throw new Error("verify requires exactly one project path.");\n    const requiredModules=options.module ? options.module.split(",").map(x=>x.trim()).filter(Boolean) : [];\n    const report=verifyDefinitionOfDone(positional[0],{requiredModules});\n    emit({kind:"definition-of-done",data:report},options,"json");\n    if(!report.valid) process.exitCode=1;\n    return;\n  }\n  if(command==="sequence") {\n    if(positional.length!==1) throw new Error("sequence requires exactly one project path.");\n    if(!options.module) throw new Error("sequence requires --module <id[,id...]>.");\n    const {projectRoot,manifest,registry}=loadFoundryContext(positional[0],FOUNDRY_ROOT);\n    const statePath=path.join(projectRoot,".foundry","state.yaml");\n    const state=fs.existsSync(statePath) ? parseYaml(fs.readFileSync(statePath,"utf8")) : {};\n    const statuses={};\n    for(const [status,ids] of Object.entries(manifest.modules ?? {})) for(const id of ids ?? []) statuses[id]=status;\n    const plan=buildDependencyPlan({registry,requested:options.module.split(",").map(x=>x.trim()).filter(Boolean),completed:state.completed_modules ?? [],statuses});\n    emit({kind:"dependency-sequence",data:plan},options,"json");\n    if(!plan.ready) process.exitCode=1;\n    return;\n  }\n  if(command==="status") {
+  if(command==="verify") {
+    if(positional.length!==1) throw new Error("verify requires exactly one project path.");
+    const requiredModules=options.module ? options.module.split(",").map(x=>x.trim()).filter(Boolean) : [];
+    const report=verifyDefinitionOfDone(positional[0],{requiredModules});
+    emit({kind:"definition-of-done",data:report},options,"json");
+    if(!report.valid) process.exitCode=1;
+    return;
+  }
+  if(command==="sequence") {
+    if(positional.length!==1) throw new Error("sequence requires exactly one project path.");
+    if(!options.module) throw new Error("sequence requires --module <id[,id...]>.");
+    const {projectRoot,manifest,registry}=loadFoundryContext(positional[0],FOUNDRY_ROOT);
+    const statePath=path.join(projectRoot,".foundry","state.yaml");
+    const state=fs.existsSync(statePath) ? parseYaml(fs.readFileSync(statePath,"utf8")) : {};
+    const statuses={};
+    for(const [status,ids] of Object.entries(manifest.modules ?? {})) for(const id of ids ?? []) statuses[id]=status;
+    const plan=buildDependencyPlan({registry,requested:options.module.split(",").map(x=>x.trim()).filter(Boolean),completed:state.completed_modules ?? [],statuses});
+    emit({kind:"dependency-sequence",data:plan},options,"json");
+    if(!plan.ready) process.exitCode=1;
+    return;
+  }
+  if(command==="status") {
     if(positional.length!==1) throw new Error("status requires exactly one project path.");
     emit({kind:"status",data:getFoundryStatus(positional[0])},options,"md"); return;
   }
