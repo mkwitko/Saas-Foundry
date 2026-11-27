@@ -53,7 +53,22 @@ The router must:
 
 ## Execution loop
 
-Every run follows the same short control loop:
+### Runner-owned lifecycle
+
+Writable tasks are tracked by the CLI, not left entirely to the agent:
+
+- Before launch, the runner records a unique run ID, task, agent, start time, PID, current branch and starting commit in `.foundry/state.yaml`.
+- A second writable run is refused while the previous runner process is still active.
+- If a prior CLI process disappeared before recording completion, the next run marks that execution interrupted before starting a new one.
+- After exit, the runner records success/failure, exit code, signal, final branch/commit and a JSON receipt under `.foundry/runs/<run-id>.json`.
+- Agent-written module progress, blockers and a meaningful next action are preserved. The runner only supplies a fallback next action when none was recorded.
+- If state was concurrently replaced or corrupted, the runner reports a tracking error rather than silently overwriting it.
+
+The `review` task is different: it does not bootstrap the project, write run state or create a run receipt. It is intended for read-only diagnosis.
+
+### Execution loop
+
+Every writable run follows the same short control loop:
 
 1. **Resume:** read `.foundry/state.yaml`, the last run report, accepted decisions and open experiments.
 2. **Inspect:** refresh only evidence relevant to the requested task; record scan scope and exclusions.
@@ -64,7 +79,7 @@ Every run follows the same short control loop:
 7. **Learn:** update evidence, decisions, experiment outcomes and project state.
 8. **Handoff:** leave one next action, its owner, and any approval needed.
 
-A run is not complete because a report exists. It is complete when the selected work has a verifiable outcome or a clearly recorded blocker.
+A process exit code of zero means only that the agent process exited successfully; it does not prove that the business task is complete. A run is operationally complete only when the selected work has a verifiable outcome or a clearly recorded blocker. Review the run receipt together with the agent's evidence and changed files.
 
 ## Customer value and satisfaction loop
 
@@ -97,3 +112,13 @@ A feature is not accepted solely because it compiles. Product work must also pas
 ## Human approval
 
 The agent can autonomously inspect, research, draft and make scoped local changes. Explicit approval remains mandatory for outreach, publishing, directory submission, spend, deployment, production changes, sensitive data access, security-sensitive changes and third-party installation.
+
+
+## Failure recovery and auditability
+
+- Keep one active writable Foundry run per project at a time.
+- Never infer success from a missing error message; check the exit code and verification evidence.
+- Treat an interrupted run as incomplete. Inspect partial changes and the latest receipt before resuming.
+- Do not automatically revert agent changes after a failed run. First inspect the diff; rollback can destroy valid partial work.
+- Run receipts contain execution metadata and concise module outcomes, not secrets, raw customer conversations or patient data.
+- Preserve previous run receipts. Use the latest state as a pointer, not as the only history.
