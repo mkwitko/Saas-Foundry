@@ -107,16 +107,16 @@ function formatMarkdownStatus(status) {
     );
   } else lines.push("- No runs recorded.");
   lines.push("", "## Next action", status.next_action ? "- " + status.next_action.title + " (owner: " + status.next_action.owner + ")" : "- Not defined");
-  lines.push("", "## Pending approvals", status.pending_approvals.length ? status.pending_approvals.map(item => "- " + item).join("\\n") : "- None");
-  return lines.join("\\n") + "\\n";
+  lines.push("", "## Pending approvals", status.pending_approvals.length ? status.pending_approvals.map(item => "- " + item).join("\n") : "- None");
+  return lines.join("\n") + "\n";
 }
 function formatMarkdownRuns(runs) {
-  if (!runs.length) return "No Foundry runs recorded yet.\\n";
+  if (!runs.length) return "No Foundry runs recorded yet.\n";
   const lines = ["# SaaS Foundry run history", "", "| Started | Task | Agent | Outcome | Modules |", "|---|---|---|---|---|"];
   for (const run of runs) {
     lines.push("| " + (run.started_at ?? "") + " | " + (run.task ?? "") + " | " + (run.agent ?? "") + " | " + (run.outcome ?? run.status ?? "") + " | " + (run.modules_completed?.length ?? 0) + "/" + (run.modules_selected?.length ?? 0) + " |");
   }
-  return lines.join("\\n") + "\\n";
+  return lines.join("\n") + "\n";
 }
 function loadJson(file){
   const raw=fs.readFileSync(path.resolve(file),"utf8");
