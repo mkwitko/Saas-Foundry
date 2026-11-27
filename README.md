@@ -294,3 +294,12 @@ See [docs/security-and-provenance.md](docs/security-and-provenance.md), [docs/ar
 The optional Playwright harness checks configured routes at mobile, tablet and desktop sizes, captures screenshots, detects horizontal overflow, broken images and browser errors, and runs axe WCAG 2.1 A/AA checks when `@axe-core/playwright` is installed. It reuses existing browser tests where possible and does not install dependencies or start the application.
 
 See [docs/design-quality-gates.md](docs/design-quality-gates.md) and [docs/operator-experience.md](docs/operator-experience.md). The generated config schema is [schemas/visual-audit-config.schema.json](schemas/visual-audit-config.schema.json). Remote targets are disabled by default; only explicitly approved staging targets may set `allowRemote: true`. Do not run against production.
+
+
+## Customer intelligence and retention
+
+The optional customer intelligence loop connects privacy-safe aggregate product events, sanitized customer feedback, support themes, activation, retention and cancellation reasons to a single evidence-backed improvement cycle. It prioritizes customer pain without pretending small samples are statistically significant or inferring causality from correlation.
+
+Use `foundry customer-intel report .` after creating `.foundry/customer-intelligence/summary.json` from [the aggregate template](templates/customer-intelligence-summary.json). For an external sanitized aggregate, pass `--input ./path/to/summary.json --format json`. The schema rejects unrecognized fields; do not provide raw conversations, personal contact data, patient data or production logs.
+
+See [Customer Intelligence Loop](docs/customer-intelligence-loop.md) and [the schema](schemas/customer-intelligence.schema.json).
