@@ -243,3 +243,32 @@ Always show counts with percentages. With fewer than 10 accounts, prefer case-le
 - Mass programmatic SEO.
 - New verticals before the initial segment has credible paid retention.
 - Automated cold outreach or mass directory submissions.
+
+
+## Cycle 1 — first operating review (27 November 2026)
+
+<badge>Review completed</badge>
+
+The first Foundry cycle is documented in the [project-local report](https://github.com/mkwitko/ia-chat/blob/main/.foundry/reports/first-cycle-2026-11-27.md).
+
+### Completed in the adoption layer
+
+- Mapped existing canonical business, ICP, product, design, offer, acquisition and metrics documents.
+- Added a project-local artifact registry, evidence ledger, state file and module acceptance ledger.
+- Recorded the distinction between repository evidence, synthetic buyer-panel output, owner decisions and unvalidated assumptions.
+- Registered two proposed experiments: permission-based referrals/live demos and the Agenda R$ 247 vs R$ 297 price comparison. Neither is running.
+- Created an empty company-level B2B prospect pipeline with the three existing channel hypotheses.
+- Reviewed selected waitlist, invitation, onboarding, trial, billing, Results, customer and referral routes.
+
+### Still open
+
+- Runtime Foundry CLI validation and handoff execution are explicitly `not_run`.
+- The complete first-party event/query map is not finished.
+- M-05 permissions, M-07 Results reconciliation and SMB-01 360 px / 1280 px browser acceptance remain P0.
+- Meta, Google OAuth, ANPD/provider clauses, required credentials and real-number WhatsApp checks remain external or operational gates.
+- No real prospect cohort, paid conversion result, price-test result or repeatable channel performance is claimed.
+
+### Next cycle
+
+Run a measurement and pilot-readiness sprint. Reuse existing first-party tables and product surfaces, define the funnel source map, close the P0 gates, and then execute the already planned permission-based prospect cohort. Do not add a second CRM, new analytics vendor, paid ads, predictive lead scoring or another vertical until real usage and commercial evidence justify them.
+
