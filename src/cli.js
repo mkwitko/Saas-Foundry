@@ -14,7 +14,7 @@ import { initializeProject } from "./init.js";
 import { runFoundry, getFoundryStatus, listFoundryRuns } from "./run.js";
 import { runInteractive } from "./interactive.js";
 import { buildDependencyPlan, verifyDefinitionOfDone } from "./planner.js";
-import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";
+import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";\nimport { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -66,7 +66,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit","--base-url"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit","--base-url","--input"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -143,7 +143,7 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="visual-audit") {
+  if(command==="customer-intel") {\n    const [action, projectPath, ...extra] = positional;\n    if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: customer-intel report <project-path> [--input <sanitized-summary.json>].");\n    const {file, report} = readCustomerIntelligenceInput(projectPath, options.input);\n    const format = options.format ?? "md";\n    if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");\n    const output = format === "json" ? JSON.stringify({source:file, ...report}, null, 2) + "\\n" : formatCustomerIntelligenceMarkdown(report);\n    if(options.out) { const destination=path.resolve(options.out); fs.mkdirSync(path.dirname(destination),{recursive:true}); fs.writeFileSync(destination,output,{encoding:"utf8",flag:"w"}); process.stdout.write("Wrote " + destination + "\\n"); }\n    else process.stdout.write(output + (output.endsWith("\\n") ? "" : "\\n"));\n    return;\n  }\n  if(command==="visual-audit") {
     const [action, projectPath, ...extra] = positional;
     if(!["init","run","report"].includes(action)) throw new Error("visual-audit action must be init, run or report.");
     if(!projectPath || extra.length) throw new Error("Usage: visual-audit <init|run|report> <project-path>.");
