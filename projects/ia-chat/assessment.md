@@ -135,3 +135,32 @@ Run the first Foundry cycle as a **measurement + sales execution sprint**, not a
 3. Record the next 10 real prospects through the existing founder-led channels.
 4. Capture the demo → WhatsApp connected → first value → paid path.
 5. Review the evidence before changing pricing, ICP, offer or channels.
+
+
+## Update — first operating cycle (27 November 2026)
+
+The first post-adoption cycle is documented in [the IA Chat repository](https://github.com/mkwitko/ia-chat/blob/main/.foundry/reports/first-cycle-2026-11-27.md) (project-local workspace PR [#116](https://github.com/mkwitko/ia-chat/pull/116)).
+
+### What changed
+
+- Mapped the existing canonical strategy, ICP, product, design, offer, acquisition and metrics documents in `.foundry/artifacts.yaml`; no duplicate strategy or product documents were created.
+- Added an evidence ledger that distinguishes repository evidence (E3) from the simulated buyer panel (E6).
+- Recorded five owner decisions and two proposed commercial experiments. Neither experiment is running and no result is claimed.
+- Added an empty company-level B2B revenue pipeline with referral, live-demo and founder-Instagram hypotheses.
+- Reviewed selected API routes for waitlist, invitations, onboarding, trial, billing, results, customer lifecycle and referral attribution.
+- Confirmed that the existing Customers workflow is for end customers/patients and must not be repurposed as the SaaS prospect CRM.
+
+### Current conclusion
+
+The commercial bottleneck remains the path from prospect source to invitation, WhatsApp connection, activation, first value, payment and retention. Existing operational telemetry and the Results surface do not by themselves prove a complete acquisition funnel.
+
+The first cycle did not access production data, patient conversations, raw logs, secrets or provider accounts. It made no product-code changes and performed no external outreach.
+
+### Open verification
+
+- Runtime Foundry commands are recorded as `not_run` in the project acceptance ledger; run them from local checkouts.
+- Complete the first-party data-source and event map before adding an analytics vendor.
+- Finish M-05 permissions, M-07 Results reconciliation and SMB-01 browser acceptance.
+- Close the relevant Meta, Google, legal/provider and real-number WhatsApp readiness gates before expanding the pilot.
+
+The next cycle is therefore a measurement and pilot-readiness sprint, not another ideation or feature-expansion cycle.
