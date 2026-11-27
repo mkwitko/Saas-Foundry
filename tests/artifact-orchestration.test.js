@@ -74,3 +74,23 @@ test("rejects unknown changed artifacts and dependency cycles", () => {
     assert.equal(validateArtifactWorkspace(f).valid, false);
   } finally { f.cleanup(); }
 });
+
+test("counts proposed artifacts and treats invalid source dates as unknown", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-artifacts-status-"));
+  try {
+    fs.mkdirSync(path.join(root, "docs"), { recursive: true });
+    fs.writeFileSync(path.join(root, "docs/strategy.md"), "strategy");
+    const registry = { schema_version: "1.0", artifacts: [
+      { id: "strategy", contract_id: "strategy", path: "docs/strategy.md", owner: "founder", status: "current", version: 1, updated_at: "not-a-date", review_after_days: 30, depends_on: [], consumers: [] },
+      { id: "design", contract_id: "design", path: null, owner: "design", status: "proposed", version: 0, updated_at: null, review_after_days: 30, depends_on: [], consumers: [] }
+    ] };
+    const contracts = { schema_version: "1.0", artifacts: [{ id: "strategy", consumers: [] }, { id: "design", consumers: [] }] };
+    const result = buildArtifactStatus({ root, registry, contracts, now: new Date("2026-11-27T00:00:00Z") });
+    assert.equal(result.summary.total, 2);
+    assert.equal(result.summary.unmapped, 1);
+    assert.equal(result.summary.proposed, 1);
+    assert.equal(result.artifacts[0].reason, "updated_at_invalid");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
