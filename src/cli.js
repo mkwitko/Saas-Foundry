@@ -17,7 +17,8 @@ import { buildDependencyPlan, verifyDefinitionOfDone } from "./planner.js";
 import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";
 import { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
 import { getArtifactWorkspaceReport, loadArtifactWorkspace, buildArtifactHandoffPlan } from "./artifact-orchestration.js";
-import { buildImprovementReport, formatImprovementMarkdown } from "./continuous-improvement.js";\nimport { buildRevenueReport, formatRevenueMarkdown } from "./revenue-engine.js";
+import { buildImprovementReport, formatImprovementMarkdown } from "./continuous-improvement.js";
+import { buildRevenueReport, formatRevenueMarkdown } from "./revenue-engine.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
