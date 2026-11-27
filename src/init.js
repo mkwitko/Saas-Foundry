@@ -67,6 +67,10 @@ export function initializeProject({ projectPath, mode = "auto", agent = "claude"
   const evidenceTemplate = fs.readFileSync(path.join(ROOT, "templates/evidence-ledger.yaml"), "utf8");
   const acceptanceSchema = fs.readFileSync(path.join(ROOT, "schemas/acceptance.schema.json"), "utf8");
   const acceptanceTemplate = fs.readFileSync(path.join(ROOT, "templates/acceptance.yaml"), "utf8");
+  const artifactSchema = fs.readFileSync(path.join(ROOT, "schemas/artifact-registry.schema.json"), "utf8");
+  const artifactContracts = fs.readFileSync(path.join(ROOT, "catalog/artifact-contracts.yaml"), "utf8");
+  const artifactTemplate = fs.readFileSync(path.join(ROOT, "templates/artifact-registry.yaml"), "utf8");
+  const artifactGuide = fs.readFileSync(path.join(ROOT, "docs/shared-knowledge-and-artifact-contracts.md"), "utf8");
   const results = targets.map(relative => writeOrUpgradeFoundrySkill(path.join(projectRoot, relative), skill));
   const now = new Date().toISOString();
   const state = `schema_version: "0.1"
@@ -97,6 +101,10 @@ completed_modules: []
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/evidence.yaml"), evidenceTemplate.replace("updated_at: null", "updated_at: " + now)));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/acceptance.schema.json"), acceptanceSchema));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/acceptance.yaml"), acceptanceTemplate));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/artifacts.schema.json"), artifactSchema));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/artifact-contracts.yaml"), artifactContracts));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/artifacts.yaml"), artifactTemplate.replace("updated_at: null", "updated_at: " + now)));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/shared-knowledge-and-artifact-contracts.md"), artifactGuide));
   const readme = `# SaaS Foundry project workspace
 
 This project has the Foundry workflow installed locally.
@@ -107,10 +115,15 @@ This project has the Foundry workflow installed locally.
 - Persistent run state: .foundry/state.yaml
 - Evidence, decisions and experiments: .foundry/evidence.yaml
 - Module routing: .foundry/workflow-routing.yaml
+- Shared artifact registry: .foundry/artifacts.yaml
+- Shared artifact contracts: .foundry/artifact-contracts.yaml
+- Artifact registry schema: .foundry/artifacts.schema.json
 - State contract: .foundry/state.schema.json
 - Evidence contract: .foundry/evidence-ledger.schema.json
 - Module acceptance records: .foundry/acceptance.yaml
 - Acceptance contract: .foundry/acceptance.schema.json
+
+The artifact registry maps specialist work to canonical project documents. It does not create duplicate business, product, design or marketing documents. Map existing sources of truth before creating new files. See .foundry/shared-knowledge-and-artifact-contracts.md for the operating rules.
 
 Run the foundry-run skill or execute SaaS Foundry with a focused task. The workflow inspects this repository, confirms whether it is greenfield or existing, and reuses the appropriate capabilities. Existing instructions and product documentation are never replaced.
 `;

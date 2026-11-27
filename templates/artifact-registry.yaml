@@ -1,0 +1,183 @@
+schema_version: "1.0"
+updated_at: null
+artifacts:
+  - id: business-strategy
+    contract_id: business-strategy
+    path: null
+    owner: founder
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 90
+    sensitivity: confidential
+    change_policy: owner_approval
+    producers: [founder-skill, foundry]
+    consumers: [product-strategy, marketing-skills, sales-pipeline, founder-operations]
+    depends_on: []
+    evidence_ids: []
+    sources: []
+  - id: icp-and-buyer
+    contract_id: icp-and-buyer
+    path: null
+    owner: founder
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 45
+    sensitivity: confidential
+    change_policy: owner_approval
+    producers: [founder-skill, customer-research-loop, foundry]
+    consumers: [marketing-skills, impeccable, sales-pipeline, product-strategy, acquisition-engine]
+    depends_on: [business-strategy]
+    evidence_ids: []
+    sources: []
+  - id: product-brief
+    contract_id: product-brief
+    path: null
+    owner: product
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 60
+    sensitivity: internal
+    change_policy: owner_approval
+    producers: [founder-skill, product-strategy, customer-intelligence-loop]
+    consumers: [impeccable, engineering-quality, marketing-skills, sales-pipeline]
+    depends_on: [icp-and-buyer]
+    evidence_ids: []
+    sources: []
+  - id: design-system-and-ux
+    contract_id: design-system-and-ux
+    path: null
+    owner: design
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 45
+    sensitivity: internal
+    change_policy: safe_additive
+    producers: [impeccable, product-design, visual-quality-audit]
+    consumers: [product-strategy, engineering-quality, marketing-skills]
+    depends_on: [icp-and-buyer, product-brief]
+    evidence_ids: []
+    sources: []
+  - id: positioning-and-offer
+    contract_id: positioning-and-offer
+    path: null
+    owner: founder
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 30
+    sensitivity: confidential
+    change_policy: owner_approval
+    producers: [founder-skill, marketing-skills]
+    consumers: [conversion-optimization, sales-pipeline, launch-and-distribution, product-strategy]
+    depends_on: [business-strategy, icp-and-buyer, product-brief]
+    evidence_ids: []
+    sources: []
+  - id: website-and-conversion
+    contract_id: website-and-conversion
+    path: null
+    owner: marketing
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 30
+    sensitivity: public
+    change_policy: safe_additive
+    producers: [marketing-skills, impeccable, conversion-optimization]
+    consumers: [founder-skill, sales-pipeline, analytics-instrumentation]
+    depends_on: [icp-and-buyer, positioning-and-offer, design-system-and-ux]
+    evidence_ids: []
+    sources: []
+  - id: acquisition-and-channel-plan
+    contract_id: acquisition-and-channel-plan
+    path: null
+    owner: marketing
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 30
+    sensitivity: confidential
+    change_policy: owner_approval
+    producers: [marketing-skills, acquisition-engine, founder-skill]
+    consumers: [sales-pipeline, founder-operations, analytics-instrumentation]
+    depends_on: [icp-and-buyer, positioning-and-offer]
+    evidence_ids: []
+    sources: []
+  - id: sales-playbook
+    contract_id: sales-playbook
+    path: null
+    owner: sales
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 30
+    sensitivity: confidential
+    change_policy: owner_approval
+    producers: [founder-skill, foundry-sales-review]
+    consumers: [marketing-skills, retention-and-customer-success, founder-operations]
+    depends_on: [icp-and-buyer, positioning-and-offer]
+    evidence_ids: []
+    sources: []
+  - id: metrics-and-events
+    contract_id: metrics-and-events
+    path: null
+    owner: analytics
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 30
+    sensitivity: confidential
+    change_policy: owner_approval
+    producers: [analytics-instrumentation, customer-intelligence-loop, foundry]
+    consumers: [founder-skill, marketing-skills, sales-pipeline, product-strategy, retention-and-customer-success]
+    depends_on: [icp-and-buyer, product-brief]
+    evidence_ids: []
+    sources: []
+  - id: customer-intelligence
+    contract_id: customer-intelligence
+    path: null
+    owner: customer-success
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 14
+    sensitivity: confidential
+    change_policy: propose_only
+    producers: [customer-research-loop, customer-intelligence-loop, customer-support-loop]
+    consumers: [founder-skill, product-strategy, impeccable, marketing-skills, sales-pipeline]
+    depends_on: [metrics-and-events]
+    evidence_ids: []
+    sources: []
+  - id: experiments-and-results
+    contract_id: experiments-and-results
+    path: null
+    owner: foundry
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 14
+    sensitivity: internal
+    change_policy: safe_additive
+    producers: [foundry, marketing-skills, product-strategy, sales-pipeline]
+    consumers: [founder-skill, marketing-skills, product-strategy, customer-intelligence-loop]
+    depends_on: [metrics-and-events]
+    evidence_ids: []
+    sources: []
+  - id: decisions-and-assumptions
+    contract_id: decisions-and-assumptions
+    path: null
+    owner: founder
+    status: unknown
+    version: 0
+    updated_at: null
+    review_after_days: 90
+    sensitivity: confidential
+    change_policy: propose_only
+    producers: [founder-skill, foundry]
+    consumers: [all_capabilities]
+    depends_on: []
+    evidence_ids: []
+    sources: []
