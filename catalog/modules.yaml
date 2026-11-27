@@ -13,6 +13,16 @@ modules:
     risk: medium
     ia_chat: recommended
 
+  - id: continuous-improvement-engine
+    group: learning
+    purpose: Turn evidence freshness, customer pain, experiment outcomes and review dates into one prioritized weekly improvement action.
+    triggers: [weekly_review, stale_evidence, experiment_completed, customer_pain, retention_signal, roadmap_uncertainty]
+    inputs: [evidence_ledger, sanitized_customer_intelligence, experiment_results, decision_review_dates]
+    outputs: [improvement_report, evidence_revalidation_queue, decision_review_queue, next_experiment_brief]
+    requires: [cross-skill-orchestration]
+    risk: medium
+    ia_chat: recommended
+
   - id: cross-skill-orchestration
     group: operations
     purpose: Calculate artifact freshness, detect stale dependency chains and generate owner-aware handoff plans between specialist capabilities.
