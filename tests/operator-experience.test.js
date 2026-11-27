@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { parse as parseYaml } from "yaml";
 import { fileURLToPath } from "node:url";
 import { FOUNDRY_TASKS, buildWorkflowPrompt, agentArgs } from "../src/run.js";
 import { initializeProject } from "../src/init.js";
+import { initializeVisualAudit, readVisualAuditReport } from "../src/visual-audit.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -67,6 +69,62 @@ test("bootstrap installs routing and state contracts without overwriting project
     assert.equal(fs.readFileSync(path.join(projectRoot, "README.md"), "utf8"), "Project-owned README\n");
     const rerun = initializeProject({ projectPath: projectRoot, mode: "existing", agent: "claude" });
     assert.ok(rerun.results.some(item => item.path.endsWith(".foundry/state.yaml") && item.status === "preserved"));
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test("visual audit bootstrap creates portable Playwright files without overwriting project config", () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-visual-"));
+  try {
+    const result = initializeVisualAudit(projectRoot, { baseURL: "http://127.0.0.1:4173" });
+    assert.equal(result.results.length, 3);
+    assert.ok(result.results.every(item => item.status === "created"));
+    const configPath = path.join(projectRoot, ".foundry/visual-audit/config.json");
+    const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    assert.equal(config.baseURL, "http://127.0.0.1:4173");
+    assert.deepEqual(config.viewports.map(item => item.name), ["mobile", "tablet", "desktop"]);
+    const specPath = path.join(projectRoot, ".foundry/visual-audit/visual-audit.spec.cjs");
+    const configJsPath = path.join(projectRoot, ".foundry/visual-audit/playwright.config.cjs");
+    assert.equal(spawnSync(process.execPath, ["--check", specPath]).status, 0);
+    assert.equal(spawnSync(process.execPath, ["--check", configJsPath]).status, 0);
+    fs.writeFileSync(configPath, '{"project_owned":true}\n');
+    const rerun = initializeVisualAudit(projectRoot);
+    assert.ok(rerun.results.every(item => item.status === "preserved"));
+    assert.equal(fs.readFileSync(configPath, "utf8"), '{"project_owned":true}\n');
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test("visual audit report summarizes pass fail skip and flaky outcomes", () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-visual-report-"));
+  try {
+    const reportDir = path.join(projectRoot, ".foundry/reports");
+    fs.mkdirSync(reportDir, { recursive: true });
+    fs.writeFileSync(path.join(reportDir, "visual-audit.playwright.json"), JSON.stringify({
+      stats: { startTime: "2026-11-27T00:00:00.000Z" },
+      suites: [{ title: "visual-audit.spec.cjs", specs: [
+        { title: "home responsive: mobile", tests: [{ results: [{ status: "passed", duration: 100 }] }] },
+        { title: "home responsive: tablet", tests: [{ results: [{ status: "failed", duration: 80 }] }] },
+        { title: "home accessibility", tests: [{ results: [{ status: "skipped", duration: 0 }] }] },
+        { title: "home responsive: desktop", tests: [{ results: [{ status: "failed" }, { status: "passed", duration: 150 }] }] }
+      ] }]
+    }));
+    const report = readVisualAuditReport(projectRoot);
+    assert.deepEqual(report.summary, { total: 4, passed: 2, failed: 1, skipped: 1, flaky: 1 });
+    assert.equal(report.tests[3].flaky, true);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test("visual audit report clearly reports when no browser run exists", () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-visual-empty-"));
+  try {
+    const report = readVisualAuditReport(projectRoot);
+    assert.equal(report.available, false);
+    assert.equal(report.summary.total, 0);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
