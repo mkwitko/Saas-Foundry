@@ -30,6 +30,7 @@
         "status": { "enum": ["running", "completed", "blocked", "failed"] },
         "task": { "enum": ["auto", "full", "idea", "product", "sales", "growth", "review"] },
         "agent": { "enum": ["claude", "codex", "opencode"] },
+        "runner_pid": { "type": ["integer", "null"] },
         "branch": { "type": ["string", "null"] },
         "commit": { "type": ["string", "null"] },
         "summary_path": { "type": ["string", "null"] },
