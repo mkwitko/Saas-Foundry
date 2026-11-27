@@ -166,3 +166,17 @@ foundry visual-audit report .
 The default harness checks mobile, tablet and desktop layouts, navigation status, horizontal overflow, broken images and browser errors. It captures screenshots and can run axe WCAG 2.1 A/AA checks when the optional package is present. It does not compare screenshots to approved visual baselines, automatically discover every route, start a server, or prove the UI is usable. Extend the generated suite with assertions for the product's actual critical journeys and inspect screenshots manually.
 
 Reports are written to `.foundry/reports/visual-audit.playwright.json`; screenshots and traces are stored under `.foundry/artifacts/visual-audit/`. Keep artifacts free of customer, patient and other sensitive information. Record report path, route/viewport coverage, skipped checks and human review in the acceptance ledger.
+
+
+## Customer intelligence report
+
+For products with customer activity, use existing analytics and support sources first. Export only aggregate or sanitized summaries; never ingest raw conversations, contact details, patient data or production logs.
+
+Create `.foundry/customer-intelligence/summary.json` from `templates/customer-intelligence-summary.json`, following `schemas/customer-intelligence.schema.json`, then run:
+
+```bash
+foundry customer-intel report .
+foundry customer-intel report . --input ./exports/sanitized-summary.json --format json
+```
+
+The report computes descriptive activation, active, retention and cancellation rates only when denominators exist, flags fewer than 10 eligible accounts, and orders declared support/negative-feedback signals by severity and affected accounts. This is a triage aid, not churn prediction, statistical inference or causal analysis. Use [Customer Intelligence Loop](customer-intelligence-loop.md) to define event semantics, cohorts, privacy boundaries and the weekly decision cycle.
