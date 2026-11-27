@@ -94,6 +94,28 @@ function readState(projectRoot) {
   try { state = parseYaml(fs.readFileSync(statePath, "utf8")); }
   catch (error) { throw new Error("Could not parse .foundry/state.yaml; preserved the file. Repair or migrate it before running: " + error.message); }
   if (!state || typeof state !== "object" || Array.isArray(state)) throw new Error(".foundry/state.yaml must contain a YAML object.");
+  const validTasks = Object.keys(FOUNDRY_TASKS);
+  if (state.schema_version !== "0.1" || state.workflow !== "foundry-run") {
+    throw new Error("Unsupported .foundry/state.yaml contract. Preserve the file and migrate it to schema_version 0.1 / workflow foundry-run before running.");
+  }
+  if (!["new", "existing"].includes(state.project_mode)) throw new Error(".foundry/state.yaml has an invalid project_mode.");
+  if (!["ready", "running", "blocked", "completed", "needs_owner"].includes(state.status)) throw new Error(".foundry/state.yaml has an invalid status.");
+  if (state.selected_task != null && !validTasks.includes(state.selected_task)) throw new Error(".foundry/state.yaml has an invalid selected_task.");
+  if (state.last_run != null) {
+    const last = state.last_run;
+    if (typeof last !== "object" || !last.run_id || !last.started_at ||
+        !["running", "completed", "blocked", "failed"].includes(last.status) ||
+        !validTasks.includes(last.task) || !["claude", "codex", "opencode"].includes(last.agent) ||
+        !Array.isArray(last.modules_selected) || !Array.isArray(last.modules_completed) || !Array.isArray(last.blockers)) {
+      throw new Error(".foundry/state.yaml contains an invalid last_run record. The original file was preserved.");
+    }
+  }
+  if (state.next_action != null &&
+      (typeof state.next_action !== "object" || typeof state.next_action.title !== "string" ||
+       !["founder", "agent", "customer", "specialist"].includes(state.next_action.owner) ||
+       typeof state.next_action.requires_approval !== "boolean")) {
+    throw new Error(".foundry/state.yaml contains an invalid next_action. The original file was preserved.");
+  }
   return { statePath, state };
 }
 
