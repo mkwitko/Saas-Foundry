@@ -47,7 +47,7 @@ test("detects missing canonical files and stale review intervals", () => {
     f.registry.artifacts[0].updated_at = "2020-01-01T00:00:00.000Z";
     f.registry.artifacts[0].review_after_days = 10;
     const result = buildArtifactStatus({ ...f, now: new Date("2026-11-27T00:00:00.000Z") });
-    assert.equal(result.summary.stale, 1);
+    assert.equal(result.summary.stale, 2);
     assert.equal(result.artifacts[0].reason, "review_interval_expired");
     assert.equal(result.artifacts[1].status, "stale");
     assert.deepEqual(result.artifacts[1].stale_dependencies, ["strategy"]);
