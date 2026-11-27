@@ -647,3 +647,21 @@ If no suitable browser suite exists, propose or initialize the Foundry harness w
 Before running, edit `.foundry/visual-audit/config.json` to include the actual route inventory and stable readiness selectors. Start the application using the project's documented development or preview command. Run `foundry visual-audit run <project>` against that local URL. The harness captures mobile (390px), tablet (768px) and desktop (1440px) by default and checks HTTP responses, body visibility, horizontal overflow, broken images and browser/page errors. When axe is installed, it audits WCAG 2.1 A/AA and WCAG 2.2 is not claimed unless separately configured and verified.
 
 Inspect every screenshot and failure artifact; automated checks do not judge visual hierarchy, brand coherence, task clarity, content quality or whether the page is commercially persuasive. Add user-flow assertions for important actions and states; the generated baseline is a route/responsive smoke audit, not a complete E2E test suite. Report skipped accessibility checks as unverified, not passed. Never claim pixel-perfect visual regression: screenshot capture is evidence, not baseline comparison. Record the JSON report path, viewport coverage, skipped checks, known limitations and human review in `.foundry/acceptance.yaml`. Keep screenshots and traces free of personal, customer, patient or other sensitive data.
+
+
+## Customer intelligence and retention loop
+
+When a project has real users or customers, connect existing product analytics, customer interviews, sanitized support themes, onboarding outcomes and cancellation reasons. Do not introduce a second analytics stack unless the current one cannot answer a defined question.
+
+1. Define the account-level activation event (first verified customer value) and recurring value event for this product.
+2. Inspect event names, actor scope, deduplication, unique-account counts, time windows and missing data before calculating rates.
+3. Summarize feedback by theme and sentiment while preserving whether it came from a customer statement, interview, support issue or observed analytics.
+4. Review support severity and distinct affected accounts; repeated tickets from one account are not distinct customers.
+5. Review retention and cancellations by consistent cohorts. For low-volume B2B, inspect cases individually and show counts with denominators.
+6. Prioritize one customer pain using visible severity, recurrence, affected accounts, commercial risk and evidence confidence; do not present a heuristic rank as a causal or statistical result.
+7. Record a single experiment with hypothesis, segment, intervention, primary metric, guardrails, owner and decision date. After the observation window, record measured result and keep/change/stop/investigate decision.
+8. Update the evidence ledger and supersede prior decisions when evidence changes.
+
+The optional `foundry customer-intel report` accepts only aggregate, sanitized JSON matching `schemas/customer-intelligence.schema.json`. It rejects common direct-identifier fields and does not accept raw CRM, WhatsApp, support exports, message bodies, transcripts, patient records or production logs. Use `docs/customer-intelligence-loop.md` and `templates/customer-intelligence-summary.json`.
+
+Never infer churn probability, sentiment from unprocessed text, causality, satisfaction or statistical significance from missing data or tiny samples. Do not send customer data to external models or analytics vendors without explicit approval and a lawful basis. Sensitive sectors require specialist privacy/compliance review.
