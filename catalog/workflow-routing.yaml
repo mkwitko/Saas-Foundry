@@ -120,6 +120,12 @@ routes:
     built_in: [evidence-standard, growth-loop]
     templates: [customer-interview, weekly-growth-review]
     install_policy: real_customer_evidence_only
+  - module: customer-intelligence-loop
+    primary: [marketing-skills]
+    supporting: [founder-skill]
+    built_in: [customer-intelligence-loop, evidence-standard, metrics-playbook, growth-loop]
+    templates: [customer-intelligence-summary, weekly-growth-review]
+    install_policy: aggregate_and_sanitized_data_only
   - module: conversion-optimization
     primary: [marketing-skills, impeccable]
     supporting: [replica-skill]
