@@ -13,6 +13,16 @@ modules:
     risk: medium
     ia_chat: recommended
 
+  - id: cross-skill-orchestration
+    group: operations
+    purpose: Calculate artifact freshness, detect stale dependency chains and generate owner-aware handoff plans between specialist capabilities.
+    triggers: [artifact_changed, dependency_stale, cross_skill_handoff, strategy_change, product_change]
+    inputs: [artifact_registry, artifact_contracts, changed_artifact_ids, canonical_paths]
+    outputs: [artifact_status_report, stale_dependency_graph, capability_handoff_plan, owner_approval_queue]
+    requires: [shared-knowledge-contracts]
+    risk: medium
+    ia_chat: recommended
+
   - id: opportunity-intelligence
     group: strategy
     purpose: Discover recurring, costly problems in reachable buyer segments.
