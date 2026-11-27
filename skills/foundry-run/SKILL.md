@@ -132,9 +132,15 @@ Recommended structure:
 
 Do not create every file blindly. Create only relevant sections and files. Keep sensitive information out of this workspace.
 
+## Runner-owned execution metadata
+
+For writable runs, the CLI owns `status`, `updated_at`, and the lifecycle fields in `last_run`: `run_id`, `started_at`, `completed_at`, `task`, `agent`, `runner_pid`, `exit_code`, `signal`, `branch`, `commit` and `summary_path`. Do not replace or reset these fields. Update only the run's module selections/completions, blockers, project stage, bottleneck, pending approvals, completed modules and meaningful next action. Preserve the current `run_id`.
+
+For `review`, make no project changes at all, including no `.foundry/` state or report writes. The CLI intentionally skips bootstrap and state tracking for this profile.
+
 ## Persistent state contract
 
-At the start of every run, read `.foundry/state.yaml` and validate its shape against `.foundry/state.schema.json` when present. If an older state file does not match the current schema, preserve its history and perform a minimal, additive migration; never discard unknown project decisions. Preserve accepted decisions and completed modules unless new evidence invalidates them. At the end, update the state with the selected task, run status, modules selected/completed, blockers, pending approvals and exactly one next action with an owner. Keep a dated run report as the human-readable audit trail. Do not store credentials, raw customer conversations or sensitive personal data in state or reports.
+At the start of every run, read `.foundry/state.yaml` and validate its shape against `.foundry/state.schema.json` when present. If an older state file does not match the current schema, preserve its history and perform a minimal, additive migration; never discard unknown project decisions. Preserve accepted decisions and completed modules unless new evidence invalidates them. At the end of a writable run, update module selections/completions, blockers, pending approvals and exactly one next action with an owner; preserve runner-owned lifecycle metadata. For read-only review, write nothing. Keep a dated run report as the human-readable audit trail. Do not store credentials, raw customer conversations or sensitive personal data in state or reports.
 
 ## End-to-end workflow
 
