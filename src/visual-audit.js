@@ -4,7 +4,7 @@ import { spawnSync } from "node:child_process";
 
 const DEFAULT_CONFIG = {
   schema_version: "0.1",
-  baseURL: "http://127.0.0.1:3000",
+  baseURL: "http://127.0.0.1:3000",\n  allowRemote: false,
   routes: [{ name: "home", path: "/" }],
   viewports: [
     { name: "mobile", width: 390, height: 844 },
@@ -113,6 +113,37 @@ function playwrightCli(projectRoot) {
     path.join(projectRoot, "node_modules", "@playwright", "test", "cli.js")
   ];
   return candidates.find(candidate => fs.existsSync(candidate)) ?? null;
+}
+
+export function readVisualAuditConfig(projectRoot) {
+  const file = path.join(path.resolve(projectRoot), ".foundry", "visual-audit", "config.json");
+  if (!fs.existsSync(file)) throw new Error("Visual audit config is missing. Run foundry visual-audit init <project> first.");
+  let config;
+  try { config = JSON.parse(fs.readFileSync(file, "utf8")); }
+  catch (error) { throw new Error("Could not parse visual audit config; original file preserved: " + error.message); }
+  if (!config || config.schema_version !== "0.1" || typeof config.baseURL !== "string" || !Array.isArray(config.routes) || config.routes.length === 0 || !Array.isArray(config.viewports) || config.viewports.length === 0 || typeof config.checks !== "object") {
+    throw new Error("Visual audit config must define schema_version 0.1, baseURL, non-empty routes/viewports and checks.");
+  }
+  let base;
+  try { base = new URL(config.baseURL); } catch { throw new Error("Visual audit baseURL must be a valid absolute URL."); }
+  if (!["http:", "https:"].includes(base.protocol) || base.username || base.password) throw new Error("Visual audit baseURL must use HTTP(S) and must not contain credentials.");
+  const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+  if (!localHosts.has(base.hostname) && config.allowRemote !== true) throw new Error("Remote visual audits are disabled by default. Set allowRemote: true only for an explicitly approved non-production staging environment.");
+  if (config.routes.length > 100 || config.viewports.length > 10) throw new Error("Visual audit supports at most 100 routes and 10 viewports.");
+  for (const route of config.routes) {
+    if (!route || typeof route.name !== "string" || !/^[a-zA-Z0-9_-]{1,60}$/.test(route.name) || typeof route.path !== "string" || !route.path.startsWith("/") || route.path.startsWith("//")) {
+      throw new Error("Each visual audit route needs a safe name and a path beginning with a single '/'.");
+    }
+    if (route.readySelector != null && typeof route.readySelector !== "string") throw new Error("route.readySelector must be a string when provided.");
+  }
+  for (const viewport of config.viewports) {
+    if (!viewport || typeof viewport.name !== "string" || !/^[a-zA-Z0-9_-]{1,40}$/.test(viewport.name) ||
+        !Number.isInteger(viewport.width) || viewport.width < 240 || viewport.width > 3840 ||
+        !Number.isInteger(viewport.height) || viewport.height < 320 || viewport.height > 2160) {
+      throw new Error("Each viewport needs a safe name, width 240–3840 and height 320–2160.");
+    }
+  }
+  return config;
 }
 
 export function runVisualAudit(projectRoot) {
