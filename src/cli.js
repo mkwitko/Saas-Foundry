@@ -101,7 +101,8 @@ function formatMarkdownStatus(status) {
     "- Stale claims: " + status.evidence.stale_claims.length,
     "- Decisions: " + status.evidence.decisions,
     "- Active experiments: " + status.evidence.active_experiments,
-    ...status.evidence.stale_claims.map(item => "- Stale: " + item.id + " — " + item.claim)
+    ...status.evidence.stale_claims.map(item => "- Stale: " + item.id + " — " + item.claim),
+    "",
     "## Last run"
   ];
   if (status.last_run) {
