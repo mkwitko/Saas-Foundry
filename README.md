@@ -97,6 +97,9 @@ Do not create a second business plan, another generic idea generator, or duplica
 
 ## Start SaaS Foundry with one command
 
+The interactive launcher now asks which outcome matters in this run. New projects default to idea validation; existing products default to bottleneck diagnosis. You can also choose a focused task directly with `--task`.
+
+
 From the folder you want Foundry to work in:
 
 ~~~bash
@@ -116,6 +119,18 @@ The launcher detects Claude Code, Codex CLI and OpenCode, lets you choose an ins
 ### Run directly from GitHub during development
 
 **The GitHub command above is the currently available command.** The shorter `npx saas-foundry` command will become available only after the package is published to npm; it is not published yet.
+
+After bootstrap, run only the workflow you need:
+
+~~~bash
+npx -y github:mkwitko/Saas-Foundry run . --task auto
+npx -y github:mkwitko/Saas-Foundry run . --task product
+npx -y github:mkwitko/Saas-Foundry run . --task sales
+npx -y github:mkwitko/Saas-Foundry run . --task growth
+npx -y github:mkwitko/Saas-Foundry run . --task review
+~~~
+
+See [Operator Experience and Automation](docs/operator-experience.md) for the task profiles, routing model, persistent state and definition of done.
 
 For an explicit existing GitHub repository, the previous launcher remains available:
 
@@ -218,7 +233,7 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 ## Current maturity
 
-This repository now contains a **v0.8 interactive standalone CLI, project detector, founder intake, multi-agent launcher and project-local workflow** with interactive onboarding, founder intake, scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, provenance-pinned resource install/update/drift/rollback/uninstall, project-local skill installation, and a one-command Claude Code launcher.
+This repository now contains a **v0.10 interactive standalone CLI, task-based launcher, project detector, founder intake, multi-agent launcher and project-local workflow** with interactive onboarding, founder intake, focused task profiles, module-to-skill routing, persistent project state, scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, provenance-pinned resource install/update/drift/rollback/uninstall, project-local skill installation, and multi-agent launch adapters.
 
 Available v0.4 commands:
 
