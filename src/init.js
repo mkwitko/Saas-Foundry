@@ -63,6 +63,8 @@ export function initializeProject({ projectPath, mode = "auto", agent = "claude"
   const skill = fs.readFileSync(path.join(ROOT, "skills/foundry-run/SKILL.md"), "utf8");
   const routing = fs.readFileSync(path.join(ROOT, "catalog/workflow-routing.yaml"), "utf8");
   const stateSchema = fs.readFileSync(path.join(ROOT, "schemas/foundry-state.schema.json"), "utf8");
+  const evidenceSchema = fs.readFileSync(path.join(ROOT, "schemas/evidence-ledger.schema.json"), "utf8");
+  const evidenceTemplate = fs.readFileSync(path.join(ROOT, "templates/evidence-ledger.yaml"), "utf8");
   const results = targets.map(relative => writeOrUpgradeFoundrySkill(path.join(projectRoot, relative), skill));
   const now = new Date().toISOString();
   const state = `schema_version: "0.1"
@@ -89,6 +91,8 @@ completed_modules: []
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/state.yaml"), state));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/workflow-routing.yaml"), routing));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/state.schema.json"), stateSchema));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/evidence-ledger.schema.json"), evidenceSchema));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/evidence.yaml"), evidenceTemplate.replace("updated_at: null", "updated_at: " + now)));
   const readme = `# SaaS Foundry project workspace
 
 This project has the Foundry workflow installed locally.
