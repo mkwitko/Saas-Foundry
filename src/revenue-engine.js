@@ -5,6 +5,10 @@ const FIT = new Set(["high", "medium", "low", "unknown"]);
 const PAIN = new Set(["observed", "reported", "hypothesis", "unknown"]);
 const PERMISSION = new Set(["explicit", "unknown", "denied", "not_required"]);
 const CHANNEL_STATUS = new Set(["proposed", "running", "completed", "stopped"]);
+const PIPELINE_KEYS = new Set(["schema_version", "updated_at", "leads", "channels"]);
+const LEAD_KEYS = new Set(["id", "organization", "website", "source_url", "segment", "fit", "pain_evidence", "buying_role", "contact_permission", "permission_basis", "stage", "next_action", "next_action_due", "stage_history"]);
+const CHANNEL_KEYS = new Set(["id", "channel", "hypothesis", "status", "primary_metric", "result"]);
+const HISTORY_KEYS = new Set(["stage", "entered_at"]);
 
 function assert(condition, message) {
   if (!condition) throw new Error("Invalid revenue pipeline: " + message);
@@ -28,12 +32,14 @@ function inspectKeys(value, location = "pipeline") {
 export function validateRevenuePipeline(pipeline) {
   assert(pipeline && typeof pipeline === "object" && !Array.isArray(pipeline), "root must be an object");
   inspectKeys(pipeline);
+  for (const key of Object.keys(pipeline)) assert(PIPELINE_KEYS.has(key), "unsupported pipeline field: " + key);
   assert(pipeline.schema_version === "0.1", "schema_version must be 0.1");
   assert(Array.isArray(pipeline.leads), "leads must be an array");
   assert(Array.isArray(pipeline.channels), "channels must be an array");
   const ids = new Set();
   for (const lead of pipeline.leads) {
     assert(lead && typeof lead === "object" && !Array.isArray(lead), "lead entries must be objects");
+    for (const key of Object.keys(lead)) assert(LEAD_KEYS.has(key), "unsupported lead field: " + key);
     nonEmpty(lead.id, "lead.id");
     assert(!ids.has(lead.id), "duplicate lead id: " + lead.id);
     ids.add(lead.id);
@@ -52,6 +58,8 @@ export function validateRevenuePipeline(pipeline) {
     if (lead.stage_history !== undefined) {
       assert(Array.isArray(lead.stage_history), "lead.stage_history must be an array");
       for (const item of lead.stage_history) {
+        assert(item && typeof item === "object" && !Array.isArray(item), "stage_history entries must be objects");
+        for (const key of Object.keys(item)) assert(HISTORY_KEYS.has(key), "unsupported stage_history field: " + key);
         assert(item && STAGES.includes(item.stage), "stage_history.stage is invalid");
         optionalDate(item.entered_at, "stage_history.entered_at");
         assert(item.entered_at, "stage_history.entered_at is required");
@@ -61,6 +69,7 @@ export function validateRevenuePipeline(pipeline) {
   const channelIds = new Set();
   for (const channel of pipeline.channels) {
     assert(channel && typeof channel === "object", "channel entries must be objects");
+    for (const key of Object.keys(channel)) assert(CHANNEL_KEYS.has(key), "unsupported channel field: " + key);
     nonEmpty(channel.id, "channel.id");
     assert(!channelIds.has(channel.id), "duplicate channel id: " + channel.id);
     channelIds.add(channel.id);
