@@ -14,6 +14,7 @@ import { initializeProject } from "./init.js";
 import { runFoundry, getFoundryStatus, listFoundryRuns } from "./run.js";
 import { runInteractive } from "./interactive.js";
 import { buildDependencyPlan, verifyDefinitionOfDone } from "./planner.js";
+import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -54,7 +55,7 @@ Run tasks:
   review   Read-only diagnosis; no implementation
 
 Safety:
-  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence and verify are read-only.
+  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
   Resource install/update/uninstall are dry-run by default; --execute is required to write.
   Outreach, publishing, paid spend, deployment and production changes require explicit approval.
 `;
@@ -65,7 +66,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit","--base-url"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -142,6 +143,26 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="visual-audit") {
+    const [action, projectPath, ...extra] = positional;
+    if(!["init","run","report"].includes(action)) throw new Error("visual-audit action must be init, run or report.");
+    if(!projectPath || extra.length) throw new Error("Usage: visual-audit <init|run|report> <project-path>.");
+    if(action==="init") {
+      const result=initializeVisualAudit(projectPath,{baseURL:options["base-url"]});
+      emit({kind:"visual-audit-init",data:result},options,"json");
+      return;
+    }
+    if(action==="report") {
+      const report=readVisualAuditReport(projectPath);
+      emit({kind:"visual-audit-report",data:report},options,"json");
+      if(report.available && report.summary.failed>0) process.exitCode=1;
+      return;
+    }
+    const result=runVisualAudit(projectPath);
+    emit({kind:"visual-audit-run",data:result},options,"json");
+    if(result.exit_code!==0 || result.report?.summary?.failed>0) process.exitCode=1;
+    return;
+  }
   if(command==="verify") {
     if(positional.length!==1) throw new Error("verify requires exactly one project path.");
     const requiredModules=options.module ? options.module.split(",").map(x=>x.trim()).filter(Boolean) : [];
