@@ -128,6 +128,8 @@ npx -y github:mkwitko/Saas-Foundry run . --task product
 npx -y github:mkwitko/Saas-Foundry run . --task sales
 npx -y github:mkwitko/Saas-Foundry run . --task growth
 npx -y github:mkwitko/Saas-Foundry run . --task review
+npx -y github:mkwitko/Saas-Foundry status .
+npx -y github:mkwitko/Saas-Foundry runs . --limit 10
 ~~~
 
 See [Operator Experience and Automation](docs/operator-experience.md) for the task profiles, routing model, persistent state and definition of done.
