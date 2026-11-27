@@ -5,13 +5,25 @@ const severities = { low: 1, medium: 2, high: 3, critical: 4 };
 const sentiments = new Set(["positive", "neutral", "negative"]);
 const evidenceTypes = new Set(["customer", "interview", "support", "analytics"]);
 const forbiddenKeys = /^(name|email|phone|address|message|content|transcript|customer_id|user_id|patient_id|document|cpf|birth_date)$/i;
+const allowedKeys = {
+  root: ["schema_version", "period", "accounts", "events", "feedback", "support_topics", "cancellation_reasons"],
+  period: ["start", "end"],
+  accounts: ["eligible", "activated", "active", "retained", "cancelled"],
+  "events item": ["event", "count", "unique_accounts", "measured_at", "source"],
+  "feedback item": ["category", "sentiment", "occurrences", "affected_accounts", "evidence_type", "summary", "observed_at"],
+  "support_topics item": ["category", "count", "affected_accounts", "severity", "summary"],
+  "cancellation_reasons item": ["reason", "count", "source"]
+};
 
 function assert(condition, message) {
   if (!condition) throw new Error("Invalid customer intelligence input: " + message);
 }
 function safeObject(value, label) {
   assert(value && typeof value === "object" && !Array.isArray(value), label + " must be an object");
-  for (const key of Object.keys(value)) assert(!forbiddenKeys.test(key), label + " contains a prohibited personal-data field: " + key);
+  for (const key of Object.keys(value)) {
+    assert(!forbiddenKeys.test(key), label + " contains a prohibited personal-data field: " + key);
+    assert((allowedKeys[label] ?? []).includes(key), label + " contains an unsupported field: " + key);
+  }
 }
 function count(value, label) {
   assert(Number.isInteger(value) && value >= 0, label + " must be a non-negative integer");
