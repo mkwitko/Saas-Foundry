@@ -2,6 +2,12 @@ schema_version: "0.1"
 # Routes modules to existing reviewed resources and Foundry-owned fallbacks.
 # A route never implies installation: provenance, license and human review still apply.
 routes:
+  - module: shared-knowledge-contracts
+    primary: [founder-skill]
+    supporting: [impeccable, marketing-skills, replica-skill, ponytail, clean-code-skills]
+    built_in: [shared-knowledge-and-artifact-contracts, evidence-standard]
+    templates: [artifact-registry]
+    install_policy: built_in_contract_no_external_install_required
   - module: idea-viability-review
     primary: [founder-skill, brainstorming-saas-ideas]
     supporting: [marketing-skills]
