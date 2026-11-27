@@ -171,6 +171,8 @@ experiments: []
     assert.equal(status.evidence.total_claims, 1);
     assert.equal(status.evidence.stale_claims.length, 1);
     assert.equal(status.evidence.stale_claims[0].id, "competitor-price-1");
+    assert.equal(status.evidence.current_claims, 0);
+    assert.equal(status.evidence.unvalidated_claims, 0);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
