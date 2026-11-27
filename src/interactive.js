@@ -75,6 +75,16 @@ async function collectFounderContext(rl, mode) {
   return answers;
 }
 
+const TASK_OPTIONS = [
+  { value: "auto", label: "Diagnosticar o gargalo e executar o próximo passo" },
+  { value: "full", label: "Revisar o ciclo completo do negócio e produto" },
+  { value: "idea", label: "Validar uma ideia de SaaS" },
+  { value: "product", label: "Melhorar produto, UI/UX e engenharia" },
+  { value: "sales", label: "Conseguir e converter clientes" },
+  { value: "growth", label: "Aquisição, ativação, retenção e crescimento" },
+  { value: "review", label: "Somente diagnóstico, sem alterações" }
+];
+
 export async function runInteractive({ cwd = process.cwd() } = {}) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   try {
@@ -89,7 +99,7 @@ export async function runInteractive({ cwd = process.cwd() } = {}) {
     }
 
     let mode = await choose(rl, "Como deseja começar?", [
-      { value: "existing", label: "Usar o projeto desta pasta e analisá-lo automaticamente" },
+      { value: "existing", label: "Usar o projeto desta pasta" },
       { value: "new", label: "Criar um SaaS novo neste workspace" },
       { value: "exit", label: "Sair" }
     ], detection.recommendation);
@@ -108,12 +118,13 @@ export async function runInteractive({ cwd = process.cwd() } = {}) {
       ], "new");
       if (confirm === "exit") return { cancelled: true };
       if (confirm === "new") {
-        projectName = await ask(rl, "Nome provisório do projeto", false);
+        projectName = (await ask(rl, "Nome provisório do projeto", false)) || "meu-saas";
         projectRoot = resolveNewWorkspace({ cwd: detection.root, name: projectName });
         mode = "new";
       }
     }
 
+    const task = await choose(rl, "Qual resultado deseja priorizar nesta execução?", TASK_OPTIONS, mode === "new" ? "idea" : "auto");
     const answers = await collectFounderContext(rl, mode);
     if (projectName) answers["Nome provisório do projeto"] = projectName;
     const installedAgents = detectAvailableAgents();
@@ -127,14 +138,15 @@ export async function runInteractive({ cwd = process.cwd() } = {}) {
     const agent = await choose(rl, "Qual agente deve executar o workflow?", agentOptions, installedAgents[0] ?? "claude");
     const intakePath = appendIntake(projectRoot, mode, answers);
     process.stdout.write("\nWorkspace: " + projectRoot + "\n");
+    process.stdout.write("Objetivo: " + task + "\n");
     if (intakePath) process.stdout.write("Intake salvo em: " + intakePath + "\n");
 
     if (!installedAgents.includes(agent)) {
-      const result = await runFoundry({ target: projectRoot, mode, agent, launch: false });
-      process.stdout.write("\nO workspace e a skill local foram preparados. Instale e autentique o agente escolhido e execute novamente npx saas-foundry nesta pasta.\n");
+      const result = await runFoundry({ target: projectRoot, mode, agent, task, launch: false });
+      process.stdout.write("\nO workspace e a skill local foram preparados. Instale e autentique o agente escolhido e execute novamente SaaS Foundry nesta pasta.\n");
       return result;
     }
-    return await runFoundry({ target: projectRoot, mode, agent, launch: true });
+    return await runFoundry({ target: projectRoot, mode, agent, task, launch: true });
   } finally {
     rl.close();
   }
