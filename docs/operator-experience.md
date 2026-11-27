@@ -144,3 +144,25 @@ npx -y github:mkwitko/Saas-Foundry verify . --module product-design,engineering-
 The project-local `.foundry/acceptance.yaml` ledger records one entry per completed module: outcome, evidence, artifacts, checks and their results, risks, rollback path, next action and owner. A missing ledger, missing required module, failed check, or unrun check returns an incomplete result and a non-zero CLI exit code. `not_applicable` is allowed only as an explicit check result; it must not be used to hide an unverified requirement.
 
 The verifier checks record completeness and declared check outcomes. It does not execute tests, independently validate evidence, inspect whether a rollback works, or certify business impact. Those remain part of the agent's verification and human review. Keep acceptance records free of secrets and raw customer or patient data.
+
+
+## Automated visual audit
+
+The visual audit is opt-in and project-local. It reuses an existing browser suite when available. Otherwise, initialize a Foundry Playwright harness:
+
+```bash
+foundry visual-audit init . --base-url http://127.0.0.1:3000
+```
+
+Edit `.foundry/visual-audit/config.json` to enumerate routes and readiness selectors. The bootstrap preserves existing files and never installs packages. If Playwright is not already installed, add it explicitly with the project's package manager (npm example: `npm install -D @playwright/test`) and install Chromium (`npx playwright install chromium`). For axe accessibility checks, optionally install `@axe-core/playwright`.
+
+Start the local application yourself, then run:
+
+```bash
+foundry visual-audit run .
+foundry visual-audit report .
+```
+
+The default harness checks mobile, tablet and desktop layouts, navigation status, horizontal overflow, broken images and browser errors. It captures screenshots and can run axe WCAG 2.1 A/AA checks when the optional package is present. It does not compare screenshots to approved visual baselines, automatically discover every route, start a server, or prove the UI is usable. Extend the generated suite with assertions for the product's actual critical journeys and inspect screenshots manually.
+
+Reports are written to `.foundry/reports/visual-audit.playwright.json`; screenshots and traces are stored under `.foundry/artifacts/visual-audit/`. Keep artifacts free of customer, patient and other sensitive information. Record report path, route/viewport coverage, skipped checks and human review in the acceptance ledger.
