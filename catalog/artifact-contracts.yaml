@@ -55,7 +55,7 @@ artifacts:
     default_path: .foundry/strategy/offer-and-pricing.md
     owner: founder
     producers: [founder-skill, marketing-skills]
-    consumers: [website-and-conversion, sales-pipeline, acquisition-engine, product-strategy]
+    consumers: [conversion-optimization, sales-pipeline, launch-and-distribution, product-strategy]
     depends_on: [business-strategy, icp-and-buyer, product-brief]
     invalidated_by: [pricing_change, new_segment, offer_change, repeated_sales_objection]
     review_after_days: 30
@@ -91,7 +91,7 @@ artifacts:
     default_path: .foundry/growth/sales-playbook.md
     owner: sales
     producers: [founder-skill, foundry-sales-review]
-    consumers: [marketing-skills, customer-success, founder-operations]
+    consumers: [marketing-skills, retention-and-customer-success, founder-operations]
     depends_on: [icp-and-buyer, positioning-and-offer]
     invalidated_by: [new_objection_pattern, sales_process_change, new_pricing]
     review_after_days: 30
@@ -103,7 +103,7 @@ artifacts:
     default_path: .foundry/growth/funnel-and-metrics.md
     owner: analytics
     producers: [analytics-instrumentation, customer-intelligence-loop, foundry]
-    consumers: [founder-skill, marketing-skills, sales-pipeline, product-strategy, customer-success]
+    consumers: [founder-skill, marketing-skills, sales-pipeline, product-strategy, retention-and-customer-success]
     depends_on: [icp-and-buyer, product-brief]
     invalidated_by: [event_schema_change, funnel_definition_change, analytics_source_change]
     review_after_days: 30
@@ -114,7 +114,7 @@ artifacts:
     title: Sanitized customer feedback and lifecycle insights
     default_path: .foundry/customer/customer-intelligence.md
     owner: customer-success
-    producers: [customer-research-loop, customer-intelligence-loop, support-loop]
+    producers: [customer-research-loop, customer-intelligence-loop, customer-support-loop]
     consumers: [founder-skill, product-strategy, impeccable, marketing-skills, sales-pipeline]
     depends_on: [metrics-and-events]
     invalidated_by: [new_customer_cohort, repeated_support_theme, cancellation_pattern]
