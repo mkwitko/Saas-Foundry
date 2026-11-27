@@ -273,7 +273,7 @@ export function listFoundryRuns(projectRoot, limit = 10) {
   const directory = path.join(path.resolve(projectRoot), ".foundry", "runs");
   if (!fs.existsSync(directory)) return [];
   return fs.readdirSync(directory)
-    .filter(name => /^[a-f0-9-]{36}\\.json$/i.test(name))
+    .filter(name => /^[a-f0-9-]{36}\.json$/i.test(name))
     .map(name => {
       const file = path.join(directory, name);
       try { return JSON.parse(fs.readFileSync(file, "utf8")); }
