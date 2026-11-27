@@ -136,3 +136,34 @@ A visually polished interface can still fail commercially. Review the full journ
 
 ### Conversion evidence
 Use funnel data and real user observation where available. If no baseline exists, mark it unknown and propose instrumentation or moderated task testing. Do not invent conversion rates or claim that a UI change will increase sales without an experiment. Separate observed usability failures from heuristic concerns and simulated buyer feedback.
+
+
+## Automated browser audit
+
+Use the existing Playwright/Cypress suite when present. If the project has no browser suite, initialize the opt-in Foundry Playwright harness:
+
+```bash
+foundry visual-audit init . --base-url http://127.0.0.1:3000
+```
+
+Edit `.foundry/visual-audit/config.json` with all relevant routes, route names, readiness selectors and supported viewport sizes. Add route-specific assertions for critical journeys, authentication/authorization states, forms, dialogs, loading/empty/error/success states and destructive confirmations. The generated smoke suite is not a substitute for those product-specific assertions.
+
+Install dependencies only after inspecting the project's package manager and existing browser tooling. If Playwright is not already installed, the explicit baseline is:
+
+```bash
+npm install -D @playwright/test
+npx playwright install chromium
+```
+
+For automated accessibility checks, optionally add `@axe-core/playwright`. The audit runs against an already-running local application; Foundry does not start servers, install packages, deploy, or contact production environments.
+
+Run and inspect:
+
+```bash
+foundry visual-audit run .
+foundry visual-audit report .
+```
+
+The default viewport set is 390×844, 768×1024 and 1440×900. The generated checks cover navigation status, body visibility, horizontal overflow, broken images, console/page errors, screenshots and optional axe WCAG 2.1 A/AA scans. Results and screenshots are stored under `.foundry/reports/` and `.foundry/artifacts/visual-audit/`.
+
+A passing browser run does not prove visual quality, usability, accessibility conformance, or commercial effectiveness. Inspect screenshots at every viewport, review keyboard and screen-reader behaviour manually, and verify critical journeys with real assertions. A skipped axe check is unverified, never a pass. Record the exact report, coverage and unresolved findings in the module acceptance ledger.
