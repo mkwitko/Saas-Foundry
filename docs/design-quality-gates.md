@@ -155,7 +155,7 @@ npm install -D @playwright/test
 npx playwright install chromium
 ```
 
-For automated accessibility checks, optionally add `@axe-core/playwright`. The audit runs against an already-running local application; Foundry does not start servers, install packages, deploy, or contact production environments.
+For automated accessibility checks, optionally add `@axe-core/playwright`. The audit runs against an already-running local application; Foundry does not start servers, install packages, deploy, or contact production environments. Remote targets are blocked by default. Set `allowRemote: true` only for a trusted, explicitly approved staging environment; never run this harness against production.
 
 Run and inspect:
 
