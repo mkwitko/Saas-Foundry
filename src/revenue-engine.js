@@ -139,7 +139,7 @@ export function buildRevenueReport({ pipeline, now = new Date() }) {
     },
     stage_counts: stageCounts,
     funnel_history: funnel,
-    funnel_history_note: funnel ? "Reached-stage counts use only leads with stage_history; conversion rates are not inferred without consistent cohort and timestamp coverage." : "No stage history supplied; conversion rates are unknown.",
+    funnel_history_note: funnel ? "Reached-stage counts use complete stage history for every lead; conversion rates are not inferred without consistent cohort and timestamp coverage." : (leadsWithHistory.length ? "Stage history is incomplete across the pipeline; conversion rates are unknown." : "No stage history supplied; conversion rates are unknown."),
     bottleneck,
     permission_issues: permissionIssues.map(lead => ({ id: lead.id, organization: lead.organization, stage: lead.stage, contact_permission: lead.contact_permission })),
     next_actions: nextActions.slice(0, 10),
