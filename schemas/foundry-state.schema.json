@@ -25,6 +25,8 @@
         "run_id": { "type": "string", "minLength": 1 },
         "started_at": { "type": "string", "format": "date-time" },
         "completed_at": { "type": ["string", "null"] },
+        "exit_code": { "type": ["integer", "null"] },
+        "signal": { "type": ["string", "null"] },
         "status": { "enum": ["running", "completed", "blocked", "failed"] },
         "task": { "enum": ["auto", "full", "idea", "product", "sales", "growth", "review"] },
         "agent": { "enum": ["claude", "codex", "opencode"] },
