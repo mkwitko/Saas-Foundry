@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
 import { initializeProject } from "../src/init.js";
-import { buildWorkflowPrompt, runFoundry } from "../src/run.js";
+import { buildWorkflowPrompt, getFoundryStatus, listFoundryRuns, runFoundry } from "../src/run.js";
 
 test("review task is read-only and does not bootstrap or write project state", async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-review-"));
@@ -127,5 +127,20 @@ test("invalid persistent state is preserved and blocks a writable run", { skip: 
     process.env.PATH = previousPath;
     fs.rmSync(projectRoot, { recursive: true, force: true });
     fs.rmSync(bin, { recursive: true, force: true });
+  }
+});
+
+
+test("status and run history expose concise, read-only project progress", () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-status-"));
+  try {
+    initializeProject({ projectPath: projectRoot, mode: "new", agent: "claude" });
+    const status = getFoundryStatus(projectRoot);
+    assert.equal(status.status, "ready");
+    assert.equal(status.project_mode, "new");
+    assert.deepEqual(listFoundryRuns(projectRoot), []);
+    assert.throws(() => listFoundryRuns(projectRoot, 101), /1 to 100/);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
   }
 });
