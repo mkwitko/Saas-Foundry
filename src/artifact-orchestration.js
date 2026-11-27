@@ -10,8 +10,8 @@ function readYaml(file, label) {
 
 function safeRelativePath(value) {
   if (typeof value !== "string" || !value.trim()) return false;
-  if (path.isAbsolute(value) || value.includes("\\0")) return false;
-  return value.replaceAll("\\\\", "/").split("/").every(part => part && part !== "." && part !== "..");
+  if (path.isAbsolute(value) || value.includes("\0")) return false;
+  return value.replaceAll("\\", "/").split("/").every(part => part && part !== "." && part !== "..");
 }
 
 function daysBetween(iso, now) {
