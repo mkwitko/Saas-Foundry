@@ -111,7 +111,7 @@ test("invalid persistent state is preserved and blocks a writable run", { skip: 
   const previousPath = process.env.PATH;
   try {
     const fakeAgent = path.join(bin, "claude");
-    fs.writeFileSync(fakeAgent, "#!/bin/sh\\nexit 0\\n", { mode: 0o700 });
+    fs.writeFileSync(fakeAgent, "#!/bin/sh\nexit 0\n", { mode: 0o700 });
     fs.chmodSync(fakeAgent, 0o700);
     process.env.PATH = bin + path.delimiter + (previousPath ?? "");
     fs.mkdirSync(path.join(projectRoot, ".foundry"), { recursive: true });
