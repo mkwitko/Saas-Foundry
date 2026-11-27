@@ -142,6 +142,10 @@ For `review`, make no project changes at all, including no `.foundry/` state or 
 
 When `.foundry/artifacts.yaml` and `.foundry/artifact-contracts.yaml` exist, use them as the index of canonical business, product, design, growth and operating sources. Run `foundry artifacts validate` and `foundry artifacts status` before relying on those documents. When a canonical artifact changes, run `foundry artifacts plan --changed <artifact-id>` and review the transitive downstream artifact and capability handoffs. The plan is advisory and read-only: follow each artifact owner and change policy, request approval where required, and update registry metadata only after a canonical change is verified. Never create duplicate documents just to satisfy a contract.
 
+## Revenue and customer acquisition
+
+Use the project-local company-level revenue pipeline at `.foundry/revenue/pipeline.yaml` and run `foundry revenue report <project-path>` to inspect qualification, stage counts, permission gates, sales bottlenecks and next actions. A lead is qualified only when fit, real pain evidence and a buying role are established. Never store personal contact details, patient data or raw conversations in the pipeline. A referral does not authorize contacting a third party: require explicit permission or a documented not-required basis. Prepare outreach, follow-up, demo and proposal content as drafts only; do not send messages or create external commitments.
+
 ## Continuous improvement loop
 
 For an existing product, use `foundry improve report <project-path>` as a weekly review of the evidence ledger. Include only sanitized aggregate customer intelligence. Resolve completed experiment records, revalidate stale claims, review due decisions, and select one next experiment with a defined baseline, owner, metric, guardrails and observation window. The report is advisory and read-only; never invent outcomes or initiate outreach, publishing, spend or production changes.
