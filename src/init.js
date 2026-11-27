@@ -101,8 +101,10 @@ This project has the Foundry workflow installed locally.
 - Agent entry point: ${agent}
 - Primary skill: ${targets[0]}.
 - Persistent run state: .foundry/state.yaml
+- Evidence, decisions and experiments: .foundry/evidence.yaml
 - Module routing: .foundry/workflow-routing.yaml
 - State contract: .foundry/state.schema.json
+- Evidence contract: .foundry/evidence-ledger.schema.json
 
 Run the foundry-run skill or execute SaaS Foundry with a focused task. The workflow inspects this repository, confirms whether it is greenfield or existing, and reuses the appropriate capabilities. Existing instructions and product documentation are never replaced.
 `;
