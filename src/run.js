@@ -239,3 +239,47 @@ export async function runFoundry({ target, destination, mode = "auto", agent = "
     });
   });
 }
+
+
+export function getFoundryStatus(projectRoot) {
+  const { state } = readState(path.resolve(projectRoot));
+  return {
+    project_mode: state.project_mode,
+    status: state.status,
+    stage: state.stage ?? null,
+    selected_task: state.selected_task ?? null,
+    current_bottleneck: state.current_bottleneck ?? null,
+    last_run: state.last_run ? {
+      run_id: state.last_run.run_id,
+      task: state.last_run.task,
+      agent: state.last_run.agent,
+      status: state.last_run.status,
+      started_at: state.last_run.started_at,
+      completed_at: state.last_run.completed_at ?? null,
+      branch: state.last_run.branch ?? null,
+      commit: state.last_run.commit ?? null,
+      modules_selected: state.last_run.modules_selected ?? [],
+      modules_completed: state.last_run.modules_completed ?? [],
+      blockers: state.last_run.blockers ?? []
+    } : null,
+    next_action: state.next_action ?? null,
+    pending_approvals: state.pending_approvals ?? [],
+    completed_modules: state.completed_modules ?? []
+  };
+}
+
+export function listFoundryRuns(projectRoot, limit = 10) {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error("--limit must be an integer from 1 to 100.");
+  const directory = path.join(path.resolve(projectRoot), ".foundry", "runs");
+  if (!fs.existsSync(directory)) return [];
+  return fs.readdirSync(directory)
+    .filter(name => /^[a-f0-9-]{36}\\.json$/i.test(name))
+    .map(name => {
+      const file = path.join(directory, name);
+      try { return JSON.parse(fs.readFileSync(file, "utf8")); }
+      catch { return null; }
+    })
+    .filter(Boolean)
+    .sort((a, b) => String(b.started_at ?? "").localeCompare(String(a.started_at ?? "")))
+    .slice(0, limit);
+}
