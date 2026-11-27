@@ -1,6 +1,6 @@
 {
   "name": "saas-foundry",
-  "version": "0.8.0",
+  "version": "0.10.0",
   "description": "Founder-first SaaS operating system for discovery, validation, product quality, engineering and growth",
   "type": "module",
   "bin": {
