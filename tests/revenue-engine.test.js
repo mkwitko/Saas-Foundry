@@ -17,6 +17,9 @@ test("validates company-level pipeline records and rejects personal contact fiel
   assert.equal(validateRevenuePipeline(data), data);
   data.leads[0].email = "person@example.com";
   assert.throws(() => validateRevenuePipeline(data), /prohibited personal-data field/);
+  delete data.leads[0].email;
+  data.leads[0].notes = "Free text that could contain patient information";
+  assert.throws(() => validateRevenuePipeline(data), /unsupported lead field/);
 });
 
 test("calculates stage counts and qualifies only fit plus real pain evidence and buying role", () => {
