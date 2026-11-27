@@ -2,6 +2,21 @@ schema_version: "0.1"
 # Routes modules to existing reviewed resources and Foundry-owned fallbacks.
 # A route never implies installation: provenance, license and human review still apply.
 routes:
+  - module: idea-viability-review
+    primary: [founder-skill, brainstorming-saas-ideas]
+    supporting: [marketing-skills]
+    built_in: [product-and-commercial-review, evidence-standard]
+    install_policy: greenfield_only_when_needed
+  - module: buyer-purchase-simulation
+    primary: [founder-skill]
+    supporting: []
+    built_in: [product-and-commercial-review, evidence-standard]
+    install_policy: simulation_is_not_validation
+  - module: buyer-centred-ux-and-conversion
+    primary: [impeccable, marketing-skills]
+    supporting: [replica-skill]
+    built_in: [design-quality-gates, product-and-commercial-review]
+    install_policy: review_before_install
   - module: opportunity-intelligence
     primary: [founder-skill]
     supporting: [brainstorming-saas-ideas]
@@ -110,6 +125,11 @@ routes:
     supporting: [b2b-growth-playbook]
     built_in: [foundry-sales-review, growth-loop, metrics-playbook]
     install_policy: real_pipeline_and_revenue_data_only
+  - module: proof-and-advocacy
+    primary: [marketing-skills]
+    supporting: [b2b-growth-playbook]
+    built_in: [foundry-sales-review, growth-loop]
+    install_policy: verified_outcomes_and_customer_permission_only
 
 rules:
   - Reuse project-installed capabilities before proposing another installation.
