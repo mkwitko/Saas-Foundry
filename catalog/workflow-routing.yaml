@@ -54,6 +54,11 @@ routes:
     references: [jiro, designspells, refero, supahero, mobbin]
     built_in: [design-quality-gates]
     install_policy: review_before_install
+  - module: visual-quality-audit
+    primary: [impeccable]
+    supporting: [ponytail]
+    built_in: [design-quality-gates, visual-audit-playwright]
+    install_policy: use_project_playwright_and_review_before_new_dependencies
   - module: engineering-quality
     primary: [ponytail, clean-code-skills]
     supporting: []
