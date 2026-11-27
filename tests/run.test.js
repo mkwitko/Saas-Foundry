@@ -18,7 +18,9 @@ test("review task is read-only and does not bootstrap or write project state", a
     assert.match(prompt, /strict read-only run/i);
     assert.match(prompt, /Do not write a run report/i);
   } finally {
+    process.env.PATH = previousPath;
     fs.rmSync(projectRoot, { recursive: true, force: true });
+    fs.rmSync(bin, { recursive: true, force: true });
   }
 });
 
@@ -105,9 +107,15 @@ test("failed agent exits become blocked runs with an inspectable receipt", { ski
   }
 });
 
-test("invalid persistent state is preserved and blocks a writable run", async () => {
+test("invalid persistent state is preserved and blocks a writable run", { skip: process.platform === "win32" }, async () => {
   const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-invalid-state-"));
+  const bin = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-agent-"));
+  const previousPath = process.env.PATH;
   try {
+    const fakeAgent = path.join(bin, "claude");
+    fs.writeFileSync(fakeAgent, "#!/bin/sh\\nexit 0\\n", { mode: 0o700 });
+    fs.chmodSync(fakeAgent, 0o700);
+    process.env.PATH = bin + path.delimiter + (previousPath ?? "");
     fs.mkdirSync(path.join(projectRoot, ".foundry"), { recursive: true });
     const statePath = path.join(projectRoot, ".foundry/state.yaml");
     const original = "schema_version: 99\nworkflow: unknown\n";
