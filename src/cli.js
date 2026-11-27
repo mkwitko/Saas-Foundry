@@ -18,10 +18,11 @@ const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 
 const [command, ...rest] = process.argv.slice(2);
 
 function usage() {
-  return `SaaS Foundry CLI v0.8.0
+  return `SaaS Foundry CLI v0.10.0
 
 Usage:
   foundry [interactive]
+  foundry run <project-path|github-url> [--task auto|full|idea|product|sales|growth|review] [--dir <path>] [--mode auto|new|existing] [--agent claude|codex|opencode]
   foundry scan <project-path> [--format json|md] [--out <file>]
   foundry plan <project-path> [--scan <scan.json>] [--format json|md] [--out <file>]
   foundry doctor <project-path> [--strict]
@@ -38,21 +39,21 @@ Usage:
   foundry rollback-resource <project-path> --resource <id> [--execute]
   foundry uninstall <project-path> --resource <id> [--execute]
   foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]
-  foundry run <project-path|github-url> [--dir <path>] [--mode auto|new|existing] [--agent claude|codex|opencode]
   foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
 
-Options:
-  --format   Output format (default: md for scan/plan, json for doctor)
-  --out      Write output to a file instead of stdout
-  --scan     Use a previously generated scan JSON for planning
-  --strict   Treat manifest warnings as errors
-  --foundry  Path to a SaaS Foundry checkout (default: this CLI's checkout)
+Run tasks:
+  auto     Find the highest-value bottleneck (default)
+  full     Review the complete SaaS lifecycle
+  idea     Validate a new SaaS opportunity
+  product  Review UX, React/Node engineering and product quality
+  sales    Improve founder-led sales and paid conversion
+  growth   Improve acquisition, activation, retention and referrals
+  review   Read-only diagnosis; no implementation
 
 Safety:
-  scan is read-only. It inventories paths and selected metadata/documents only.
-  plan, doctor, select, context, evidence, diff, resources and drift are read-only.
-  install and uninstall are dry-run by default; --execute is required to write.
-  install requires an explicit --reviewed attestation and never executes resource files.
+  scan, plan, doctor, select, context, evidence, diff, resources and drift are read-only.
+  Resource install/update/uninstall are dry-run by default; --execute is required to write.
+  Outreach, publishing, paid spend, deployment and production changes require explicit approval.
 `;
 }
 function parseArgs(args) {
@@ -61,7 +62,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -74,8 +75,7 @@ function parseArgs(args) {
 function emit(value, options, defaultFormat="md") {
   const format=options.format ?? defaultFormat;
   if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");
-  const payload=value?.data ?? value;
-  const output=format==="json" ? JSON.stringify(payload,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : JSON.stringify(value.data,null,2)+"\n");
+  const output=format==="json" ? JSON.stringify(value?.data ?? value,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : JSON.stringify(value.data,null,2)+"\n");
   if(options.out){
     const destination=path.resolve(options.out);
     fs.mkdirSync(path.dirname(destination),{recursive:true});
@@ -97,8 +97,8 @@ async function main(){
   const {positional,options}=parseArgs(rest);
   if(command==="run") {
     if(positional.length!==1) throw new Error("run requires exactly one project path or GitHub URL.");
-    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto",agent:options.agent ?? "claude"});
-    process.stdout.write(JSON.stringify(result,null,2)+"\\n"); return;
+    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto",agent:options.agent ?? "claude",task:options.task ?? "auto"});
+    process.stdout.write(JSON.stringify(result,null,2)+"\n"); return;
   }
   if(command==="init") {
     if(positional.length!==1) throw new Error("init requires exactly one project path.");
@@ -232,6 +232,6 @@ async function main(){
   throw new Error(`Unknown command: ${command}\n\n${usage()}`);
 }
 main().catch(error=>{
-  process.stderr.write(`foundry: ${error.message}\n`);
+  process.stderr.write("Error: "+error.message+"\n");
   process.exitCode=1;
 });
