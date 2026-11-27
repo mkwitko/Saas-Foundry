@@ -14,7 +14,8 @@ import { initializeProject } from "./init.js";
 import { runFoundry, getFoundryStatus, listFoundryRuns } from "./run.js";
 import { runInteractive } from "./interactive.js";
 import { buildDependencyPlan, verifyDefinitionOfDone } from "./planner.js";
-import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";\nimport { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
+import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";
+import { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
