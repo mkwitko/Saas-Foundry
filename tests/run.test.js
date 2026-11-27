@@ -144,3 +144,34 @@ test("status and run history expose concise, read-only project progress", () => 
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
 });
+
+
+test("project status calculates evidence freshness from checked date and review interval", () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-evidence-status-"));
+  try {
+    initializeProject({ projectPath: projectRoot, mode: "new", agent: "claude" });
+    const ledger = `schema_version: "0.1"
+updated_at: "2026-01-01T00:00:00.000Z"
+claims:
+  - id: competitor-price-1
+    claim: "Competitor plan price is $49 per month"
+    evidence_class: E3
+    status: current
+    source_type: web
+    source: "https://example.com/pricing"
+    checked_at: "2026-01-01T00:00:00.000Z"
+    confidence: high
+    limitations: []
+    review_after_days: 30
+decisions: []
+experiments: []
+`;
+    fs.writeFileSync(path.join(projectRoot, ".foundry/evidence.yaml"), ledger);
+    const status = getFoundryStatus(projectRoot);
+    assert.equal(status.evidence.total_claims, 1);
+    assert.equal(status.evidence.stale_claims.length, 1);
+    assert.equal(status.evidence.stale_claims[0].id, "competitor-price-1");
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
