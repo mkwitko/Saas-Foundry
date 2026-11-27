@@ -21,6 +21,8 @@ npx -y github:mkwitko/Saas-Foundry run . --task sales
 npx -y github:mkwitko/Saas-Foundry run . --task growth
 npx -y github:mkwitko/Saas-Foundry status .
 npx -y github:mkwitko/Saas-Foundry runs . --limit 10
+npx -y github:mkwitko/Saas-Foundry sequence . --module landing-page,sales-pipeline
+npx -y github:mkwitko/Saas-Foundry verify . --module landing-page,sales-pipeline
 ```
 
 | Task | Use when | Expected scope |
@@ -124,3 +126,21 @@ The agent can autonomously inspect, research, draft and make scoped local change
 - Do not automatically revert agent changes after a failed run. First inspect the diff; rollback can destroy valid partial work.
 - Run receipts contain execution metadata and concise module outcomes, not secrets, raw customer conversations or patient data.
 - Preserve previous run receipts. Use the latest state as a pointer, not as the only history.
+
+## Dependency sequencing and module acceptance
+
+Use `sequence` to expand selected capabilities into a topologically ordered execution plan. Prerequisites already marked completed, `already_satisfied`, or `not_applicable` are not repeated. A blocked or specialist-required prerequisite blocks the dependent module. The command is read-only and never starts an agent:
+
+```bash
+npx -y github:mkwitko/Saas-Foundry sequence . --module conversion-optimization
+```
+
+Use `verify` to check whether selected modules have complete acceptance records:
+
+```bash
+npx -y github:mkwitko/Saas-Foundry verify . --module product-design,engineering-quality
+```
+
+The project-local `.foundry/acceptance.yaml` ledger records one entry per completed module: outcome, evidence, artifacts, checks and their results, risks, rollback path, next action and owner. A missing ledger, missing required module, failed check, or unrun check returns an incomplete result and a non-zero CLI exit code. `not_applicable` is allowed only as an explicit check result; it must not be used to hide an unverified requirement.
+
+The verifier checks record completeness and declared check outcomes. It does not execute tests, independently validate evidence, inspect whether a rollback works, or certify business impact. Those remain part of the agent's verification and human review. Keep acceptance records free of secrets and raw customer or patient data.
