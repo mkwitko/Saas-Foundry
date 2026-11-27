@@ -4,7 +4,8 @@ import { spawnSync } from "node:child_process";
 
 const DEFAULT_CONFIG = {
   schema_version: "0.1",
-  baseURL: "http://127.0.0.1:3000",\n  allowRemote: false,
+  baseURL: "http://127.0.0.1:3000",
+  allowRemote: false,
   routes: [{ name: "home", path: "/" }],
   viewports: [
     { name: "mobile", width: 390, height: 844 },
@@ -148,9 +149,9 @@ export function readVisualAuditConfig(projectRoot) {
 
 export function runVisualAudit(projectRoot) {
   const root = path.resolve(projectRoot);
-  const configPath = path.join(root, ".foundry", "visual-audit", "config.json");
+  readVisualAuditConfig(root);
   const configFile = path.join(root, ".foundry", "visual-audit", "playwright.config.cjs");
-  if (!fs.existsSync(configPath) || !fs.existsSync(configFile)) throw new Error("Visual audit is not initialized. Run foundry visual-audit init <project> first.");
+  if (!fs.existsSync(configFile)) throw new Error("Visual audit Playwright config is missing. Re-run foundry visual-audit init <project> or restore the file.");
   const cli = playwrightCli(root);
   if (!cli) throw new Error("Playwright is not installed in this project. Install it explicitly with npm install -D @playwright/test, then install the required browser with npx playwright install chromium.");
   const result = spawnSync(process.execPath, [cli, "test", "--config", configFile], { cwd: root, stdio: "inherit", env: process.env });
