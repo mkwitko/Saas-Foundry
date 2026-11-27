@@ -72,7 +72,7 @@ artifacts:
     sensitivity: confidential
     change_policy: owner_approval
     producers: [founder-skill, marketing-skills]
-    consumers: [website-and-conversion, sales-pipeline, acquisition-engine, product-strategy]
+    consumers: [conversion-optimization, sales-pipeline, launch-and-distribution, product-strategy]
     depends_on: [business-strategy, icp-and-buyer, product-brief]
     evidence_ids: []
     sources: []
@@ -117,7 +117,7 @@ artifacts:
     sensitivity: confidential
     change_policy: owner_approval
     producers: [founder-skill, foundry-sales-review]
-    consumers: [marketing-skills, customer-success, founder-operations]
+    consumers: [marketing-skills, retention-and-customer-success, founder-operations]
     depends_on: [icp-and-buyer, positioning-and-offer]
     evidence_ids: []
     sources: []
@@ -132,7 +132,7 @@ artifacts:
     sensitivity: confidential
     change_policy: owner_approval
     producers: [analytics-instrumentation, customer-intelligence-loop, foundry]
-    consumers: [founder-skill, marketing-skills, sales-pipeline, product-strategy, customer-success]
+    consumers: [founder-skill, marketing-skills, sales-pipeline, product-strategy, retention-and-customer-success]
     depends_on: [icp-and-buyer, product-brief]
     evidence_ids: []
     sources: []
@@ -146,7 +146,7 @@ artifacts:
     review_after_days: 14
     sensitivity: confidential
     change_policy: propose_only
-    producers: [customer-research-loop, customer-intelligence-loop, support-loop]
+    producers: [customer-research-loop, customer-intelligence-loop, customer-support-loop]
     consumers: [founder-skill, product-strategy, impeccable, marketing-skills, sales-pipeline]
     depends_on: [metrics-and-events]
     evidence_ids: []
