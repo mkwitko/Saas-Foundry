@@ -11,17 +11,23 @@ import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, build
 import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall, buildResourceUpdatePlan, executeResourceUpdate, buildResourceRollbackPlan, rollbackResourceUpdate } from "./v4.js";
 import { runCodeAudit } from "./agents.js";
 import { initializeProject } from "./init.js";
-import { runFoundry } from "./run.js";
+import { runFoundry, getFoundryStatus, listFoundryRuns } from "./run.js";
 import { runInteractive } from "./interactive.js";
+import { buildDependencyPlan, verifyDefinitionOfDone } from "./planner.js";
+import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";
+import { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
 
 function usage() {
-  return `SaaS Foundry CLI v0.8.0
+  return `SaaS Foundry CLI v0.10.0
 
 Usage:
   foundry [interactive]
+  foundry run <project-path|github-url> [--task auto|full|idea|product|sales|growth|review] [--dir <path>] [--mode auto|new|existing] [--agent claude|codex|opencode]
+  foundry status <project-path> [--format json|md]
+  foundry runs <project-path> [--limit 10] [--format json|md]
   foundry scan <project-path> [--format json|md] [--out <file>]
   foundry plan <project-path> [--scan <scan.json>] [--format json|md] [--out <file>]
   foundry doctor <project-path> [--strict]
@@ -38,21 +44,22 @@ Usage:
   foundry rollback-resource <project-path> --resource <id> [--execute]
   foundry uninstall <project-path> --resource <id> [--execute]
   foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]
-  foundry run <project-path|github-url> [--dir <path>] [--mode auto|new|existing] [--agent claude|codex|opencode]
   foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
+  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]
 
-Options:
-  --format   Output format (default: md for scan/plan, json for doctor)
-  --out      Write output to a file instead of stdout
-  --scan     Use a previously generated scan JSON for planning
-  --strict   Treat manifest warnings as errors
-  --foundry  Path to a SaaS Foundry checkout (default: this CLI's checkout)
+Run tasks:
+  auto     Find the highest-value bottleneck (default)
+  full     Review the complete SaaS lifecycle
+  idea     Validate a new SaaS opportunity
+  product  Review UX, React/Node engineering and product quality
+  sales    Improve founder-led sales and paid conversion
+  growth   Improve acquisition, activation, retention and referrals
+  review   Read-only diagnosis; no implementation
 
 Safety:
-  scan is read-only. It inventories paths and selected metadata/documents only.
-  plan, doctor, select, context, evidence, diff, resources and drift are read-only.
-  install and uninstall are dry-run by default; --execute is required to write.
-  install requires an explicit --reviewed attestation and never executes resource files.
+  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
+  Resource install/update/uninstall are dry-run by default; --execute is required to write.
+  Outreach, publishing, paid spend, deployment and production changes require explicit approval.
 `;
 }
 function parseArgs(args) {
@@ -61,7 +68,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit","--base-url","--input"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -74,14 +81,57 @@ function parseArgs(args) {
 function emit(value, options, defaultFormat="md") {
   const format=options.format ?? defaultFormat;
   if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");
-  const payload=value?.data ?? value;
-  const output=format==="json" ? JSON.stringify(payload,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : JSON.stringify(value.data,null,2)+"\n");
+  const output=format==="json" ? JSON.stringify(value?.data ?? value,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : value.kind==="status" ? formatMarkdownStatus(value.data) : value.kind==="runs" ? formatMarkdownRuns(value.data) : JSON.stringify(value.data,null,2)+"\n");
   if(options.out){
     const destination=path.resolve(options.out);
     fs.mkdirSync(path.dirname(destination),{recursive:true});
     fs.writeFileSync(destination,output,{encoding:"utf8",flag:"w"});
     process.stdout.write(`Wrote ${destination}\n`);
   } else process.stdout.write(output);
+}
+function formatMarkdownStatus(status) {
+  const lines = [
+    "# SaaS Foundry status",
+    "",
+    "- Project mode: " + status.project_mode,
+    "- Status: " + status.status,
+    "- Stage: " + (status.stage ?? "not defined"),
+    "- Selected task: " + (status.selected_task ?? "none"),
+    "- Current bottleneck: " + (status.current_bottleneck ?? "not identified"),
+    "",
+    "",
+    "## Evidence freshness",
+    "- Claims: " + status.evidence.total_claims,
+    "- Stale claims: " + status.evidence.stale_claims.length,
+    "- Unvalidated / synthetic claims: " + status.evidence.unvalidated_claims,
+    "- Decisions: " + status.evidence.decisions,
+    "- Active experiments: " + status.evidence.active_experiments,
+    ...status.evidence.stale_claims.map(item => "- Stale: " + item.id + " — " + item.claim),
+    "",
+    "## Last run"
+  ];
+  if (status.last_run) {
+    lines.push(
+      "- Task: " + status.last_run.task,
+      "- Agent: " + status.last_run.agent,
+      "- Result: " + status.last_run.status,
+      "- Started: " + status.last_run.started_at,
+      "- Completed: " + (status.last_run.completed_at ?? "in progress"),
+      "- Modules: " + status.last_run.modules_completed.length + "/" + status.last_run.modules_selected.length,
+      "- Blockers: " + (status.last_run.blockers.join("; ") || "none")
+    );
+  } else lines.push("- No runs recorded.");
+  lines.push("", "## Next action", status.next_action ? "- " + status.next_action.title + " (owner: " + status.next_action.owner + ")" : "- Not defined");
+  lines.push("", "## Pending approvals", status.pending_approvals.length ? status.pending_approvals.map(item => "- " + item).join("\n") : "- None");
+  return lines.join("\n") + "\n";
+}
+function formatMarkdownRuns(runs) {
+  if (!runs.length) return "No Foundry runs recorded yet.\n";
+  const lines = ["# SaaS Foundry run history", "", "| Started | Task | Agent | Outcome | Modules |", "|---|---|---|---|---|"];
+  for (const run of runs) {
+    lines.push("| " + (run.started_at ?? "") + " | " + (run.task ?? "") + " | " + (run.agent ?? "") + " | " + (run.outcome ?? run.status ?? "") + " | " + (run.modules_completed?.length ?? 0) + "/" + (run.modules_selected?.length ?? 0) + " |");
+  }
+  return lines.join("\n") + "\n";
 }
 function loadJson(file){
   const raw=fs.readFileSync(path.resolve(file),"utf8");
@@ -95,10 +145,76 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="customer-intel") {
+    const [action, projectPath, ...extra] = positional;
+    if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: customer-intel report <project-path> [--input <sanitized-summary.json>].");
+    const {file, report} = readCustomerIntelligenceInput(projectPath, options.input);
+    const format = options.format ?? "md";
+    if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");
+    const output = format === "json" ? JSON.stringify({source:file, ...report}, null, 2) + "\n" : formatCustomerIntelligenceMarkdown(report);
+    if(options.out) {
+      const destination=path.resolve(options.out);
+      fs.mkdirSync(path.dirname(destination),{recursive:true});
+      fs.writeFileSync(destination,output,{encoding:"utf8",flag:"w"});
+      process.stdout.write("Wrote " + destination + "\n");
+    } else process.stdout.write(output + (output.endsWith("\n") ? "" : "\n"));
+    return;
+  }
+  if(command==="visual-audit") {
+    const [action, projectPath, ...extra] = positional;
+    if(!["init","run","report"].includes(action)) throw new Error("visual-audit action must be init, run or report.");
+    if(!projectPath || extra.length) throw new Error("Usage: visual-audit <init|run|report> <project-path>.");
+    if(action==="init") {
+      const result=initializeVisualAudit(projectPath,{baseURL:options["base-url"]});
+      emit({kind:"visual-audit-init",data:result},options,"json");
+      return;
+    }
+    if(action==="report") {
+      const report=readVisualAuditReport(projectPath);
+      emit({kind:"visual-audit-report",data:report},options,"json");
+      if(report.available && report.summary.failed>0) process.exitCode=1;
+      return;
+    }
+    const result=runVisualAudit(projectPath);
+    emit({kind:"visual-audit-run",data:result},options,"json");
+    if(result.exit_code!==0 || result.report?.summary?.failed>0) process.exitCode=1;
+    return;
+  }
+  if(command==="verify") {
+    if(positional.length!==1) throw new Error("verify requires exactly one project path.");
+    const requiredModules=options.module ? options.module.split(",").map(x=>x.trim()).filter(Boolean) : [];
+    const report=verifyDefinitionOfDone(positional[0],{requiredModules});
+    emit({kind:"definition-of-done",data:report},options,"json");
+    if(!report.valid) process.exitCode=1;
+    return;
+  }
+  if(command==="sequence") {
+    if(positional.length!==1) throw new Error("sequence requires exactly one project path.");
+    if(!options.module) throw new Error("sequence requires --module <id[,id...]>.");
+    const {projectRoot,manifest,registry}=loadFoundryContext(positional[0],FOUNDRY_ROOT);
+    const statePath=path.join(projectRoot,".foundry","state.yaml");
+    const state=fs.existsSync(statePath) ? parseYaml(fs.readFileSync(statePath,"utf8")) : {};
+    const statuses={};
+    for(const [status,ids] of Object.entries(manifest.modules ?? {})) for(const id of ids ?? []) statuses[id]=status;
+    const plan=buildDependencyPlan({registry,requested:options.module.split(",").map(x=>x.trim()).filter(Boolean),completed:state.completed_modules ?? [],statuses});
+    emit({kind:"dependency-sequence",data:plan},options,"json");
+    if(!plan.ready) process.exitCode=1;
+    return;
+  }
+  if(command==="status") {
+    if(positional.length!==1) throw new Error("status requires exactly one project path.");
+    emit({kind:"status",data:getFoundryStatus(positional[0])},options,"md"); return;
+  }
+  if(command==="runs") {
+    if(positional.length!==1) throw new Error("runs requires exactly one project path.");
+    const limit=options.limit === undefined ? 10 : Number(options.limit);
+    if(!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error("--limit must be an integer from 1 to 100.");
+    emit({kind:"runs",data:listFoundryRuns(positional[0],limit)},options,"md"); return;
+  }
   if(command==="run") {
     if(positional.length!==1) throw new Error("run requires exactly one project path or GitHub URL.");
-    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto",agent:options.agent ?? "claude"});
-    process.stdout.write(JSON.stringify(result,null,2)+"\\n"); return;
+    const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto",agent:options.agent ?? "claude",task:options.task ?? "auto"});
+    process.stdout.write(JSON.stringify(result,null,2)+"\n"); return;
   }
   if(command==="init") {
     if(positional.length!==1) throw new Error("init requires exactly one project path.");
@@ -232,6 +348,6 @@ async function main(){
   throw new Error(`Unknown command: ${command}\n\n${usage()}`);
 }
 main().catch(error=>{
-  process.stderr.write(`foundry: ${error.message}\n`);
+  process.stderr.write("Error: "+error.message+"\n");
   process.exitCode=1;
 });

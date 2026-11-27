@@ -1,6 +1,6 @@
 # Architecture
 
-Status: v0.8 with an interactive standalone CLI, current-directory project detection, founder intake, multi-agent project-local launcher, evidence intelligence, provenance-pinned resource adapters, sanitized code audits, and explicit product/design/engineering quality gates. External actions remain approval-gated.
+Status: v0.10 with an interactive task-based CLI, current-directory project detection, founder intake, multi-agent project-local launcher, evidence intelligence, provenance-pinned resource adapters, sanitized code audits, and explicit product/design/engineering quality gates. External actions remain approval-gated.
 
 ## Design goals
 
@@ -182,3 +182,12 @@ A prior approval for one action does not authorize repeated or broader actions.
 - Product-wide screen inventory and Impeccable review loop.
 - Founder, marketing, competitor, design, engineering, security, cost, sales and retention playbooks.
 - Screen-level quality gates with evidence and release blockers.
+
+
+### v0.10 — Task routing and persistent operator state
+- Goal-oriented run profiles: auto, full, idea, product, sales, growth and read-only review.
+- A complete module-to-skill/reference/fallback routing registry; no blanket installation of external skills.
+- Bootstrap copies the routing registry and state schema into each project-local `.foundry/` workspace.
+- Persistent state contract for run status, selected/completed modules, blockers, approvals and one owned next action.
+- Operator workflow for resume → inspect → select → plan → execute → verify → learn → handoff.
+- Customer value and satisfaction review based on activation, recurring value, support, retention and verified outcomes.

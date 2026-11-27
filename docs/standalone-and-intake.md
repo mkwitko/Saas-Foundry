@@ -57,3 +57,32 @@ npx -y github:mkwitko/Saas-Foundry
 The detector reads directory names and selected project manifests only. It does not read .env*, secrets, databases, production data, customer conversations, patient records, private attachments or raw logs. The interview should not solicit those data.
 
 The coding agent retains its normal permission controls. The Foundry does not bypass approval gates for outreach, publishing, paid spend, deployment, production mutations or sensitive data access.
+
+
+## Focused task selection
+
+The interactive launcher asks which outcome should be prioritized. It defaults to `idea` for a new SaaS and `auto` for an existing project.
+
+For repeat runs, skip the wizard and select a task:
+
+| Task | Purpose |
+|---|---|
+| `auto` | Diagnose the current bottleneck and execute the most relevant modules |
+| `full` | Review the complete lifecycle without repeating satisfied work |
+| `idea` | Validate a new opportunity before building |
+| `product` | Improve product, UI/UX and engineering quality |
+| `sales` | Improve qualified pipeline, demos and paid conversion |
+| `growth` | Improve acquisition, activation, retention and referrals |
+| `review` | Read-only diagnosis |
+
+Examples:
+
+~~~bash
+npx -y github:mkwitko/Saas-Foundry run . --task auto
+npx -y github:mkwitko/Saas-Foundry run . --task product
+npx -y github:mkwitko/Saas-Foundry run . --task sales
+npx -y github:mkwitko/Saas-Foundry run . --task growth
+npx -y github:mkwitko/Saas-Foundry run . --task review
+~~~
+
+The project-local `.foundry/workflow-routing.yaml` maps modules to selected upstream skills, references and Foundry-owned fallbacks. `.foundry/state.yaml` records progress, blockers, approvals and one next action. Existing state and routing files are preserved during reinitialization.

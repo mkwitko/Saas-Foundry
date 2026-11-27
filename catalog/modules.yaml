@@ -13,6 +13,26 @@ modules:
     risk: low
     ia_chat: optional_later
 
+  - id: idea-viability-review
+    group: strategy
+    purpose: Stress-test a SaaS idea against buyer pain, urgency, budget, alternatives, reachability, differentiation, retention, economics and feasibility before major build investment.
+    triggers: [greenfield, idea_review, new_market, weak_problem_evidence, pre_build]
+    inputs: [idea_brief, founder_constraints, buyer_segments, competitor_evidence, cost_assumptions]
+    outputs: [idea_scorecard, disconfirming_evidence, buyer_access_plan, investment_decision, validation_experiment]
+    requires: [opportunity-intelligence]
+    risk: medium
+    ia_chat: not_applicable
+
+  - id: buyer-purchase-simulation
+    group: strategy
+    purpose: Simulate skeptical purchase decisions for evidence-grounded buyer roles and expose objections without misrepresenting simulation as customer research.
+    triggers: [idea_review, pricing_review, offer_review, weak_conversion, new_segment]
+    inputs: [icp, buyer_evidence, offer, pricing_hypotheses, alternatives]
+    outputs: [buyer_decision_scenarios, objection_map, purchase_barriers, real_buyer_questions]
+    requires: [business-validation, competitor-intelligence]
+    risk: low
+    ia_chat: optional_later
+
   - id: business-validation
     group: strategy
     purpose: Test urgency, access, buying authority, willingness to pay, and pilot commitment.
@@ -74,6 +94,25 @@ modules:
     risk: low
     ia_chat: already_satisfied
 
+  - id: buyer-centred-ux-and-conversion
+    group: product
+    purpose: Audit public sales surfaces and in-product journeys for usability, trust, value communication, activation and conversion friction.
+    triggers: [usability_problem, weak_conversion, onboarding_dropoff, pricing_confusion, launch, design_quality_gap]
+    inputs: [screen_inventory, buyer_journeys, offer, pricing, user_feedback, funnel_data]
+    outputs: [journey_friction_map, ux_conversion_scorecard, prioritized_fixes, experiment_backlog]
+    requires: [product-strategy, positioning-and-offer]
+    risk: medium
+    ia_chat: recommended
+
+  - id: visual-quality-audit
+    group: product
+    purpose: Verify user-facing journeys across responsive viewports, capture reproducible screenshots, detect common browser failures and run automated accessibility checks where configured.
+    triggers: [release, design_quality_gap, responsive_regression, accessibility_gap, route_change]
+    inputs: [route_inventory, local_app_url, supported_viewports, acceptance_criteria]
+    outputs: [responsive_screenshots, browser_error_report, overflow_report, accessibility_report, visual_audit_summary]
+    requires: [product-design]
+    risk: medium
+    ia_chat: recommended
   - id: engineering-quality
     group: delivery
     purpose: Improve implementation quality, architecture, tenant isolation, security, privacy, scalability, performance, observability, cost efficiency, testing, and release safety.
@@ -194,6 +233,15 @@ modules:
     risk: medium
     ia_chat: recommended
 
+  - id: customer-intelligence-loop
+    group: lifecycle
+    purpose: Connect privacy-safe product telemetry, customer feedback, support patterns, activation, retention and cancellation signals to evidence-backed product decisions.
+    triggers: [post_pilot, weak_activation, retention_problem, recurring_support_issue, churn_signal, roadmap_uncertainty]
+    inputs: [aggregate_product_events, sanitized_customer_feedback, support_topic_counts, lifecycle_cohorts, cancellation_reasons, privacy_constraints]
+    outputs: [event_taxonomy, customer_voice_summary, lifecycle_metrics, prioritized_customer_pains, experiment_brief, evidence_updates]
+    requires: [analytics-instrumentation, customer-research-loop]
+    risk: high
+    ia_chat: recommended
   - id: conversion-optimization
     group: acquisition
     purpose: Improve the conversion path across landing pages, demos, waitlists, invitations and trial signup.

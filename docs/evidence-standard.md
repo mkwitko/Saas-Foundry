@@ -70,3 +70,36 @@ Small samples must show counts next to rates. Do not report a percentage without
 ## External research freshness
 
 Store source URL and checked date. Give volatile facts (prices, policies, platform requirements, competitor offers, availability) a short review interval. Never present a cached dataset as live market data.
+
+
+## Persistent evidence ledger and freshness
+
+Each bootstrapped project receives `.foundry/evidence.yaml` and `.foundry/evidence-ledger.schema.json`. Keep material claims, decisions and experiments there instead of scattering contradictory facts across reports.
+
+A claim record must retain its evidence class, source type, exact source/path, checked date, segment, sample size where relevant, confidence, limitations, falsifier and review interval. Use stable IDs so decisions and experiments can refer back to claims.
+
+### Freshness rules
+
+Freshness is computed from `checked_at + review_after_days`; a manually written `current` label never overrides an expired review date.
+
+Suggested starting intervals (shorten them in volatile markets):
+- E1 production behaviour / telemetry: 7–30 days, depending on the decision.
+- E2 buyer interviews and purchase behaviour: 30–90 days; recheck immediately after a material segment or offer change.
+- E3 official pricing, platform policies, API documentation and repository state: 30–90 days; recheck before implementation or purchase decisions.
+- E4 secondary research and competitor commentary: 90–180 days.
+- E5 internal cost, demand and market estimates: 30 days or whenever an input changes.
+- E6 simulations and generated hypotheses: never count as validation; rerun only when inputs or the offer change.
+- E0 unknown: no freshness interval makes it evidence. It remains unknown until sourced.
+
+Mark evidence stale when its review date passes, the source disappears, the product/offer/segment changes, or an invalidation trigger occurs. Do not delete stale claims: preserve them for audit and supersede them with a new claim linked to the new source.
+
+### Decision and experiment linkage
+
+- Every accepted strategic decision should cite the evidence IDs it relied on, the alternatives rejected, the expected outcome and a review date or trigger.
+- Do not silently rewrite accepted decisions. Mark them superseded and create a new decision record when evidence changes.
+- Experiments must define a hypothesis, segment, intervention, primary metric, guardrails, owner and decision date before launch.
+- On completion, record the observed result and the decision: keep, change, stop or investigate.
+- A run should refresh only claims relevant to its selected task. Do not re-research everything on every execution.
+- When evidence is stale but cannot be refreshed, lower confidence and state the decision risk instead of inventing an updated fact.
+
+The ledger is an index and audit trail, not a reason to store raw customer messages, personal information, credentials or patient data. Store only sanitized summaries and source references with appropriate permission.

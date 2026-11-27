@@ -71,6 +71,18 @@ skills/                  Foundry-owned agent workflows
 templates/               Reusable business and execution artifacts
 ```
 
+## Product quality and commercial validation
+
+The Foundry's default implementation profile for new web SaaS is **React + TypeScript + Node.js + TypeScript** (Fastify preferred for new APIs), while preserving an existing stack unless there is a concrete reason to migrate.
+
+It does not treat "build the idea" as the first step. For greenfield ideas it challenges the buyer/problem, researches alternatives, scores commercial viability, simulates skeptical purchase decisions, tests pricing and unit economics, and defines a real validation experiment before recommending an MVP. Simulated buyers are explicitly not customer evidence.
+
+For existing products it reviews the complete React UI and customer journey: landing page, offer, pricing, onboarding, core workflows, trust, accessibility, responsive states, activation, conversion and retention. It also evaluates the sales path from qualified lead through paid customer and renewal.
+
+Every project also receives a persistent, freshness-aware evidence ledger linking claims, decisions and experiments. See [Evidence Standard](docs/evidence-standard.md) and [Operator Experience](docs/operator-experience.md).
+
+See [Product and Commercial Review](docs/product-and-commercial-review.md), [React + Node Project Profile](docs/react-node-project-profile.md), [Design Quality Gates](docs/design-quality-gates.md), and [Engineering and Operations](docs/engineering-and-operations-playbook.md).
+
 ## First adoption: ia-chat
 
 The initial report is in [projects/ia-chat/](projects/ia-chat/).
@@ -86,6 +98,9 @@ The repository already has substantial product and founder documentation, a work
 Do not create a second business plan, another generic idea generator, or duplicate product features already present in ia-chat.
 
 ## Start SaaS Foundry with one command
+
+The interactive launcher now asks which outcome matters in this run. New projects default to idea validation; existing products default to bottleneck diagnosis. You can also choose a focused task directly with `--task`.
+
 
 From the folder you want Foundry to work in:
 
@@ -106,6 +121,22 @@ The launcher detects Claude Code, Codex CLI and OpenCode, lets you choose an ins
 ### Run directly from GitHub during development
 
 **The GitHub command above is the currently available command.** The shorter `npx saas-foundry` command will become available only after the package is published to npm; it is not published yet.
+
+After bootstrap, run only the workflow you need:
+
+~~~bash
+npx -y github:mkwitko/Saas-Foundry run . --task auto
+npx -y github:mkwitko/Saas-Foundry run . --task product
+npx -y github:mkwitko/Saas-Foundry run . --task sales
+npx -y github:mkwitko/Saas-Foundry run . --task growth
+npx -y github:mkwitko/Saas-Foundry run . --task review
+npx -y github:mkwitko/Saas-Foundry status .
+npx -y github:mkwitko/Saas-Foundry runs . --limit 10
+npx -y github:mkwitko/Saas-Foundry sequence . --module conversion-optimization
+npx -y github:mkwitko/Saas-Foundry verify . --module product-design,engineering-quality
+~~~
+
+See [Operator Experience and Automation](docs/operator-experience.md) for task profiles, dependency-aware sequencing, persistent state, module acceptance records and the definition-of-done verifier.
 
 For an explicit existing GitHub repository, the previous launcher remains available:
 
@@ -208,7 +239,7 @@ Install only the skill needed in a target project. See [docs/using-skills.md](do
 
 ## Current maturity
 
-This repository now contains a **v0.8 interactive standalone CLI, project detector, founder intake, multi-agent launcher and project-local workflow** with interactive onboarding, founder intake, scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, provenance-pinned resource install/update/drift/rollback/uninstall, project-local skill installation, and a one-command Claude Code launcher.
+This repository now contains a **v0.10 interactive standalone CLI, task-based launcher, project detector, founder intake, multi-agent launcher and project-local workflow** with interactive onboarding, founder intake, focused task profiles, module-to-skill routing, persistent project state, scan, plan, doctor, evidence reports, scan diffs, bottleneck-aware module selection, portable agent context, safe module runbooks, provenance-pinned resource install/update/drift/rollback/uninstall, project-local skill installation, and multi-agent launch adapters.
 
 Available v0.4 commands:
 
@@ -223,6 +254,9 @@ foundry context . --format json
 foundry apply . --module sales-pipeline
 foundry rollback . --module sales-pipeline
 foundry resources
+foundry visual-audit init . --base-url http://127.0.0.1:3000
+foundry visual-audit run .
+foundry visual-audit report .
 foundry install . --resource impeccable --from /path/to/repo --commit <sha> --license MIT --reviewed
 foundry drift .
 foundry update . --resource impeccable --from /path/to/new-repo --commit <sha> --license MIT --reviewed
@@ -253,3 +287,19 @@ See [docs/security-and-provenance.md](docs/security-and-provenance.md), [docs/ar
 3. Keep modules independently installable and narrowly scoped.
 4. Add evidence and acceptance criteria for every project-specific recommendation.
 5. Prefer a small number of high-leverage workflows over many overlapping skills.
+
+
+## Automated visual audit
+
+The optional Playwright harness checks configured routes at mobile, tablet and desktop sizes, captures screenshots, detects horizontal overflow, broken images and browser errors, and runs axe WCAG 2.1 A/AA checks when `@axe-core/playwright` is installed. It reuses existing browser tests where possible and does not install dependencies or start the application.
+
+See [docs/design-quality-gates.md](docs/design-quality-gates.md) and [docs/operator-experience.md](docs/operator-experience.md). The generated config schema is [schemas/visual-audit-config.schema.json](schemas/visual-audit-config.schema.json). Remote targets are disabled by default; only explicitly approved staging targets may set `allowRemote: true`. Do not run against production.
+
+
+## Customer intelligence and retention
+
+The optional customer intelligence loop connects privacy-safe aggregate product events, sanitized customer feedback, support themes, activation, retention and cancellation reasons to a single evidence-backed improvement cycle. It prioritizes customer pain without pretending small samples are statistically significant or inferring causality from correlation.
+
+Use `foundry customer-intel report .` after creating `.foundry/customer-intelligence/summary.json` from [the aggregate template](templates/customer-intelligence-summary.json). For an external sanitized aggregate, pass `--input ./path/to/summary.json --format json`. The schema rejects unrecognized fields; do not provide raw conversations, personal contact data, patient data or production logs.
+
+See [Customer Intelligence Loop](docs/customer-intelligence-loop.md) and [the schema](schemas/customer-intelligence.schema.json).

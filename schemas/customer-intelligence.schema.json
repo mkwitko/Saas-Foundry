@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mkwitko/Saas-Foundry/schemas/customer-intelligence.schema.json",
+  "title": "SaaS Foundry privacy-safe customer intelligence aggregates",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "period", "accounts", "events", "feedback", "support_topics", "cancellation_reasons"],
+  "properties": {
+    "schema_version": { "const": "0.1" },
+    "period": { "type": "object", "additionalProperties": false, "required": ["start", "end"], "properties": { "start": { "type": "string", "format": "date" }, "end": { "type": "string", "format": "date" } } },
+    "accounts": { "type": "object", "additionalProperties": false, "required": ["eligible", "activated", "active", "retained", "cancelled"], "properties": { "eligible": { "type": "integer", "minimum": 0 }, "activated": { "type": "integer", "minimum": 0 }, "active": { "type": "integer", "minimum": 0 }, "retained": { "type": "integer", "minimum": 0 }, "cancelled": { "type": "integer", "minimum": 0 } } },
+    "events": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["event", "count", "unique_accounts", "measured_at", "source"], "properties": { "event": { "type": "string", "minLength": 1 }, "count": { "type": "integer", "minimum": 0 }, "unique_accounts": { "type": "integer", "minimum": 0 }, "measured_at": { "type": "string", "format": "date-time" }, "source": { "type": "string", "minLength": 1 } } } },
+    "feedback": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["category", "sentiment", "occurrences", "affected_accounts", "evidence_type", "summary", "observed_at"], "properties": { "category": { "type": "string" }, "sentiment": { "enum": ["positive", "neutral", "negative"] }, "occurrences": { "type": "integer", "minimum": 0 }, "affected_accounts": { "type": "integer", "minimum": 0 }, "evidence_type": { "enum": ["customer", "interview", "support", "analytics"] }, "summary": { "type": "string" }, "observed_at": { "type": "string", "format": "date-time" } } } },
+    "support_topics": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["category", "count", "affected_accounts", "severity", "summary"], "properties": { "category": { "type": "string" }, "count": { "type": "integer", "minimum": 0 }, "affected_accounts": { "type": "integer", "minimum": 0 }, "severity": { "enum": ["low", "medium", "high", "critical"] }, "summary": { "type": "string" } } } },
+    "cancellation_reasons": { "type": "array", "items": { "type": "object", "additionalProperties": false, "required": ["reason", "count", "source"], "properties": { "reason": { "type": "string" }, "count": { "type": "integer", "minimum": 0 }, "source": { "type": "string" } } } }
+  }
+}
