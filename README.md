@@ -79,7 +79,7 @@ It does not treat "build the idea" as the first step. For greenfield ideas it ch
 
 For existing products it reviews the complete React UI and customer journey: landing page, offer, pricing, onboarding, core workflows, trust, accessibility, responsive states, activation, conversion and retention. It also evaluates the sales path from qualified lead through paid customer and renewal.
 
-Every project also receives a persistent, freshness-aware evidence ledger linking claims, decisions and experiments. See [Evidence Standard](docs/evidence-standard.md) and [Operator Experience](docs/operator-experience.md).
+Every project also receives a persistent, freshness-aware evidence ledger linking claims, decisions and experiments, plus a shared artifact registry that connects Founder, design, marketing, engineering and customer intelligence to canonical project documents. The registry maps existing sources of truth instead of creating duplicate documentation. See [Evidence Standard](docs/evidence-standard.md), [Shared Knowledge and Artifact Contracts](docs/shared-knowledge-and-artifact-contracts.md), and [Operator Experience](docs/operator-experience.md).
 
 See [Product and Commercial Review](docs/product-and-commercial-review.md), [React + Node Project Profile](docs/react-node-project-profile.md), [Design Quality Gates](docs/design-quality-gates.md), and [Engineering and Operations](docs/engineering-and-operations-playbook.md).
 

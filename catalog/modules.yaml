@@ -3,6 +3,16 @@ schema_version: "0.1"
 # A module is a bounded workflow with a business purpose and explicit outputs.
 # It is not synonymous with a skill, connector, template, dataset, or package.
 modules:
+  - id: shared-knowledge-contracts
+    group: operations
+    purpose: Maintain a project-local map of canonical artifacts, ownership, dependencies, freshness and cross-capability handoffs so specialist workflows share one source of truth.
+    triggers: [project_adoption, conflicting_documents, stale_strategy, cross_skill_handoff, repeated_context_loss]
+    inputs: [repository_docs, artifact_registry, evidence_ledger, decision_log, capability_registry]
+    outputs: [artifact_registry, canonical_source_map, stale_dependency_report, handoff_proposals]
+    requires: []
+    risk: medium
+    ia_chat: recommended
+
   - id: opportunity-intelligence
     group: strategy
     purpose: Discover recurring, costly problems in reachable buyer segments.
