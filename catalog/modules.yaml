@@ -104,6 +104,15 @@ modules:
     risk: medium
     ia_chat: recommended
 
+  - id: visual-quality-audit
+    group: product
+    purpose: Verify user-facing journeys across responsive viewports, capture reproducible screenshots, detect common browser failures and run automated accessibility checks where configured.
+    triggers: [release, design_quality_gap, responsive_regression, accessibility_gap, route_change]
+    inputs: [route_inventory, local_app_url, supported_viewports, acceptance_criteria]
+    outputs: [responsive_screenshots, browser_error_report, overflow_report, accessibility_report, visual_audit_summary]
+    requires: [product-design]
+    risk: medium
+    ia_chat: recommended
   - id: engineering-quality
     group: delivery
     purpose: Improve implementation quality, architecture, tenant isolation, security, privacy, scalability, performance, observability, cost efficiency, testing, and release safety.
