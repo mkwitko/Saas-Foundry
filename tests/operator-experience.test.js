@@ -33,6 +33,7 @@ test("task profiles are explicit and build scoped prompts", () => {
     assert.ok(prompt.includes("Selected task: " + task));
     assert.ok(prompt.includes(".foundry/state.yaml"));
     assert.ok(prompt.includes(".foundry/workflow-routing.yaml"));
+    assert.ok(prompt.includes(".foundry/evidence.yaml"));
   }
   assert.throws(() => buildWorkflowPrompt("unknown"), /task must be one of/);
   assert.deepEqual(agentArgs("opencode", "prompt"), ["mini", "--prompt", "prompt"]);
@@ -45,6 +46,13 @@ test("bootstrap installs routing and state contracts without overwriting project
     const result = initializeProject({ projectPath: projectRoot, mode: "existing", agent: "claude" });
     assert.ok(result.results.some(item => item.path.endsWith(".foundry/workflow-routing.yaml") && item.status === "created"));
     assert.ok(fs.existsSync(path.join(projectRoot, ".foundry/state.schema.json")));
+    assert.ok(fs.existsSync(path.join(projectRoot, ".foundry/evidence-ledger.schema.json")));
+    const evidence = parseYaml(fs.readFileSync(path.join(projectRoot, ".foundry/evidence.yaml"), "utf8"));
+    assert.equal(evidence.schema_version, "0.1");
+    assert.ok(evidence.updated_at);
+    assert.deepEqual(evidence.claims, []);
+    assert.deepEqual(evidence.decisions, []);
+    assert.deepEqual(evidence.experiments, []);
     assert.ok(fs.existsSync(path.join(projectRoot, ".foundry/workflow-routing.yaml")));
     const state = parseYaml(fs.readFileSync(path.join(projectRoot, ".foundry/state.yaml"), "utf8"));
     assert.equal(state.schema_version, "0.1");
