@@ -1,0 +1,5 @@
+schema_version: "0.1"
+updated_at: null
+# Company-level records only. Never add personal contact details or raw conversations.
+leads: []
+channels: []

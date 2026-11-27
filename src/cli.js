@@ -18,6 +18,7 @@ import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./
 import { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
 import { getArtifactWorkspaceReport, loadArtifactWorkspace, buildArtifactHandoffPlan } from "./artifact-orchestration.js";
 import { buildImprovementReport, formatImprovementMarkdown } from "./continuous-improvement.js";
+import { buildRevenueReport, formatRevenueMarkdown } from "./revenue-engine.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -47,7 +48,11 @@ Usage:
   foundry uninstall <project-path> --resource <id> [--execute]
   foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]
   foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
-  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]\n  foundry artifacts validate|status <project-path> [--format json|md]\n  foundry artifacts plan <project-path> --changed <artifact-id[,artifact-id...]> [--format json|md]\n  foundry improve report <project-path> [--input <sanitized-summary.json>] [--format json|md]
+  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]
+  foundry artifacts validate|status <project-path> [--format json|md]
+  foundry artifacts plan <project-path> --changed <artifact-id[,artifact-id...]> [--format json|md]
+  foundry improve report <project-path> [--input <sanitized-summary.json>] [--format json|md]
+  foundry revenue report <project-path> [--input <company-pipeline.yaml>] [--format json|md]
 
 Run tasks:
   auto     Find the highest-value bottleneck (default)
@@ -59,7 +64,7 @@ Run tasks:
   review   Read-only diagnosis; no implementation
 
 Safety:
-  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify, artifacts validate|status|plan, improve report and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
+  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify, artifacts validate|status|plan, improve report, revenue report and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
   Resource install/update/uninstall are dry-run by default; --execute is required to write.
   Outreach, publishing, paid spend, deployment and production changes require explicit approval.
 `;
@@ -147,6 +152,18 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="revenue") {
+    const [action, projectPath, ...extra] = positional;
+    if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: revenue report <project-path> [--input <company-pipeline.yaml>] [--format json|md].");
+    const file=options.input ? path.resolve(options.input) : path.join(path.resolve(projectPath),".foundry","revenue","pipeline.yaml");
+    if(!fs.existsSync(file)) throw new Error("Revenue pipeline not found: "+file);
+    const pipeline=parseYaml(fs.readFileSync(file,"utf8"));
+    const report=buildRevenueReport({pipeline});
+    const format=options.format ?? "md";
+    if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");
+    process.stdout.write(format==="json" ? JSON.stringify(report,null,2)+"\n" : formatRevenueMarkdown(report)+"\n");
+    return;
+  }
   if(command==="improve") {
     const [action, projectPath, ...extra] = positional;
     if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: improve report <project-path> [--input <sanitized-summary.json>] [--format json|md].");

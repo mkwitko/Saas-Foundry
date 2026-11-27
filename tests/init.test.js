@@ -17,6 +17,8 @@ test("init bootstraps an empty greenfield project with a project-local Claude sk
     assert.equal(fs.existsSync(path.join(root, ".foundry/artifact-contracts.yaml")), true);
     assert.equal(fs.existsSync(path.join(root, ".foundry/artifacts.schema.json")), true);
     assert.equal(fs.existsSync(path.join(root, ".foundry/shared-knowledge-and-artifact-contracts.md")), true);
+    assert.equal(fs.existsSync(path.join(root, ".foundry/revenue/pipeline.yaml")), true);
+    assert.equal(fs.existsSync(path.join(root, ".foundry/revenue-pipeline.schema.json")), true);
     const artifactSchema = JSON.parse(fs.readFileSync(path.join(root, ".foundry/artifacts.schema.json"), "utf8"));
     assert.equal(artifactSchema.$schema, "https://json-schema.org/draft/2020-12/schema");
     const registry = fs.readFileSync(path.join(root, ".foundry/artifacts.yaml"), "utf8");
@@ -42,6 +44,8 @@ test("init detects existing projects and preserves user-owned files and artifact
     fs.writeFileSync(path.join(root, ".foundry/artifact-contracts.yaml"), "owner_contracts: keep\n");
     fs.writeFileSync(path.join(root, ".foundry/artifacts.schema.json"), "{\\\"owner\\\":true}\\n");
     fs.writeFileSync(path.join(root, ".foundry/shared-knowledge-and-artifact-contracts.md"), "owner_guide: keep\n");
+    fs.mkdirSync(path.join(root, ".foundry/revenue"), { recursive: true });
+    fs.writeFileSync(path.join(root, ".foundry/revenue/pipeline.yaml"), "owner_pipeline: keep\n");
     const result = initializeProject({ projectPath: root });
     assert.equal(result.project_mode, "existing");
     assert.equal(fs.readFileSync(path.join(root, ".claude/skills/foundry-run/SKILL.md"), "utf8"), "user-owned skill\n");
@@ -50,6 +54,7 @@ test("init detects existing projects and preserves user-owned files and artifact
     assert.equal(fs.readFileSync(path.join(root, ".foundry/artifact-contracts.yaml"), "utf8"), "owner_contracts: keep\n");
     assert.equal(fs.readFileSync(path.join(root, ".foundry/artifacts.schema.json"), "utf8"), "{\\\"owner\\\":true}\\n");
     assert.equal(fs.readFileSync(path.join(root, ".foundry/shared-knowledge-and-artifact-contracts.md"), "utf8"), "owner_guide: keep\n");
+    assert.equal(fs.readFileSync(path.join(root, ".foundry/revenue/pipeline.yaml"), "utf8"), "owner_pipeline: keep\n");
     assert.ok(result.results.every(item => item.status === "preserved" || item.status === "created"));
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

@@ -71,6 +71,8 @@ export function initializeProject({ projectPath, mode = "auto", agent = "claude"
   const artifactContracts = fs.readFileSync(path.join(ROOT, "catalog/artifact-contracts.yaml"), "utf8");
   const artifactTemplate = fs.readFileSync(path.join(ROOT, "templates/artifact-registry.yaml"), "utf8");
   const artifactGuide = fs.readFileSync(path.join(ROOT, "docs/shared-knowledge-and-artifact-contracts.md"), "utf8");
+  const revenueSchema = fs.readFileSync(path.join(ROOT, "schemas/revenue-pipeline.schema.json"), "utf8");
+  const revenueTemplate = fs.readFileSync(path.join(ROOT, "templates/revenue-pipeline.yaml"), "utf8");
   const results = targets.map(relative => writeOrUpgradeFoundrySkill(path.join(projectRoot, relative), skill));
   const now = new Date().toISOString();
   const state = `schema_version: "0.1"
@@ -105,6 +107,8 @@ completed_modules: []
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/artifact-contracts.yaml"), artifactContracts));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/artifacts.yaml"), artifactTemplate.replace("updated_at: null", "updated_at: " + now)));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/shared-knowledge-and-artifact-contracts.md"), artifactGuide));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/revenue-pipeline.schema.json"), revenueSchema));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/revenue/pipeline.yaml"), revenueTemplate.replace("updated_at: null", "updated_at: " + now)));
   const readme = `# SaaS Foundry project workspace
 
 This project has the Foundry workflow installed locally.
@@ -122,6 +126,8 @@ This project has the Foundry workflow installed locally.
 - Evidence contract: .foundry/evidence-ledger.schema.json
 - Module acceptance records: .foundry/acceptance.yaml
 - Acceptance contract: .foundry/acceptance.schema.json
+- Company-level revenue pipeline: .foundry/revenue/pipeline.yaml
+- Revenue pipeline schema: .foundry/revenue-pipeline.schema.json
 
 The artifact registry maps specialist work to canonical project documents. It does not create duplicate business, product, design or marketing documents. Map existing sources of truth before creating new files. See .foundry/shared-knowledge-and-artifact-contracts.md for the operating rules.
 

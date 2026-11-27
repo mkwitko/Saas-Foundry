@@ -133,10 +133,15 @@ npx -y github:mkwitko/Saas-Foundry run . --task review
 npx -y github:mkwitko/Saas-Foundry status .
 npx -y github:mkwitko/Saas-Foundry runs . --limit 10
 npx -y github:mkwitko/Saas-Foundry sequence . --module conversion-optimization
-npx -y github:mkwitko/Saas-Foundry verify . --module product-design,engineering-quality\nnpx -y github:mkwitko/Saas-Foundry artifacts validate .\nnpx -y github:mkwitko/Saas-Foundry artifacts status .\nnpx -y github:mkwitko/Saas-Foundry artifacts plan . --changed positioning-and-offer\nnpx -y github:mkwitko/Saas-Foundry improve report .
+npx -y github:mkwitko/Saas-Foundry verify . --module product-design,engineering-quality
+npx -y github:mkwitko/Saas-Foundry artifacts validate .
+npx -y github:mkwitko/Saas-Foundry artifacts status .
+npx -y github:mkwitko/Saas-Foundry artifacts plan . --changed positioning-and-offer
+npx -y github:mkwitko/Saas-Foundry improve report .
+npx -y github:mkwitko/Saas-Foundry revenue report .
 ~~~
 
-See [Operator Experience and Automation](docs/operator-experience.md) for task profiles, dependency-aware sequencing, persistent state, module acceptance records and the definition-of-done verifier. See [Cross-Skill Orchestration](docs/cross-skill-orchestration.md) for artifact freshness and downstream handoffs, and [Continuous Improvement Engine](docs/continuous-improvement-engine.md) for the weekly learning loop.
+See [Operator Experience and Automation](docs/operator-experience.md) for task profiles, dependency-aware sequencing, persistent state, module acceptance records and the definition-of-done verifier. See [Cross-Skill Orchestration](docs/cross-skill-orchestration.md) for artifact freshness and downstream handoffs, and [Continuous Improvement Engine](docs/continuous-improvement-engine.md) for the weekly learning loop, plus [Revenue and Customer Acquisition](docs/revenue-acquisition-engine.md) for qualification, sales bottlenecks and permission-safe next actions.
 
 For an explicit existing GitHub repository, the previous launcher remains available:
 
