@@ -83,7 +83,8 @@ test("visual audit bootstrap creates portable Playwright files without overwriti
     const configPath = path.join(projectRoot, ".foundry/visual-audit/config.json");
     const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
     assert.equal(config.baseURL, "http://127.0.0.1:4173");
-    assert.deepEqual(config.viewports.map(item => item.name), ["mobile", "tablet", "desktop"]);\n    assert.equal(readVisualAuditConfig(projectRoot).allowRemote, false);
+    assert.deepEqual(config.viewports.map(item => item.name), ["mobile", "tablet", "desktop"]);
+    assert.equal(readVisualAuditConfig(projectRoot).allowRemote, false);
     const specPath = path.join(projectRoot, ".foundry/visual-audit/visual-audit.spec.cjs");
     const configJsPath = path.join(projectRoot, ".foundry/visual-audit/playwright.config.cjs");
     assert.equal(spawnSync(process.execPath, ["--check", specPath]).status, 0);
