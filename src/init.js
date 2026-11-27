@@ -65,6 +65,8 @@ export function initializeProject({ projectPath, mode = "auto", agent = "claude"
   const stateSchema = fs.readFileSync(path.join(ROOT, "schemas/foundry-state.schema.json"), "utf8");
   const evidenceSchema = fs.readFileSync(path.join(ROOT, "schemas/evidence-ledger.schema.json"), "utf8");
   const evidenceTemplate = fs.readFileSync(path.join(ROOT, "templates/evidence-ledger.yaml"), "utf8");
+  const acceptanceSchema = fs.readFileSync(path.join(ROOT, "schemas/acceptance.schema.json"), "utf8");
+  const acceptanceTemplate = fs.readFileSync(path.join(ROOT, "templates/acceptance.yaml"), "utf8");
   const results = targets.map(relative => writeOrUpgradeFoundrySkill(path.join(projectRoot, relative), skill));
   const now = new Date().toISOString();
   const state = `schema_version: "0.1"
@@ -93,6 +95,8 @@ completed_modules: []
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/state.schema.json"), stateSchema));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/evidence-ledger.schema.json"), evidenceSchema));
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/evidence.yaml"), evidenceTemplate.replace("updated_at: null", "updated_at: " + now)));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/acceptance.schema.json"), acceptanceSchema));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/acceptance.yaml"), acceptanceTemplate));
   const readme = `# SaaS Foundry project workspace
 
 This project has the Foundry workflow installed locally.
@@ -105,6 +109,8 @@ This project has the Foundry workflow installed locally.
 - Module routing: .foundry/workflow-routing.yaml
 - State contract: .foundry/state.schema.json
 - Evidence contract: .foundry/evidence-ledger.schema.json
+- Module acceptance records: .foundry/acceptance.yaml
+- Acceptance contract: .foundry/acceptance.schema.json
 
 Run the foundry-run skill or execute SaaS Foundry with a focused task. The workflow inspects this repository, confirms whether it is greenfield or existing, and reuses the appropriate capabilities. Existing instructions and product documentation are never replaced.
 `;
