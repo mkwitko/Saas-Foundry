@@ -119,7 +119,47 @@ function readState(projectRoot) {
   return { statePath, state };
 }
 
+function readEvidenceLedger(projectRoot) {
+  const evidencePath = path.join(projectRoot, ".foundry", "evidence.yaml");
+  if (!fs.existsSync(evidencePath)) return null;
+  let ledger;
+  try { ledger = parseYaml(fs.readFileSync(evidencePath, "utf8")); }
+  catch (error) { throw new Error("Could not parse .foundry/evidence.yaml; preserved the file: " + error.message); }
+  if (!ledger || typeof ledger !== "object" || Array.isArray(ledger) ||
+      ledger.schema_version !== "0.1" || !Array.isArray(ledger.claims) ||
+      !Array.isArray(ledger.decisions) || !Array.isArray(ledger.experiments)) {
+    throw new Error(".foundry/evidence.yaml does not match the evidence-ledger 0.1 contract. The original file was preserved.");
+  }
+  for (const claim of ledger.claims) {
+    if (!claim || typeof claim.id !== "string" || typeof claim.claim !== "string" ||
+        !["E0", "E1", "E2", "E3", "E4", "E5", "E6"].includes(claim.evidence_class) ||
+        !["current", "stale", "superseded"].includes(claim.status) ||
+        typeof claim.checked_at !== "string" ||
+        !Number.isInteger(claim.review_after_days) || claim.review_after_days < 0) {
+      throw new Error(".foundry/evidence.yaml contains an invalid claim record. The original file was preserved.");
+    }
+  }
+  return ledger;
+}
+
+function evidenceFreshness(ledger, now = Date.now()) {
+  if (!ledger) return { total_claims: 0, stale_claims: [], current_claims: 0, decisions: 0, active_experiments: 0 };
+  const staleClaims = ledger.claims.filter(claim => {
+    if (claim.status === "superseded" || claim.review_after_days === 0 || claim.evidence_class === "E0") return false;
+    const checkedAt = Date.parse(claim.checked_at);
+    return !Number.isFinite(checkedAt) || now > checkedAt + claim.review_after_days * 86400000;
+  }).map(({ id, claim, checked_at, review_after_days }) => ({ id, claim, checked_at, review_after_days }));
+  return {
+    total_claims: ledger.claims.length,
+    stale_claims: staleClaims,
+    current_claims: ledger.claims.filter(claim => claim.status !== "superseded").length - staleClaims.length,
+    decisions: ledger.decisions.length,
+    active_experiments: ledger.experiments.filter(experiment => experiment.status === "running").length
+  };
+}
+
 function beginRun(projectRoot, { task, agent, runId }) {
+  readEvidenceLedger(projectRoot);
   const { statePath, state } = readState(projectRoot);
   const now = new Date().toISOString();
   if (state.last_run?.status === "running" && state.status === "running") {
@@ -242,8 +282,11 @@ export async function runFoundry({ target, destination, mode = "auto", agent = "
 
 
 export function getFoundryStatus(projectRoot) {
-  const { state } = readState(path.resolve(projectRoot));
+  const root = path.resolve(projectRoot);
+  const { state } = readState(root);
+  const evidence = evidenceFreshness(readEvidenceLedger(root));
   return {
+    evidence,
     project_mode: state.project_mode,
     status: state.status,
     stage: state.stage ?? null,
