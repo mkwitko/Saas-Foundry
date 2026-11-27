@@ -47,14 +47,10 @@ test("identifies buyer access as the bottleneck when qualified leads lack permis
 
 test("uses complete stage history only when calculating reached-stage counts", () => {
   const data = pipeline();
-  data.leads[0].stage_history = [
-    { stage: "identified", entered_at: "2026-10-01T00:00:00Z" },
-    { stage: "researched", entered_at: "2026-10-02T00:00:00Z" },
-    { stage: "qualified", entered_at: "2026-10-03T00:00:00Z" },
-    { stage: "permissioned", entered_at: "2026-10-04T00:00:00Z" },
-    { stage: "contacted", entered_at: "2026-10-05T00:00:00Z" },
-    { stage: "conversation", entered_at: "2026-10-06T00:00:00Z" }
-  ];
+  const history = (stages) => stages.map((stage, index) => ({ stage, entered_at: `2026-10-${String(index + 1).padStart(2, "0")}T00:00:00Z` }));
+  data.leads[0].stage_history = history(["identified", "researched", "qualified", "permissioned", "contacted", "conversation"]);
+  data.leads[1].stage_history = history(["identified", "researched"]);
+  data.leads[2].stage_history = history(["identified", "researched", "qualified"]);
   const report = buildRevenueReport({ pipeline: data });
   assert.ok(report.funnel_history);
   assert.equal(report.funnel_history.find(item => item.stage === "conversation").reached, 1);
@@ -67,7 +63,23 @@ test("does not infer funnel rates when stage history is absent", () => {
   assert.match(report.funnel_history_note, /unknown/);
 });
 
-test("does not calculate funnel history from a partial set of lead records", () => {\n  const data = pipeline();\n  data.leads[0].stage_history = [{ stage: "identified", entered_at: "2026-10-01T00:00:00Z" }];\n  const report = buildRevenueReport({ pipeline: data });\n  assert.equal(report.funnel_history, null);\n  assert.match(report.funnel_history_note, /incomplete/);\n});\n\ntest("requires a documented basis when contact permission is not required", () => {\n  const data = pipeline();\n  data.leads[0].contact_permission = "not_required";\n  assert.throws(() => validateRevenuePipeline(data), /permission_basis/);\n  data.leads[0].permission_basis = "Inbound request through the public business form";\n  assert.equal(validateRevenuePipeline(data), data);\n});\n\ntest("rejects invalid stage, permission and channel status", () => {
+test("does not calculate funnel history from a partial set of lead records", () => {
+  const data = pipeline();
+  data.leads[0].stage_history = [{ stage: "identified", entered_at: "2026-10-01T00:00:00Z" }];
+  const report = buildRevenueReport({ pipeline: data });
+  assert.equal(report.funnel_history, null);
+  assert.match(report.funnel_history_note, /incomplete/);
+});
+
+test("requires a documented basis when contact permission is not required", () => {
+  const data = pipeline();
+  data.leads[0].contact_permission = "not_required";
+  assert.throws(() => validateRevenuePipeline(data), /permission_basis/);
+  data.leads[0].permission_basis = "Inbound request through the public business form";
+  assert.equal(validateRevenuePipeline(data), data);
+});
+
+test("rejects invalid stage, permission and channel status", () => {
   const data = pipeline();
   data.leads[0].contact_permission = "assumed";
   assert.throws(() => validateRevenuePipeline(data), /contact_permission/);
