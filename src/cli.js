@@ -147,7 +147,21 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="improve") {\n    const [action, projectPath, ...extra] = positional;\n    if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: improve report <project-path> [--input <sanitized-summary.json>] [--format json|md].");\n    const ledgerPath=path.join(path.resolve(projectPath),".foundry","evidence.yaml");\n    if(!fs.existsSync(ledgerPath)) throw new Error("Evidence ledger not found: "+ledgerPath);\n    const ledger=parseYaml(fs.readFileSync(ledgerPath,"utf8"));\n    const customerPath=options.input ? path.resolve(options.input) : path.join(path.resolve(projectPath),".foundry","customer-intelligence","summary.json");\n    const customerIntelligence=fs.existsSync(customerPath) ? readCustomerIntelligenceInput(projectPath,options.input).report : null;\n    const report=buildImprovementReport({ledger,customerIntelligence});\n    const format=options.format ?? "md";\n    if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");\n    process.stdout.write(format==="json" ? JSON.stringify(report,null,2)+"\\n" : formatImprovementMarkdown(report)+"\\n");\n    return;\n  }\n  if(command==="artifacts") {
+  if(command==="improve") {
+    const [action, projectPath, ...extra] = positional;
+    if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: improve report <project-path> [--input <sanitized-summary.json>] [--format json|md].");
+    const ledgerPath=path.join(path.resolve(projectPath),".foundry","evidence.yaml");
+    if(!fs.existsSync(ledgerPath)) throw new Error("Evidence ledger not found: "+ledgerPath);
+    const ledger=parseYaml(fs.readFileSync(ledgerPath,"utf8"));
+    const customerPath=options.input ? path.resolve(options.input) : path.join(path.resolve(projectPath),".foundry","customer-intelligence","summary.json");
+    const customerIntelligence=fs.existsSync(customerPath) ? readCustomerIntelligenceInput(projectPath,options.input).report : null;
+    const report=buildImprovementReport({ledger,customerIntelligence});
+    const format=options.format ?? "md";
+    if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");
+    process.stdout.write(format==="json" ? JSON.stringify(report,null,2)+"\n" : formatImprovementMarkdown(report)+"\n");
+    return;
+  }
+  if(command==="artifacts") {
     const [action, projectPath, ...extra] = positional;
     if(!["validate","status","plan"].includes(action) || !projectPath || extra.length) throw new Error("Usage: artifacts <validate|status|plan> <project-path> [--changed <id[,id...]>].");
     const workspace=loadArtifactWorkspace(projectPath);
