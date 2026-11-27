@@ -44,6 +44,7 @@ Usage:
   foundry uninstall <project-path> --resource <id> [--execute]
   foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]
   foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
+  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]
 
 Run tasks:
   auto     Find the highest-value bottleneck (default)
