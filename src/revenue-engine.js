@@ -105,7 +105,8 @@ export function buildRevenueReport({ pipeline, now = new Date() }) {
   const nextActions = active.map(lead => leadNextAction(lead, now)).filter(Boolean)
     .sort((a, b) => (a.priority === "high" ? 0 : a.priority === "medium" ? 1 : 2) - (b.priority === "high" ? 0 : b.priority === "medium" ? 1 : 2));
   const leadsWithHistory = leads.filter(lead => Array.isArray(lead.stage_history) && lead.stage_history.length);
-  const funnel = leadsWithHistory.length ? ACTIVE_STAGES.map(stage => ({
+  const hasCompleteHistory = leads.length > 0 && leadsWithHistory.length === leads.length;
+  const funnel = hasCompleteHistory ? ACTIVE_STAGES.map(stage => ({
     stage,
     reached: leadsWithHistory.filter(lead => lead.stage_history.some(item => stageRank(item.stage) >= 0 && stageRank(item.stage) >= stageRank(stage))).length
   })) : null;
