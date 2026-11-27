@@ -132,9 +132,11 @@ npx -y github:mkwitko/Saas-Foundry run . --task growth
 npx -y github:mkwitko/Saas-Foundry run . --task review
 npx -y github:mkwitko/Saas-Foundry status .
 npx -y github:mkwitko/Saas-Foundry runs . --limit 10
+npx -y github:mkwitko/Saas-Foundry sequence . --module conversion-optimization
+npx -y github:mkwitko/Saas-Foundry verify . --module product-design,engineering-quality
 ~~~
 
-See [Operator Experience and Automation](docs/operator-experience.md) for the task profiles, routing model, persistent state and definition of done.
+See [Operator Experience and Automation](docs/operator-experience.md) for task profiles, dependency-aware sequencing, persistent state, module acceptance records and the definition-of-done verifier.
 
 For an explicit existing GitHub repository, the previous launcher remains available:
 
