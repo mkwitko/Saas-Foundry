@@ -8,7 +8,7 @@ import { parse as parseYaml } from "yaml";
 import { fileURLToPath } from "node:url";
 import { FOUNDRY_TASKS, buildWorkflowPrompt, agentArgs } from "../src/run.js";
 import { initializeProject } from "../src/init.js";
-import { initializeVisualAudit, readVisualAuditReport } from "../src/visual-audit.js";
+import { initializeVisualAudit, readVisualAuditConfig, readVisualAuditReport } from "../src/visual-audit.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -83,7 +83,7 @@ test("visual audit bootstrap creates portable Playwright files without overwriti
     const configPath = path.join(projectRoot, ".foundry/visual-audit/config.json");
     const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
     assert.equal(config.baseURL, "http://127.0.0.1:4173");
-    assert.deepEqual(config.viewports.map(item => item.name), ["mobile", "tablet", "desktop"]);
+    assert.deepEqual(config.viewports.map(item => item.name), ["mobile", "tablet", "desktop"]);\n    assert.equal(readVisualAuditConfig(projectRoot).allowRemote, false);
     const specPath = path.join(projectRoot, ".foundry/visual-audit/visual-audit.spec.cjs");
     const configJsPath = path.join(projectRoot, ".foundry/visual-audit/playwright.config.cjs");
     assert.equal(spawnSync(process.execPath, ["--check", specPath]).status, 0);
@@ -125,6 +125,25 @@ test("visual audit report clearly reports when no browser run exists", () => {
     const report = readVisualAuditReport(projectRoot);
     assert.equal(report.available, false);
     assert.equal(report.summary.total, 0);
+  } finally {
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+  }
+});
+
+test("visual audit rejects remote URLs and unsafe route definitions by default", () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-visual-safety-"));
+  try {
+    initializeVisualAudit(projectRoot);
+    const configPath = path.join(projectRoot, ".foundry/visual-audit/config.json");
+    const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    config.baseURL = "https://production.example.com";
+    fs.writeFileSync(configPath, JSON.stringify(config));
+    assert.throws(() => readVisualAuditConfig(projectRoot), /Remote visual audits are disabled/);
+    config.allowRemote = true;
+    config.baseURL = "https://staging.example.com";
+    config.routes[0].path = "//attacker.example";
+    fs.writeFileSync(configPath, JSON.stringify(config));
+    assert.throws(() => readVisualAuditConfig(projectRoot), /path beginning with a single/);
   } finally {
     fs.rmSync(projectRoot, { recursive: true, force: true });
   }
