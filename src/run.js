@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import { spawn, spawnSync } from "node:child_process";
+import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import { initializeProject } from "./init.js";
 
 export const FOUNDRY_TASKS = Object.freeze({
@@ -15,8 +17,9 @@ export const FOUNDRY_TASKS = Object.freeze({
 
 export function buildWorkflowPrompt(task = "auto") {
   if (!Object.hasOwn(FOUNDRY_TASKS, task)) throw new Error("task must be one of: " + Object.keys(FOUNDRY_TASKS).join(", "));
+  const review = task === "review";
   return [
-    "Use the project-local foundry-run skill. Selected task: " + task + ".",
+    "Use the project-local foundry-run skill if it is already installed. If absent, follow this workflow prompt without installing it. Selected task: " + task + ".",
     "Task objective: " + FOUNDRY_TASKS[task],
     "Read .foundry/state.yaml, .foundry/workflow-routing.yaml, .foundry/intake.md when present, project instructions, README, specs, roadmap, evidence, decisions and current repository state.",
     "Independently classify the project as greenfield or existing from inspected evidence; preserve working behaviour and accepted decisions.",
@@ -27,9 +30,13 @@ export function buildWorkflowPrompt(task = "auto") {
     "Prefer React + TypeScript and Node.js + TypeScript for new web SaaS, Fastify for new Node APIs, and preserve an existing stack unless a measured reason justifies migration.",
     "Apply Ponytail's smallest-complete-change stance and relevant Clean Code review tracks when available. Never sacrifice security, accessibility, validation, tests or readability for fewer lines.",
     "For existing products, do not rerun completed modules unless new evidence invalidates their outputs. For auto mode, select one primary bottleneck and at most two supporting modules. Full mode is the only mode that reviews every lifecycle stage.",
-    "Implement justified local improvements on a scoped branch, run relevant tests and checks, and record evidence, decisions, experiments, outcomes and next actions in .foundry.",
+    review
+      ? "This is a strict read-only run: do not create, edit, delete, install, stage, commit, branch, deploy or otherwise mutate project files or external systems. Do not update .foundry state. Return findings and proposed next actions only."
+      : "Implement justified local improvements on a scoped branch, run relevant tests and checks, and record evidence, decisions, experiments, outcomes and next actions in .foundry.",
     "Respect normal agent permissions. Explicit approval is mandatory before outreach, publishing, directory submissions, spend, deployment, production changes, secrets access, sensitive customer/patient data access, or security-sensitive changes.",
-    "Update .foundry/state.yaml according to .foundry/state.schema.json. Record the task, agent, run status, selected/completed modules, blockers and exactly one next action with owner.",
+    review
+      ? "Do not write a run report or update .foundry/state.yaml in read-only mode."
+      : "Update .foundry/state.yaml according to .foundry/state.schema.json. Record the task, agent, run status, selected/completed modules, blockers and exactly one next action with owner.",
     "Do not stop at a generic report. Complete safe work within the selected task, state what was verified, and leave a measurable next action."
   ].join("\n\n");
 }
@@ -68,12 +75,103 @@ export function agentArgs(agent, prompt) {
   throw new Error("Unsupported agent: " + agent);
 }
 
+function gitValue(projectRoot, args) {
+  const result = spawnSync("git", ["-C", projectRoot, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+  return result.status === 0 ? result.stdout.trim() || null : null;
+}
+
+function atomicWrite(filePath, content) {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true, mode: 0o700 });
+  const temporary = filePath + "." + process.pid + "." + randomUUID() + ".tmp";
+  fs.writeFileSync(temporary, content, { encoding: "utf8", mode: 0o600, flag: "wx" });
+  fs.renameSync(temporary, filePath);
+}
+
+function readState(projectRoot) {
+  const statePath = path.join(projectRoot, ".foundry", "state.yaml");
+  if (!fs.existsSync(statePath)) throw new Error("Foundry state is missing. Run the bootstrap before starting a writable task.");
+  let state;
+  try { state = parseYaml(fs.readFileSync(statePath, "utf8")); }
+  catch (error) { throw new Error("Could not parse .foundry/state.yaml; preserved the file. Repair or migrate it before running: " + error.message); }
+  if (!state || typeof state !== "object" || Array.isArray(state)) throw new Error(".foundry/state.yaml must contain a YAML object.");
+  return { statePath, state };
+}
+
+function beginRun(projectRoot, { task, agent, runId }) {
+  const { statePath, state } = readState(projectRoot);
+  const now = new Date().toISOString();
+  state.selected_task = task;
+  state.status = "running";
+  state.updated_at = now;
+  state.last_run = {
+    run_id: runId,
+    started_at: now,
+    status: "running",
+    task,
+    agent,
+    branch: gitValue(projectRoot, ["branch", "--show-current"]),
+    commit: gitValue(projectRoot, ["rev-parse", "HEAD"]),
+    summary_path: ".foundry/runs/" + runId + ".json",
+    modules_selected: [],
+    modules_completed: [],
+    blockers: []
+  };
+  atomicWrite(statePath, stringifyYaml(state));
+  return { statePath, startedAt: now };
+}
+
+function finishRun(projectRoot, run, { exitCode = null, signal = null, error = null } = {}) {
+  const { statePath, state } = readState(projectRoot);
+  const completedAt = new Date().toISOString();
+  const outcome = error ? "failed" : exitCode === 0 ? "completed" : "failed";
+  if (!state.last_run || state.last_run.run_id !== run.runId) {
+    throw new Error("Foundry state was changed by another run; refusing to overwrite its run record.");
+  }
+  state.last_run.status = outcome;
+  state.last_run.completed_at = completedAt;
+  state.last_run.exit_code = exitCode;
+  state.last_run.signal = signal;
+  state.last_run.branch = gitValue(projectRoot, ["branch", "--show-current"]);
+  state.last_run.commit = gitValue(projectRoot, ["rev-parse", "HEAD"]);
+  state.status = outcome === "completed" ? "completed" : "blocked";
+  state.updated_at = completedAt;
+  if (!state.next_action || !state.next_action.title) {
+    state.next_action = {
+      title: outcome === "completed" ? "Review the run report and confirm the next priority" : "Inspect the failed run and resolve its blocker",
+      reason: error ?? (exitCode === 0 ? "Agent run finished." : "Agent exited without a successful completion."),
+      owner: "founder",
+      due_date: null,
+      requires_approval: false
+    };
+  }
+  atomicWrite(statePath, stringifyYaml(state));
+  const report = {
+    run_id: run.runId,
+    task: state.last_run.task,
+    agent: state.last_run.agent,
+    started_at: run.startedAt,
+    completed_at: completedAt,
+    outcome,
+    exit_code: exitCode,
+    signal,
+    branch: state.last_run.branch,
+    commit: state.last_run.commit,
+    modules_selected: state.last_run.modules_selected ?? [],
+    modules_completed: state.last_run.modules_completed ?? [],
+    blockers: state.last_run.blockers ?? [],
+    next_action: state.next_action ?? null
+  };
+  atomicWrite(path.join(projectRoot, ".foundry", "runs", run.runId + ".json"), JSON.stringify(report, null, 2) + "\n");
+  return report;
+}
+
 export async function runFoundry({ target, destination, mode = "auto", agent = "claude", task = "auto", launch = true }) {
   if (!target) throw new Error("run requires a project path or GitHub repository URL.");
   if (!["claude", "codex", "opencode"].includes(agent)) throw new Error("agent must be claude, codex, or opencode.");
   const prompt = buildWorkflowPrompt(task);
   const projectRoot = resolveTarget(target, destination);
-  const initialized = initializeProject({ projectPath: projectRoot, mode, agent });
+  const readOnly = task === "review";
+  const initialized = readOnly ? null : initializeProject({ projectPath: projectRoot, mode, agent });
   if (!launch) return { project_root: projectRoot, initialized, launched: false, agent, task };
   if (!commandExists(agent)) {
     return {
@@ -85,9 +183,19 @@ export async function runFoundry({ target, destination, mode = "auto", agent = "
       next_step: "Install and authenticate " + agent + ", then run SaaS Foundry again from this project directory."
     };
   }
+  const runId = randomUUID();
+  const run = readOnly ? null : { runId, ...beginRun(projectRoot, { task, agent, runId }) };
   const child = spawn(agent, agentArgs(agent, prompt), { cwd: projectRoot, stdio: "inherit" });
   return new Promise((resolve, reject) => {
-    child.once("error", error => reject(new Error("Could not launch " + agent + ": " + error.message + ". The Foundry skill was installed at " + projectRoot + ".")));
-    child.once("exit", (code, signal) => resolve({ project_root: projectRoot, initialized, launched: true, agent, task, exit_code: code, signal }));
+    child.once("error", error => {
+      if (run) {
+        try { finishRun(projectRoot, run, { error: error.message }); } catch {}
+      }
+      reject(new Error("Could not launch " + agent + ": " + error.message + (initialized ? ". The Foundry skill was installed at " + projectRoot + "." : "")));
+    });
+    child.once("exit", (code, signal) => {
+      const report = run ? finishRun(projectRoot, run, { exitCode: code, signal }) : null;
+      resolve({ project_root: projectRoot, initialized, launched: true, agent, task, exit_code: code, signal, run_report: report });
+    });
   });
 }
