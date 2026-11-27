@@ -173,9 +173,34 @@ function beginRun(projectRoot, { task, agent, runId }) {
       catch (error) { if (error.code !== "ESRCH") throw error; }
     }
     if (processAlive) throw new Error("A Foundry run is already active (PID " + activePid + "). Wait for it to finish before starting another run.");
-    state.last_run.status = "failed";
-    state.last_run.completed_at = now;
-    state.last_run.blockers = [...(state.last_run.blockers ?? []), "Previous CLI process ended before recording run completion."];
+    const interrupted = {
+      ...state.last_run,
+      status: "failed",
+      completed_at: now,
+      exit_code: null,
+      signal: null,
+      blockers: [...(state.last_run.blockers ?? []), "Previous CLI process ended before recording run completion."]
+    };
+    if (/^[a-f0-9-]{36}$/i.test(interrupted.run_id)) {
+      const receipt = {
+        run_id: interrupted.run_id,
+        task: interrupted.task,
+        agent: interrupted.agent,
+        started_at: interrupted.started_at,
+        completed_at: now,
+        outcome: "failed",
+        exit_code: null,
+        signal: null,
+        branch: interrupted.branch ?? null,
+        commit: interrupted.commit ?? null,
+        modules_selected: interrupted.modules_selected ?? [],
+        modules_completed: interrupted.modules_completed ?? [],
+        blockers: interrupted.blockers,
+        next_action: state.next_action ?? null
+      };
+      atomicWrite(path.join(projectRoot, ".foundry", "runs", interrupted.run_id + ".json"), JSON.stringify(receipt, null, 2) + "\\n");
+    }
+    state.last_run = interrupted;
   }
   state.selected_task = task;
   state.status = "running";
