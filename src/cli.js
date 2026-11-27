@@ -11,7 +11,7 @@ import { buildEvidenceReport, diffScans, selectModules, buildAgentContext, build
 import { listInstallableResources, buildResourceInstallPlan, executeResourceInstall, inspectResourceDrift, buildResourceUninstallPlan, executeResourceUninstall, buildResourceUpdatePlan, executeResourceUpdate, buildResourceRollbackPlan, rollbackResourceUpdate } from "./v4.js";
 import { runCodeAudit } from "./agents.js";
 import { initializeProject } from "./init.js";
-import { runFoundry } from "./run.js";
+import { runFoundry, getFoundryStatus, listFoundryRuns } from "./run.js";
 import { runInteractive } from "./interactive.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -51,7 +51,7 @@ Run tasks:
   review   Read-only diagnosis; no implementation
 
 Safety:
-  scan, plan, doctor, select, context, evidence, diff, resources and drift are read-only.
+  scan, plan, doctor, select, context, evidence, diff, resources, drift, status and runs are read-only.
   Resource install/update/uninstall are dry-run by default; --execute is required to write.
   Outreach, publishing, paid spend, deployment and production changes require explicit approval.
 `;
@@ -62,7 +62,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -82,6 +82,41 @@ function emit(value, options, defaultFormat="md") {
     fs.writeFileSync(destination,output,{encoding:"utf8",flag:"w"});
     process.stdout.write(`Wrote ${destination}\n`);
   } else process.stdout.write(output);
+}
+function formatMarkdownStatus(status) {
+  const lines = [
+    "# SaaS Foundry status",
+    "",
+    "- Project mode: " + status.project_mode,
+    "- Status: " + status.status,
+    "- Stage: " + (status.stage ?? "not defined"),
+    "- Selected task: " + (status.selected_task ?? "none"),
+    "- Current bottleneck: " + (status.current_bottleneck ?? "not identified"),
+    "",
+    "## Last run"
+  ];
+  if (status.last_run) {
+    lines.push(
+      "- Task: " + status.last_run.task,
+      "- Agent: " + status.last_run.agent,
+      "- Result: " + status.last_run.status,
+      "- Started: " + status.last_run.started_at,
+      "- Completed: " + (status.last_run.completed_at ?? "in progress"),
+      "- Modules: " + status.last_run.modules_completed.length + "/" + status.last_run.modules_selected.length,
+      "- Blockers: " + (status.last_run.blockers.join("; ") || "none")
+    );
+  } else lines.push("- No runs recorded.");
+  lines.push("", "## Next action", status.next_action ? "- " + status.next_action.title + " (owner: " + status.next_action.owner + ")" : "- Not defined");
+  lines.push("", "## Pending approvals", status.pending_approvals.length ? status.pending_approvals.map(item => "- " + item).join("\\n") : "- None");
+  return lines.join("\\n") + "\\n";
+}
+function formatMarkdownRuns(runs) {
+  if (!runs.length) return "No Foundry runs recorded yet.\\n";
+  const lines = ["# SaaS Foundry run history", "", "| Started | Task | Agent | Outcome | Modules |", "|---|---|---|---|---|"];
+  for (const run of runs) {
+    lines.push("| " + (run.started_at ?? "") + " | " + (run.task ?? "") + " | " + (run.agent ?? "") + " | " + (run.outcome ?? run.status ?? "") + " | " + (run.modules_completed?.length ?? 0) + "/" + (run.modules_selected?.length ?? 0) + " |");
+  }
+  return lines.join("\\n") + "\\n";
 }
 function loadJson(file){
   const raw=fs.readFileSync(path.resolve(file),"utf8");
