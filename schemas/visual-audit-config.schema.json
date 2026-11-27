@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SaaS Foundry visual audit config",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "baseURL",
+    "allowRemote",
+    "routes",
+    "viewports",
+    "checks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.1"
+    },
+    "baseURL": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https?://"
+    },
+    "allowRemote": {
+      "type": "boolean",
+      "default": false
+    },
+    "routes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "path"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,60}$"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^/(?!/)"
+          },
+          "readySelector": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "viewports": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "width",
+          "height"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,40}$"
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 240,
+            "maximum": 3840
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 320,
+            "maximum": 2160
+          }
+        }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "horizontalOverflow",
+        "brokenImages",
+        "consoleErrors",
+        "accessibility"
+      ],
+      "properties": {
+        "horizontalOverflow": {
+          "type": "boolean"
+        },
+        "brokenImages": {
+          "type": "boolean"
+        },
+        "consoleErrors": {
+          "type": "boolean"
+        },
+        "accessibility": {
+          "type": "boolean"
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  }
+}
