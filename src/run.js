@@ -100,6 +100,18 @@ function readState(projectRoot) {
 function beginRun(projectRoot, { task, agent, runId }) {
   const { statePath, state } = readState(projectRoot);
   const now = new Date().toISOString();
+  if (state.last_run?.status === "running" && state.status === "running") {
+    const activePid = Number(state.last_run.runner_pid);
+    let processAlive = false;
+    if (Number.isInteger(activePid) && activePid > 0) {
+      try { process.kill(activePid, 0); processAlive = true; }
+      catch (error) { if (error.code !== "ESRCH") throw error; }
+    }
+    if (processAlive) throw new Error("A Foundry run is already active (PID " + activePid + "). Wait for it to finish before starting another run.");
+    state.last_run.status = "failed";
+    state.last_run.completed_at = now;
+    state.last_run.blockers = [...(state.last_run.blockers ?? []), "Previous CLI process ended before recording run completion."];
+  }
   state.selected_task = task;
   state.status = "running";
   state.updated_at = now;
@@ -109,6 +121,7 @@ function beginRun(projectRoot, { task, agent, runId }) {
     status: "running",
     task,
     agent,
+    runner_pid: process.pid,
     branch: gitValue(projectRoot, ["branch", "--show-current"]),
     commit: gitValue(projectRoot, ["rev-parse", "HEAD"]),
     summary_path: ".foundry/runs/" + runId + ".json",
@@ -135,7 +148,7 @@ function finishRun(projectRoot, run, { exitCode = null, signal = null, error = n
   state.last_run.commit = gitValue(projectRoot, ["rev-parse", "HEAD"]);
   state.status = outcome === "completed" ? "completed" : "blocked";
   state.updated_at = completedAt;
-  if (!state.next_action || !state.next_action.title) {
+  if (!state.next_action || !state.next_action.title || state.next_action.title === "Run the selected Foundry workflow") {
     state.next_action = {
       title: outcome === "completed" ? "Review the run report and confirm the next priority" : "Inspect the failed run and resolve its blocker",
       reason: error ?? (exitCode === 0 ? "Agent run finished." : "Agent exited without a successful completion."),
@@ -194,8 +207,13 @@ export async function runFoundry({ target, destination, mode = "auto", agent = "
       reject(new Error("Could not launch " + agent + ": " + error.message + (initialized ? ". The Foundry skill was installed at " + projectRoot + "." : "")));
     });
     child.once("exit", (code, signal) => {
-      const report = run ? finishRun(projectRoot, run, { exitCode: code, signal }) : null;
-      resolve({ project_root: projectRoot, initialized, launched: true, agent, task, exit_code: code, signal, run_report: report });
+      let report = null;
+      let trackingError = null;
+      if (run) {
+        try { report = finishRun(projectRoot, run, { exitCode: code, signal }); }
+        catch (error) { trackingError = error.message; }
+      }
+      resolve({ project_root: projectRoot, initialized, launched: true, agent, task, exit_code: code, signal, run_report: report, tracking_error: trackingError });
     });
   });
 }
