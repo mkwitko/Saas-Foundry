@@ -17,6 +17,7 @@ import { buildDependencyPlan, verifyDefinitionOfDone } from "./planner.js";
 import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";
 import { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
 import { getArtifactWorkspaceReport, loadArtifactWorkspace, buildArtifactHandoffPlan } from "./artifact-orchestration.js";
+import { buildImprovementReport, formatImprovementMarkdown } from "./continuous-improvement.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -46,7 +47,7 @@ Usage:
   foundry uninstall <project-path> --resource <id> [--execute]
   foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]
   foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
-  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]\n  foundry artifacts validate|status <project-path> [--format json|md]\n  foundry artifacts plan <project-path> --changed <artifact-id[,artifact-id...]> [--format json|md]
+  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]\n  foundry artifacts validate|status <project-path> [--format json|md]\n  foundry artifacts plan <project-path> --changed <artifact-id[,artifact-id...]> [--format json|md]\n  foundry improve report <project-path> [--input <sanitized-summary.json>] [--format json|md]
 
 Run tasks:
   auto     Find the highest-value bottleneck (default)
@@ -58,7 +59,7 @@ Run tasks:
   review   Read-only diagnosis; no implementation
 
 Safety:
-  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify, artifacts validate|status|plan and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
+  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify, artifacts validate|status|plan, improve report and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
   Resource install/update/uninstall are dry-run by default; --execute is required to write.
   Outreach, publishing, paid spend, deployment and production changes require explicit approval.
 `;
@@ -146,7 +147,7 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
-  if(command==="artifacts") {
+  if(command==="improve") {\n    const [action, projectPath, ...extra] = positional;\n    if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: improve report <project-path> [--input <sanitized-summary.json>] [--format json|md].");\n    const ledgerPath=path.join(path.resolve(projectPath),".foundry","evidence.yaml");\n    if(!fs.existsSync(ledgerPath)) throw new Error("Evidence ledger not found: "+ledgerPath);\n    const ledger=parseYaml(fs.readFileSync(ledgerPath,"utf8"));\n    const customerPath=options.input ? path.resolve(options.input) : path.join(path.resolve(projectPath),".foundry","customer-intelligence","summary.json");\n    const customerIntelligence=fs.existsSync(customerPath) ? readCustomerIntelligenceInput(projectPath,options.input).report : null;\n    const report=buildImprovementReport({ledger,customerIntelligence});\n    const format=options.format ?? "md";\n    if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");\n    process.stdout.write(format==="json" ? JSON.stringify(report,null,2)+"\\n" : formatImprovementMarkdown(report)+"\\n");\n    return;\n  }\n  if(command==="artifacts") {
     const [action, projectPath, ...extra] = positional;
     if(!["validate","status","plan"].includes(action) || !projectPath || extra.length) throw new Error("Usage: artifacts <validate|status|plan> <project-path> [--changed <id[,id...]>].");
     const workspace=loadArtifactWorkspace(projectPath);
