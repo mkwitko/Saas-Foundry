@@ -15,7 +15,7 @@ const DEFAULT_CONFIG = {
   notes: "Edit routes and baseURL for this project. Start the app yourself before running the audit."
 };
 
-const SPEC = String.raw`const { test, expect } = require("@playwright/test");
+const SPEC = String.raw\`const { test, expect } = require("@playwright/test");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -24,7 +24,7 @@ const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
 
 for (const route of config.routes) {
   for (const viewport of config.viewports) {
-    test(`\u001b[route.name] responsive: \u001b[viewport.name]`, async ({ page }, testInfo) => {
+    test(route.name + " responsive: " + viewport.name, async ({ page }, testInfo) => {
       const consoleErrors = [];
       const pageErrors = [];
       page.on("console", message => { if (message.type() === "error") consoleErrors.push(message.text()); });
@@ -56,26 +56,25 @@ for (const route of config.routes) {
       }
 
       await fs.promises.mkdir(testInfo.outputDir, { recursive: true });
-      await page.screenshot({ path: testInfo.outputPath(`${route.name}-${viewport.name}.png`), fullPage: true });
+      await page.screenshot({ path: testInfo.outputPath(route.name + "-" + viewport.name + ".png"), fullPage: true });
       await testInfo.attach("viewport", { body: JSON.stringify({ route: route.path, ...viewport }, null, 2), contentType: "application/json" });
     });
   }
 }
 
 let AxeBuilder;
-try { ({ default: AxeBuilder } = require("@axe-core/playwright")); } catch {}
-
-test("accessibility audit is available when @axe-core/playwright is installed", async ({ page }, testInfo) => {
-  test.skip(!config.checks.accessibility, "Accessibility check disabled in project config");
-  test.skip(!AxeBuilder, "Install @axe-core/playwright to enable automated WCAG checks");
-  const route = config.routes[0];
-  await page.goto(new URL(route.path, config.baseURL).toString(), { waitUntil: "domcontentloaded" });
-  const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
-  await testInfo.attach("axe-results", { body: JSON.stringify(results, null, 2), contentType: "application/json" });
-  expect(results.violations.map(item => ({ id: item.id, impact: item.impact, description: item.description })), "WCAG violations").toEqual([]);
-});
-`.replaceAll("\\u001b", "$");
-
+try { AxeBuilder = require("@axe-core/playwright"); } catch {}
+for (const route of config.routes) {
+  test(route.name + " accessibility: WCAG 2.1 AA", async ({ page }, testInfo) => {
+    test.skip(!config.checks.accessibility, "Accessibility check disabled in project config");
+    test.skip(!AxeBuilder, "Install @axe-core/playwright to enable automated WCAG checks");
+    await page.goto(new URL(route.path, config.baseURL).toString(), { waitUntil: "domcontentloaded" });
+    const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
+    await testInfo.attach("axe-results", { body: JSON.stringify(results, null, 2), contentType: "application/json" });
+    expect(results.violations.map(item => ({ id: item.id, impact: item.impact, description: item.description })), "WCAG violations").toEqual([]);
+  });
+}
+\`;
 const PLAYWRIGHT_CONFIG = `const path = require("node:path");
 module.exports = {
   testDir: path.join(__dirname),
@@ -152,7 +151,7 @@ export function readVisualAuditReport(projectRoot) {
   const tests = collectTests(raw.suites);
   const summary = {
     total: tests.length,
-    passed: tests.filter(item => item.status === "expected").length,
+    passed: tests.filter(item => item.status === "passed").length,
     failed: tests.filter(item => ["failed", "timedOut", "interrupted"].includes(item.status)).length,
     skipped: tests.filter(item => item.status === "skipped").length,
     flaky: tests.filter(item => item.status === "flaky").length
