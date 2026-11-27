@@ -23,6 +23,8 @@ function usage() {
 Usage:
   foundry [interactive]
   foundry run <project-path|github-url> [--task auto|full|idea|product|sales|growth|review] [--dir <path>] [--mode auto|new|existing] [--agent claude|codex|opencode]
+  foundry status <project-path> [--format json|md]
+  foundry runs <project-path> [--limit 10] [--format json|md]
   foundry scan <project-path> [--format json|md] [--out <file>]
   foundry plan <project-path> [--scan <scan.json>] [--format json|md] [--out <file>]
   foundry doctor <project-path> [--strict]
@@ -75,7 +77,7 @@ function parseArgs(args) {
 function emit(value, options, defaultFormat="md") {
   const format=options.format ?? defaultFormat;
   if(!["json","md"].includes(format)) throw new Error("--format must be json or md.");
-  const output=format==="json" ? JSON.stringify(value?.data ?? value,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : JSON.stringify(value.data,null,2)+"\n");
+  const output=format==="json" ? JSON.stringify(value?.data ?? value,null,2)+"\n" : (value.kind==="scan" ? formatMarkdownScan(value.data) : value.kind==="plan" ? formatMarkdownPlan(value.data) : value.kind==="status" ? formatMarkdownStatus(value.data) : value.kind==="runs" ? formatMarkdownRuns(value.data) : JSON.stringify(value.data,null,2)+"\n");
   if(options.out){
     const destination=path.resolve(options.out);
     fs.mkdirSync(path.dirname(destination),{recursive:true});
@@ -130,6 +132,16 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="status") {
+    if(positional.length!==1) throw new Error("status requires exactly one project path.");
+    emit({kind:"status",data:getFoundryStatus(positional[0])},options,"md"); return;
+  }
+  if(command==="runs") {
+    if(positional.length!==1) throw new Error("runs requires exactly one project path.");
+    const limit=options.limit === undefined ? 10 : Number(options.limit);
+    if(!Number.isInteger(limit) || limit < 1 || limit > 100) throw new Error("--limit must be an integer from 1 to 100.");
+    emit({kind:"runs",data:listFoundryRuns(positional[0],limit)},options,"md"); return;
+  }
   if(command==="run") {
     if(positional.length!==1) throw new Error("run requires exactly one project path or GitHub URL.");
     const result=await runFoundry({target:positional[0],destination:options.dir,mode:options.mode ?? "auto",agent:options.agent ?? "claude",task:options.task ?? "auto"});
