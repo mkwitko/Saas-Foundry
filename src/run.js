@@ -143,16 +143,19 @@ function readEvidenceLedger(projectRoot) {
 }
 
 function evidenceFreshness(ledger, now = Date.now()) {
-  if (!ledger) return { total_claims: 0, stale_claims: [], current_claims: 0, decisions: 0, active_experiments: 0 };
-  const staleClaims = ledger.claims.filter(claim => {
-    if (claim.status === "superseded" || claim.review_after_days === 0 || claim.evidence_class === "E0") return false;
+  if (!ledger) return { total_claims: 0, stale_claims: [], current_claims: 0, unvalidated_claims: 0, decisions: 0, active_experiments: 0 };
+  const activeClaims = ledger.claims.filter(claim => claim.status !== "superseded");
+  const staleClaims = activeClaims.filter(claim => {
+    if (claim.status === "stale") return true;
+    if (claim.evidence_class === "E0" || claim.evidence_class === "E6" || claim.review_after_days === 0) return false;
     const checkedAt = Date.parse(claim.checked_at);
     return !Number.isFinite(checkedAt) || now > checkedAt + claim.review_after_days * 86400000;
   }).map(({ id, claim, checked_at, review_after_days }) => ({ id, claim, checked_at, review_after_days }));
   return {
     total_claims: ledger.claims.length,
     stale_claims: staleClaims,
-    current_claims: ledger.claims.filter(claim => claim.status !== "superseded").length - staleClaims.length,
+    current_claims: activeClaims.filter(claim => !["E0", "E6", "superseded"].includes(claim.evidence_class) && claim.status !== "stale" && !staleClaims.some(stale => stale.id === claim.id)).length,
+    unvalidated_claims: activeClaims.filter(claim => ["E0", "E6"].includes(claim.evidence_class)).length,
     decisions: ledger.decisions.length,
     active_experiments: ledger.experiments.filter(experiment => experiment.status === "running").length
   };
