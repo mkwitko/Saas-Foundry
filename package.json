@@ -12,7 +12,7 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/snapshot.js && node --check src/agents.js && node --check src/init.js && node --check src/run.js && node --check src/planner.js && node --check src/visual-audit.js && node --check src/customer-intelligence.js && node --check src/cli.js && node --check src/project-detection.js && node --check src/interactive.js && node --check src/run.js && node --check tests/project-detection.test.js && node --check tests/run.test.js && node --check tests/customer-intelligence.test.js",
+    "check": "node --check bin/foundry.js && node --check src/core.js && node --check src/v3.js && node --check src/v4.js && node --check src/snapshot.js && node --check src/agents.js && node --check src/init.js && node --check src/run.js && node --check src/planner.js && node --check src/visual-audit.js && node --check src/customer-intelligence.js && node --check src/artifact-orchestration.js && node --check src/cli.js && node --check src/project-detection.js && node --check src/interactive.js && node --check src/run.js && node --check tests/project-detection.test.js && node --check tests/run.test.js && node --check tests/customer-intelligence.test.js",
     "prepublishOnly": "npm run check && npm test"
   },
   "dependencies": {

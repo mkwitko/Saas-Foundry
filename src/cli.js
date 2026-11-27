@@ -16,6 +16,7 @@ import { runInteractive } from "./interactive.js";
 import { buildDependencyPlan, verifyDefinitionOfDone } from "./planner.js";
 import { initializeVisualAudit, runVisualAudit, readVisualAuditReport } from "./visual-audit.js";
 import { readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "./customer-intelligence.js";
+import { getArtifactWorkspaceReport, loadArtifactWorkspace, buildArtifactHandoffPlan } from "./artifact-orchestration.js";
 
 const FOUNDRY_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const [command, ...rest] = process.argv.slice(2);
@@ -45,7 +46,7 @@ Usage:
   foundry uninstall <project-path> --resource <id> [--execute]
   foundry init <project-path> [--mode auto|new|existing] [--agent claude|codex|opencode|all]
   foundry agent-audit <project-path> [--agent claude|codex] [--timeout-ms <ms>] [--format json] [--out <file>]
-  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]
+  foundry customer-intel report <project-path> [--input <sanitized-summary.json>] [--format json|md]\n  foundry artifacts validate|status <project-path> [--format json|md]\n  foundry artifacts plan <project-path> --changed <artifact-id[,artifact-id...]> [--format json|md]
 
 Run tasks:
   auto     Find the highest-value bottleneck (default)
@@ -57,7 +58,7 @@ Run tasks:
   review   Read-only diagnosis; no implementation
 
 Safety:
-  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
+  scan, plan, doctor, select, context, evidence, diff, resources, drift, status, runs, sequence, verify, artifacts validate|status|plan and visual-audit report are read-only. visual-audit init creates only missing audit files; visual-audit run writes reports and screenshots.
   Resource install/update/uninstall are dry-run by default; --execute is required to write.
   Outreach, publishing, paid spend, deployment and production changes require explicit approval.
 `;
@@ -68,7 +69,7 @@ function parseArgs(args) {
   for(let i=0;i<args.length;i++){
     const arg=args[i];
     if(arg==="--strict" || arg==="--execute" || arg==="--reviewed" || arg==="--allow-scripts"){ options[arg.slice(2)]=true; continue; }
-    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit","--base-url","--input"].includes(arg)){
+    if(["--format","--out","--scan","--foundry","--previous","--module","--stage","--bottleneck","--capacity","--resource","--from","--source-path","--target","--commit","--license","--agent","--timeout-ms","--mode","--dir","--task","--limit","--base-url","--input","--changed"].includes(arg)){
       if(!args[i+1] || args[i+1].startsWith("--")) throw new Error(`Option ${arg} requires a value.`);
       options[arg.slice(2)]=args[++i];
       continue;
@@ -145,6 +146,28 @@ async function main(){
     process.stdout.write(usage()); return;
   }
   const {positional,options}=parseArgs(rest);
+  if(command==="artifacts") {
+    const [action, projectPath, ...extra] = positional;
+    if(!["validate","status","plan"].includes(action) || !projectPath || extra.length) throw new Error("Usage: artifacts <validate|status|plan> <project-path> [--changed <id[,id...]>].");
+    const workspace=loadArtifactWorkspace(projectPath);
+    if(action==="validate") {
+      const report=getArtifactWorkspaceReport(projectPath).validation;
+      emit({kind:"artifact-validation",data:report},options,"json");
+      if(!report.valid) process.exitCode=1;
+      return;
+    }
+    if(action==="status") {
+      const report=getArtifactWorkspaceReport(projectPath).status;
+      emit({kind:"artifact-status",data:report},options,"json");
+      if(!report.valid) process.exitCode=1;
+      return;
+    }
+    if(!options.changed) throw new Error("artifacts plan requires --changed <artifact-id[,artifact-id...]>.");
+    const report=buildArtifactHandoffPlan({...workspace,changedArtifactIds:options.changed.split(",").map(value=>value.trim()).filter(Boolean)});
+    emit({kind:"artifact-handoff-plan",data:report},options,"json");
+    if(!report.ready) process.exitCode=1;
+    return;
+  }
   if(command==="customer-intel") {
     const [action, projectPath, ...extra] = positional;
     if(action !== "report" || !projectPath || extra.length) throw new Error("Usage: customer-intel report <project-path> [--input <sanitized-summary.json>].");

@@ -8,6 +8,11 @@ routes:
     built_in: [shared-knowledge-and-artifact-contracts, evidence-standard]
     templates: [artifact-registry]
     install_policy: built_in_contract_no_external_install_required
+  - module: cross-skill-orchestration
+    primary: [founder-skill]
+    supporting: [impeccable, marketing-skills, ponytail]
+    built_in: [cross-skill-orchestration, evidence-standard]
+    install_policy: read_only_impact_plan_owner_approval_for_writes
   - module: idea-viability-review
     primary: [founder-skill, brainstorming-saas-ideas]
     supporting: [marketing-skills]

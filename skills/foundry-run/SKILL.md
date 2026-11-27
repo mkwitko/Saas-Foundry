@@ -138,6 +138,10 @@ For writable runs, the CLI owns `status`, `updated_at`, and the lifecycle fields
 
 For `review`, make no project changes at all, including no `.foundry/` state or report writes. The CLI intentionally skips bootstrap and state tracking for this profile.
 
+## Shared artifact orchestration
+
+When `.foundry/artifacts.yaml` and `.foundry/artifact-contracts.yaml` exist, use them as the index of canonical business, product, design, growth and operating sources. Run `foundry artifacts validate` and `foundry artifacts status` before relying on those documents. When a canonical artifact changes, run `foundry artifacts plan --changed <artifact-id>` and review the transitive downstream artifact and capability handoffs. The plan is advisory and read-only: follow each artifact owner and change policy, request approval where required, and update registry metadata only after a canonical change is verified. Never create duplicate documents just to satisfy a contract.
+
 ## Persistent state contract
 
 At the start of every run, read `.foundry/state.yaml` and validate its shape against `.foundry/state.schema.json` when present. If an older state file does not match the current schema, preserve its history and perform a minimal, additive migration; never discard unknown project decisions. Preserve accepted decisions and completed modules unless new evidence invalidates them. Reuse ledger claims only while their review interval is current; recompute freshness from `checked_at + review_after_days`, retain stale claims for audit, and link new claims to decisions and experiments using stable IDs. At the end of a writable run, update module selections/completions, blockers, pending approvals, relevant evidence/decision/experiment ledger entries and exactly one next action with an owner; preserve runner-owned lifecycle metadata. For read-only review, write nothing. Keep a dated run report as the human-readable audit trail. Do not store credentials, raw customer conversations or sensitive personal data in state or reports.
