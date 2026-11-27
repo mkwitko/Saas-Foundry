@@ -134,7 +134,7 @@ Do not create every file blindly. Create only relevant sections and files. Keep 
 
 ## Persistent state contract
 
-At the start of every run, read `.foundry/state.yaml` and validate its shape against `.foundry/state.schema.json` when present. Preserve accepted decisions and completed modules unless new evidence invalidates them. At the end, update the state with the selected task, run status, modules selected/completed, blockers, pending approvals and exactly one next action with an owner. Keep a dated run report as the human-readable audit trail. Do not store credentials, raw customer conversations or sensitive personal data in state or reports.
+At the start of every run, read `.foundry/state.yaml` and validate its shape against `.foundry/state.schema.json` when present. If an older state file does not match the current schema, preserve its history and perform a minimal, additive migration; never discard unknown project decisions. Preserve accepted decisions and completed modules unless new evidence invalidates them. At the end, update the state with the selected task, run status, modules selected/completed, blockers, pending approvals and exactly one next action with an owner. Keep a dated run report as the human-readable audit trail. Do not store credentials, raw customer conversations or sensitive personal data in state or reports.
 
 ## End-to-end workflow
 
