@@ -41,7 +41,19 @@
             }
           },
           "notes": { "type": "string" }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": { "contact_permission": { "const": "not_required" } },
+              "required": ["contact_permission"]
+            },
+            "then": {
+              "required": ["permission_basis"],
+              "properties": { "permission_basis": { "type": "string", "minLength": 1 } }
+            }
+          }
+        ]
       }
     },
     "channels": {
