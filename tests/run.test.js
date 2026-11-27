@@ -18,9 +18,7 @@ test("review task is read-only and does not bootstrap or write project state", a
     assert.match(prompt, /strict read-only run/i);
     assert.match(prompt, /Do not write a run report/i);
   } finally {
-    process.env.PATH = previousPath;
     fs.rmSync(projectRoot, { recursive: true, force: true });
-    fs.rmSync(bin, { recursive: true, force: true });
   }
 });
 
@@ -126,6 +124,8 @@ test("invalid persistent state is preserved and blocks a writable run", { skip: 
     );
     assert.equal(fs.readFileSync(statePath, "utf8"), original);
   } finally {
+    process.env.PATH = previousPath;
     fs.rmSync(projectRoot, { recursive: true, force: true });
+    fs.rmSync(bin, { recursive: true, force: true });
   }
 });
