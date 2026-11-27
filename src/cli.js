@@ -95,6 +95,13 @@ function formatMarkdownStatus(status) {
     "- Selected task: " + (status.selected_task ?? "none"),
     "- Current bottleneck: " + (status.current_bottleneck ?? "not identified"),
     "",
+    "",
+    "## Evidence freshness",
+    "- Claims: " + status.evidence.total_claims,
+    "- Stale claims: " + status.evidence.stale_claims.length,
+    "- Decisions: " + status.evidence.decisions,
+    "- Active experiments: " + status.evidence.active_experiments,
+    ...status.evidence.stale_claims.map(item => "- Stale: " + item.id + " — " + item.claim)
     "## Last run"
   ];
   if (status.last_run) {
