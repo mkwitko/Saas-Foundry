@@ -254,6 +254,9 @@ foundry context . --format json
 foundry apply . --module sales-pipeline
 foundry rollback . --module sales-pipeline
 foundry resources
+foundry visual-audit init . --base-url http://127.0.0.1:3000
+foundry visual-audit run .
+foundry visual-audit report .
 foundry install . --resource impeccable --from /path/to/repo --commit <sha> --license MIT --reviewed
 foundry drift .
 foundry update . --resource impeccable --from /path/to/new-repo --commit <sha> --license MIT --reviewed
@@ -284,3 +287,10 @@ See [docs/security-and-provenance.md](docs/security-and-provenance.md), [docs/ar
 3. Keep modules independently installable and narrowly scoped.
 4. Add evidence and acceptance criteria for every project-specific recommendation.
 5. Prefer a small number of high-leverage workflows over many overlapping skills.
+
+
+## Automated visual audit
+
+The optional Playwright harness checks configured routes at mobile, tablet and desktop sizes, captures screenshots, detects horizontal overflow, broken images and browser errors, and runs axe WCAG 2.1 A/AA checks when `@axe-core/playwright` is installed. It reuses existing browser tests where possible and does not install dependencies or start the application.
+
+See [docs/design-quality-gates.md](docs/design-quality-gates.md) and [docs/operator-experience.md](docs/operator-experience.md). The generated config schema is [schemas/visual-audit-config.schema.json](schemas/visual-audit-config.schema.json). Remote targets are disabled by default; only explicitly approved staging targets may set `allowRemote: true`. Do not run against production.
