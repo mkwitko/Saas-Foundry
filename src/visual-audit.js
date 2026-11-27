@@ -15,7 +15,7 @@ const DEFAULT_CONFIG = {
   notes: "Edit routes and baseURL for this project. Start the app yourself before running the audit."
 };
 
-const SPEC = String.raw\`const { test, expect } = require("@playwright/test");
+const SPEC = String.raw`const { test, expect } = require("@playwright/test");
 const fs = require("node:fs");
 const path = require("node:path");
 
@@ -74,7 +74,7 @@ for (const route of config.routes) {
     expect(results.violations.map(item => ({ id: item.id, impact: item.impact, description: item.description })), "WCAG violations").toEqual([]);
   });
 }
-\`;
+`;
 const PLAYWRIGHT_CONFIG = `const path = require("node:path");
 module.exports = {
   testDir: path.join(__dirname),
@@ -154,7 +154,7 @@ export function readVisualAuditReport(projectRoot) {
     passed: tests.filter(item => item.status === "passed").length,
     failed: tests.filter(item => ["failed", "timedOut", "interrupted"].includes(item.status)).length,
     skipped: tests.filter(item => item.status === "skipped").length,
-    flaky: tests.filter(item => item.status === "flaky").length
+    flaky: tests.filter(item => item.flaky).length
   };
   return { available: true, generated_at: raw.stats?.startTime ?? null, summary, tests, report: ".foundry/reports/visual-audit.playwright.json", artifacts: ".foundry/artifacts/visual-audit" };
 }
