@@ -198,7 +198,7 @@ function beginRun(projectRoot, { task, agent, runId }) {
         blockers: interrupted.blockers,
         next_action: state.next_action ?? null
       };
-      atomicWrite(path.join(projectRoot, ".foundry", "runs", interrupted.run_id + ".json"), JSON.stringify(receipt, null, 2) + "\\n");
+      atomicWrite(path.join(projectRoot, ".foundry", "runs", interrupted.run_id + ".json"), JSON.stringify(receipt, null, 2) + "\n");
     }
     state.last_run = interrupted;
   }
