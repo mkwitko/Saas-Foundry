@@ -233,6 +233,15 @@ modules:
     risk: medium
     ia_chat: recommended
 
+  - id: customer-intelligence-loop
+    group: lifecycle
+    purpose: Connect privacy-safe product telemetry, customer feedback, support patterns, activation, retention and cancellation signals to evidence-backed product decisions.
+    triggers: [post_pilot, weak_activation, retention_problem, recurring_support_issue, churn_signal, roadmap_uncertainty]
+    inputs: [aggregate_product_events, sanitized_customer_feedback, support_topic_counts, lifecycle_cohorts, cancellation_reasons, privacy_constraints]
+    outputs: [event_taxonomy, customer_voice_summary, lifecycle_metrics, prioritized_customer_pains, experiment_brief, evidence_updates]
+    requires: [analytics-instrumentation, customer-research-loop]
+    risk: high
+    ia_chat: recommended
   - id: conversion-optimization
     group: acquisition
     purpose: Improve the conversion path across landing pages, demos, waitlists, invitations and trial signup.
