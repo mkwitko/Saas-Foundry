@@ -636,3 +636,14 @@ Every project plan must include a realistic path to revenue:
 - funnel instrumentation and experiment outcomes.
 
 Do not confuse traffic, directory submissions, signups or simulated interviews with revenue. Draft outreach and publishing materials only; explicit human approval is required before sending, posting, submitting, spending or deploying.
+
+
+## Automated visual audit
+
+When a task changes user-facing routes, layout, components or interaction states, inspect the project's existing browser-test setup first. Reuse existing Playwright/Cypress configuration where possible; do not create a second competing test harness.
+
+If no suitable browser suite exists, propose or initialize the Foundry harness with `foundry visual-audit init <project> --base-url <local-url>`. This creates only missing files under `.foundry/visual-audit/`; it does not install packages or start the application. Ask before adding dependencies. The supported baseline is `@playwright/test`; optionally add `@axe-core/playwright` for automated WCAG checks. Install the Chromium browser explicitly when needed.
+
+Before running, edit `.foundry/visual-audit/config.json` to include the actual route inventory and stable readiness selectors. Start the application using the project's documented development or preview command. Run `foundry visual-audit run <project>` against that local URL. The harness captures mobile (390px), tablet (768px) and desktop (1440px) by default and checks HTTP responses, body visibility, horizontal overflow, broken images and browser/page errors. When axe is installed, it audits WCAG 2.1 A/AA and WCAG 2.2 is not claimed unless separately configured and verified.
+
+Inspect every screenshot and failure artifact; automated checks do not judge visual hierarchy, brand coherence, task clarity, content quality or whether the page is commercially persuasive. Add user-flow assertions for important actions and states; the generated baseline is a route/responsive smoke audit, not a complete E2E test suite. Report skipped accessibility checks as unverified, not passed. Never claim pixel-perfect visual regression: screenshot capture is evidence, not baseline comparison. Record the JSON report path, viewport coverage, skipped checks, known limitations and human review in `.foundry/acceptance.yaml`. Keep screenshots and traces free of personal, customer, patient or other sensitive data.
