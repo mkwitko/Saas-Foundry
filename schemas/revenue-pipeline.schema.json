@@ -24,6 +24,7 @@
           "pain_evidence": { "enum": ["observed", "reported", "hypothesis", "unknown"] },
           "buying_role": { "type": ["string", "null"] },
           "contact_permission": { "enum": ["explicit", "unknown", "denied", "not_required"] },
+          "permission_basis": { "type": ["string", "null"] },
           "stage": { "enum": ["identified", "researched", "qualified", "permissioned", "contacted", "conversation", "demo", "proposal", "won", "lost", "disqualified"] },
           "next_action": { "type": ["string", "null"] },
           "next_action_due": { "type": ["string", "null"], "format": "date" },
