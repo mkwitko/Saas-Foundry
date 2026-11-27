@@ -95,7 +95,7 @@ This project has the Foundry workflow installed locally.
 
 - Project mode at bootstrap: ${resolvedMode}
 - Agent entry point: ${agent}
-- Primary skill: .claude/skills/foundry-run/SKILL.md for Claude Code, or the corresponding agent skill directory.
+- Primary skill: ${targets[0]}.
 - Persistent run state: .foundry/state.yaml
 - Module routing: .foundry/workflow-routing.yaml
 - State contract: .foundry/state.schema.json
