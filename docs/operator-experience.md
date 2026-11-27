@@ -19,6 +19,8 @@ npx -y github:mkwitko/Saas-Foundry run . --task auto
 npx -y github:mkwitko/Saas-Foundry run . --task product
 npx -y github:mkwitko/Saas-Foundry run . --task sales
 npx -y github:mkwitko/Saas-Foundry run . --task growth
+npx -y github:mkwitko/Saas-Foundry status .
+npx -y github:mkwitko/Saas-Foundry runs . --limit 10
 ```
 
 | Task | Use when | Expected scope |
