@@ -88,8 +88,12 @@ export function buildArtifactStatus({ root, registry, contracts, now = new Date(
       if (!item.path) { status = "unknown"; reason = "canonical_path_unmapped"; }
       else if (!fs.existsSync(path.resolve(root, item.path))) { status = "missing"; reason = "canonical_file_missing"; }
       else if (!item.updated_at) { status = "unknown"; reason = "updated_at_missing"; }
-      else if (Number.isInteger(item.review_after_days) && daysBetween(item.updated_at, now) > item.review_after_days) {
-        status = "stale"; reason = "review_interval_expired";
+      else {
+        const age = daysBetween(item.updated_at, now);
+        if (age === null) { status = "unknown"; reason = "updated_at_invalid"; }
+        else if (Number.isInteger(item.review_after_days) && age > item.review_after_days) {
+          status = "stale"; reason = "review_interval_expired";
+        }
       }
     }
     if (status === "current") {
@@ -118,9 +122,12 @@ export function buildArtifactStatus({ root, registry, contracts, now = new Date(
     summary: {
       total: artifacts.length,
       current: artifacts.filter(item => item.status === "current").length,
+      proposed: artifacts.filter(item => item.status === "proposed").length,
       stale: artifacts.filter(item => item.status === "stale").length,
       missing: artifacts.filter(item => item.status === "missing").length,
-      unmapped: artifacts.filter(item => item.status === "unknown").length
+      unmapped: artifacts.filter(item => item.status === "unknown").length,
+      superseded: artifacts.filter(item => item.status === "superseded").length,
+      not_applicable: artifacts.filter(item => item.status === "not_applicable").length
     },
     artifacts
   };
