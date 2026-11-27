@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
-import path from "node:path";
+import path from "node:path";\nimport { spawnSync } from "node:child_process";\nimport { fileURLToPath } from "node:url";
 import { buildCustomerIntelligenceReport, validateCustomerIntelligence, readCustomerIntelligenceInput, formatCustomerIntelligenceMarkdown } from "../src/customer-intelligence.js";
 
 const sample = {
@@ -44,7 +44,7 @@ test("customer intelligence rejects PII fields and inconsistent denominators", (
   const withPii = structuredClone(sample);
   withPii.feedback[0].email = "person@example.com";
   assert.throws(() => validateCustomerIntelligence(withPii), /prohibited personal-data field/);
-  const inconsistent = structuredClone(sample);
+  const extraField = structuredClone(sample);\n  extraField.feedback[0].raw_text = "unredacted text";\n  assert.throws(() => validateCustomerIntelligence(extraField), /unsupported field/);\n  const inconsistent = structuredClone(sample);
   inconsistent.accounts.activated = 9;
   assert.throws(() => validateCustomerIntelligence(inconsistent), /activated cannot exceed eligible/);
   const badCount = structuredClone(sample);
@@ -60,6 +60,22 @@ test("customer intelligence input loader reads only an explicit sanitized aggreg
     const loaded = readCustomerIntelligenceInput(project, target);
     assert.equal(loaded.file, target);
     assert.equal(loaded.report.sample.eligible_accounts, 8);
+  } finally {
+    fs.rmSync(project, { recursive: true, force: true });
+  }
+});
+
+test("customer-intel CLI emits a report from a sanitized aggregate", () => {
+  const project = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-customer-intel-cli-"));
+  try {
+    const input = path.join(project, "summary.json");
+    fs.writeFileSync(input, JSON.stringify(sample));
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+    const result = spawnSync(process.execPath, [path.join(root, "bin/foundry.js"), "customer-intel", "report", project, "--input", input, "--format", "json"], { encoding: "utf8" });
+    assert.equal(result.status, 0, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.metrics.activation_rate_percent, 62.5);
+    assert.equal(report.sample.low_sample, true);
   } finally {
     fs.rmSync(project, { recursive: true, force: true });
   }
