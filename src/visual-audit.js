@@ -135,7 +135,7 @@ function collectTests(suites, output = []) {
       for (const test of spec.tests ?? []) {
         const results = test.results ?? [];
         const latest = results.at(-1);
-        output.push({ title: spec.title, project: test.projectName ?? null, status: latest?.status ?? "unknown", duration_ms: latest?.duration ?? null, errors: (latest?.errors ?? []).map(error => error.message ?? error.value ?? "Unknown error") });
+        const flaky = results.length > 1 && latest?.status === "passed" && results.slice(0, -1).some(result => result.status !== "passed" && result.status !== "skipped");\n        output.push({ title: spec.title, project: test.projectName ?? null, status: latest?.status ?? "unknown", flaky, duration_ms: latest?.duration ?? null, errors: (latest?.errors ?? []).map(error => error.message ?? error.value ?? "Unknown error") });
       }
     }
     collectTests(suite.suites, output);
