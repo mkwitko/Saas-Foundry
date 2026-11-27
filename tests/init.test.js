@@ -17,6 +17,8 @@ test("init bootstraps an empty greenfield project with a project-local Claude sk
     assert.equal(fs.existsSync(path.join(root, ".foundry/artifact-contracts.yaml")), true);
     assert.equal(fs.existsSync(path.join(root, ".foundry/artifacts.schema.json")), true);
     assert.equal(fs.existsSync(path.join(root, ".foundry/shared-knowledge-and-artifact-contracts.md")), true);
+    assert.equal(fs.existsSync(path.join(root, ".foundry/revenue/pipeline.yaml")), true);
+    assert.equal(fs.existsSync(path.join(root, ".foundry/revenue-pipeline.schema.json")), true);
     const artifactSchema = JSON.parse(fs.readFileSync(path.join(root, ".foundry/artifacts.schema.json"), "utf8"));
     assert.equal(artifactSchema.$schema, "https://json-schema.org/draft/2020-12/schema");
     const registry = fs.readFileSync(path.join(root, ".foundry/artifacts.yaml"), "utf8");
