@@ -154,7 +154,7 @@ export function runVisualAudit(projectRoot) {
   if (!fs.existsSync(configFile)) throw new Error("Visual audit Playwright config is missing. Re-run foundry visual-audit init <project> or restore the file.");
   const cli = playwrightCli(root);
   if (!cli) throw new Error("Playwright is not installed in this project. Install it explicitly with npm install -D @playwright/test, then install the required browser with npx playwright install chromium.");
-  const result = spawnSync(process.execPath, [cli, "test", "--config", configFile], { cwd: root, stdio: "inherit", env: process.env });
+  const reportFile = path.join(root, ".foundry", "reports", "visual-audit.playwright.json");\n  fs.rmSync(reportFile, { force: true });\n  const result = spawnSync(process.execPath, [cli, "test", "--config", configFile], { cwd: root, stdio: "inherit", env: process.env });
   if (result.error) throw new Error("Could not start Playwright: " + result.error.message);
   const report = readVisualAuditReport(root);
   return { exit_code: result.status ?? 1, signal: result.signal ?? null, report };
