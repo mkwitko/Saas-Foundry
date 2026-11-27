@@ -47,6 +47,10 @@ test("bootstrap installs routing and state contracts without overwriting project
     assert.ok(result.results.some(item => item.path.endsWith(".foundry/workflow-routing.yaml") && item.status === "created"));
     assert.ok(fs.existsSync(path.join(projectRoot, ".foundry/state.schema.json")));
     assert.ok(fs.existsSync(path.join(projectRoot, ".foundry/evidence-ledger.schema.json")));
+    assert.ok(fs.existsSync(path.join(projectRoot, ".foundry/acceptance.yaml")));
+    assert.ok(fs.existsSync(path.join(projectRoot, ".foundry/acceptance.schema.json")));
+    assert.deepEqual(parseYaml(fs.readFileSync(path.join(projectRoot, ".foundry/acceptance.yaml"), "utf8")), { schema_version: "0.1", modules: [] });
+    assert.doesNotThrow(() => JSON.parse(fs.readFileSync(path.join(projectRoot, ".foundry/acceptance.schema.json"), "utf8")));
     assert.doesNotThrow(() => JSON.parse(fs.readFileSync(path.join(projectRoot, ".foundry/evidence-ledger.schema.json"), "utf8")));
     const evidence = parseYaml(fs.readFileSync(path.join(projectRoot, ".foundry/evidence.yaml"), "utf8"));
     assert.equal(evidence.schema_version, "0.1");
