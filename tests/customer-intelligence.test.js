@@ -46,7 +46,10 @@ test("customer intelligence rejects PII fields and inconsistent denominators", (
   const withPii = structuredClone(sample);
   withPii.feedback[0].email = "person@example.com";
   assert.throws(() => validateCustomerIntelligence(withPii), /prohibited personal-data field/);
-  const extraField = structuredClone(sample);\n  extraField.feedback[0].raw_text = "unredacted text";\n  assert.throws(() => validateCustomerIntelligence(extraField), /unsupported field/);\n  const inconsistent = structuredClone(sample);
+  const extraField = structuredClone(sample);
+  extraField.feedback[0].raw_text = "unredacted text";
+  assert.throws(() => validateCustomerIntelligence(extraField), /unsupported field/);
+  const inconsistent = structuredClone(sample);
   inconsistent.accounts.activated = 9;
   assert.throws(() => validateCustomerIntelligence(inconsistent), /activated cannot exceed eligible/);
   const badCount = structuredClone(sample);
