@@ -51,3 +51,31 @@ test("writable runs persist lifecycle metadata and a run receipt", { skip: proce
     fs.rmSync(bin, { recursive: true, force: true });
   }
 });
+
+
+test("runner prevents overlapping writable executions", { skip: process.platform === "win32" }, async () => {
+  const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-concurrent-"));
+  const bin = fs.mkdtempSync(path.join(os.tmpdir(), "foundry-agent-"));
+  const previousPath = process.env.PATH;
+  try {
+    initializeProject({ projectPath: projectRoot, mode: "new", agent: "claude" });
+    const fakeAgent = path.join(bin, "claude");
+    fs.writeFileSync(fakeAgent, "#!/bin/sh\nsleep 1\nexit 0\n", { mode: 0o700 });
+    fs.chmodSync(fakeAgent, 0o700);
+    process.env.PATH = bin + path.delimiter + (previousPath ?? "");
+    const firstRun = runFoundry({ target: projectRoot, mode: "existing", agent: "claude", task: "product" });
+    await assert.rejects(
+      runFoundry({ target: projectRoot, mode: "existing", agent: "claude", task: "sales" }),
+      /already active/
+    );
+    const result = await firstRun;
+    assert.equal(result.exit_code, 0);
+    const state = parseYaml(fs.readFileSync(path.join(projectRoot, ".foundry/state.yaml"), "utf8"));
+    assert.equal(state.selected_task, "product");
+    assert.equal(state.last_run.status, "completed");
+  } finally {
+    process.env.PATH = previousPath;
+    fs.rmSync(projectRoot, { recursive: true, force: true });
+    fs.rmSync(bin, { recursive: true, force: true });
+  }
+});
