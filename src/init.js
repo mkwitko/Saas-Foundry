@@ -8,7 +8,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 function writeIfAbsent(filePath, content) {
   if (fs.existsSync(filePath)) return { path: filePath, status: "preserved" };
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, content, { encoding: "utf8", flag: "wx" });
+  fs.writeFileSync(filePath, content, { encoding: "utf8", flag: "wx", mode: 0o600 });
   return { path: filePath, status: "created" };
 }
 
@@ -61,16 +61,34 @@ export function initializeProject({ projectPath, mode = "auto", agent = "claude"
       }[agent]];
 
   const skill = fs.readFileSync(path.join(ROOT, "skills/foundry-run/SKILL.md"), "utf8");
+  const routing = fs.readFileSync(path.join(ROOT, "catalog/workflow-routing.yaml"), "utf8");
+  const stateSchema = fs.readFileSync(path.join(ROOT, "schemas/foundry-state.schema.json"), "utf8");
   const results = targets.map(relative => writeOrUpgradeFoundrySkill(path.join(projectRoot, relative), skill));
+  const now = new Date().toISOString();
   const state = `schema_version: "0.1"
+project_id: null
+repository: null
 project_mode: ${resolvedMode}
-initialized_at: ${new Date().toISOString()}
 workflow: foundry-run
+initialized_at: ${now}
+stage: null
+selected_task: null
+current_bottleneck: null
 status: ready
+updated_at: ${now}
 last_run: null
-next_action: "Start the foundry-run skill in the coding agent."
+next_action:
+  title: "Run the selected Foundry workflow"
+  reason: "Bootstrap completed; inspect the project and choose the highest-value next step."
+  owner: agent
+  due_date: null
+  requires_approval: false
+pending_approvals: []
+completed_modules: []
 `;
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/state.yaml"), state));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/workflow-routing.yaml"), routing));
+  results.push(writeIfAbsent(path.join(projectRoot, ".foundry/state.schema.json"), stateSchema));
   const readme = `# SaaS Foundry project workspace
 
 This project has the Foundry workflow installed locally.
@@ -79,8 +97,10 @@ This project has the Foundry workflow installed locally.
 - Agent entry point: ${agent}
 - Primary skill: .claude/skills/foundry-run/SKILL.md for Claude Code, or the corresponding agent skill directory.
 - Persistent run state: .foundry/state.yaml
+- Module routing: .foundry/workflow-routing.yaml
+- State contract: .foundry/state.schema.json
 
-Start the foundry-run skill. It will inspect this repository, confirm whether the project is greenfield or existing, and run the same end-to-end lifecycle with the appropriate branch. Do not replace existing project instructions or product documentation.
+Run `foundry-run` or execute SaaS Foundry with a focused task. The workflow inspects this repository, confirms whether it is greenfield or existing, and reuses the appropriate capabilities. Existing instructions and product documentation are never replaced.
 `;
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/README.md"), readme));
   return {
