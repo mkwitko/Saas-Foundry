@@ -100,7 +100,7 @@ This project has the Foundry workflow installed locally.
 - Module routing: .foundry/workflow-routing.yaml
 - State contract: .foundry/state.schema.json
 
-Run `foundry-run` or execute SaaS Foundry with a focused task. The workflow inspects this repository, confirms whether it is greenfield or existing, and reuses the appropriate capabilities. Existing instructions and product documentation are never replaced.
+Run the foundry-run skill or execute SaaS Foundry with a focused task. The workflow inspects this repository, confirms whether it is greenfield or existing, and reuses the appropriate capabilities. Existing instructions and product documentation are never replaced.
 `;
   results.push(writeIfAbsent(path.join(projectRoot, ".foundry/README.md"), readme));
   return {
