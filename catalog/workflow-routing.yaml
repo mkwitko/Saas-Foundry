@@ -14,7 +14,7 @@ routes:
     install_policy: simulation_is_not_validation
   - module: buyer-centred-ux-and-conversion
     primary: [impeccable, marketing-skills]
-    supporting: [replica-skill]
+    supporting: [replica-skill, refero-design]
     built_in: [design-quality-gates, product-and-commercial-review]
     install_policy: review_before_install
   - module: opportunity-intelligence
@@ -50,7 +50,7 @@ routes:
     install_policy: reuse_existing_or_review_before_install
   - module: product-design
     primary: [impeccable]
-    supporting: [replica-skill, oil-ui]
+    supporting: [replica-skill, oil-ui, refero-design]
     references: [jiro, designspells, refero, supahero, mobbin]
     built_in: [design-quality-gates]
     install_policy: review_before_install
