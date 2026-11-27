@@ -13,6 +13,16 @@ modules:
     risk: medium
     ia_chat: recommended
 
+  - id: revenue-acquisition-engine
+    group: monetization
+    purpose: Turn company-level prospects, qualification evidence, permission, sales stages and channel experiments into a measurable next-best-action acquisition workflow.
+    triggers: [weak_pipeline, low_demo_volume, launch, referral_opportunity, paid_conversion_problem, channel_uncertainty]
+    inputs: [icp, offer, company_prospects, qualification_evidence, contact_permission, stage_history, channel_hypotheses]
+    outputs: [revenue_pipeline, qualification_report, sales_bottleneck, permission_safe_next_actions, channel_experiment_review]
+    requires: [sales-pipeline, positioning-and-offer, analytics-instrumentation]
+    risk: high
+    ia_chat: recommended
+
   - id: continuous-improvement-engine
     group: learning
     purpose: Turn evidence freshness, customer pain, experiment outcomes and review dates into one prioritized weekly improvement action.
