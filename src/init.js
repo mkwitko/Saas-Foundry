@@ -126,6 +126,8 @@ This project has the Foundry workflow installed locally.
 - Evidence contract: .foundry/evidence-ledger.schema.json
 - Module acceptance records: .foundry/acceptance.yaml
 - Acceptance contract: .foundry/acceptance.schema.json
+- Company-level revenue pipeline: .foundry/revenue/pipeline.yaml
+- Revenue pipeline schema: .foundry/revenue-pipeline.schema.json
 
 The artifact registry maps specialist work to canonical project documents. It does not create duplicate business, product, design or marketing documents. Map existing sources of truth before creating new files. See .foundry/shared-knowledge-and-artifact-contracts.md for the operating rules.
 
