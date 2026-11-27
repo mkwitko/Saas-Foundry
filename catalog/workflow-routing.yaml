@@ -8,6 +8,12 @@ routes:
     built_in: [shared-knowledge-and-artifact-contracts, evidence-standard]
     templates: [artifact-registry]
     install_policy: built_in_contract_no_external_install_required
+  - module: revenue-acquisition-engine
+    primary: [founder-skill, marketing-skills]
+    supporting: [b2b-growth-playbook]
+    built_in: [revenue-acquisition-engine, foundry-sales-review, metrics-playbook, evidence-standard]
+    templates: [revenue-pipeline]
+    install_policy: company_level_data_permission_gated_outreach_drafts_only
   - module: continuous-improvement-engine
     primary: [founder-skill, marketing-skills]
     supporting: [ponytail]
