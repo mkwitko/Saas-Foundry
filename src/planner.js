@@ -31,9 +31,11 @@ export function buildDependencyPlan({ registry, requested, completed = [], statu
       return;
     }
     visiting.add(id);
+    const blockedBefore = blocked.length;
     for (const dependency of module.requires ?? []) visit(dependency, id);
     visiting.delete(id);
     visited.add(id);
+    if (blocked.length > blockedBefore) return;
     ordered.push({ id, group: module.group ?? null, purpose: module.purpose ?? "", requested: requested.includes(id), dependencies: module.requires ?? [], outputs: module.outputs ?? [] });
   }
 
