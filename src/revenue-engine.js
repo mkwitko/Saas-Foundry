@@ -46,6 +46,7 @@ export function validateRevenuePipeline(pipeline) {
     assert(PERMISSION.has(lead.contact_permission), "lead.contact_permission is invalid");
     assert(STAGES.includes(lead.stage), "lead.stage is invalid");
     if (lead.buying_role !== null && lead.buying_role !== undefined) nonEmpty(lead.buying_role, "lead.buying_role");
+    if (lead.contact_permission === "not_required") nonEmpty(lead.permission_basis, "lead.permission_basis");
     if (lead.next_action !== null && lead.next_action !== undefined) nonEmpty(lead.next_action, "lead.next_action");
     optionalDate(lead.next_action_due, "lead.next_action_due");
     if (lead.stage_history !== undefined) {
@@ -101,7 +102,7 @@ export function buildRevenueReport({ pipeline, now = new Date() }) {
   const stageCounts = Object.fromEntries(STAGES.map(stage => [stage, leads.filter(lead => lead.stage === stage).length]));
   const qualified = leads.filter(isQualified);
   const active = leads.filter(lead => !["won", "lost", "disqualified"].includes(lead.stage));
-  const permissionIssues = leads.filter(lead => stageRank(lead.stage) >= stageRank("contacted") && lead.contact_permission !== "explicit" && lead.contact_permission !== "not_required");
+  const permissionIssues = leads.filter(lead => stageRank(lead.stage) >= stageRank("permissioned") && lead.contact_permission !== "explicit" && lead.contact_permission !== "not_required");
   const nextActions = active.map(lead => leadNextAction(lead, now)).filter(Boolean)
     .sort((a, b) => (a.priority === "high" ? 0 : a.priority === "medium" ? 1 : 2) - (b.priority === "high" ? 0 : b.priority === "medium" ? 1 : 2));
   const leadsWithHistory = leads.filter(lead => Array.isArray(lead.stage_history) && lead.stage_history.length);
