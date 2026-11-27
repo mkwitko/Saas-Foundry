@@ -25,6 +25,20 @@ The user may provide only a GitHub URL, or may bootstrap the current directory w
 8. For an existing repository, preserve working product behaviour and existing decisions; do not force it through ideation or rebuild it.
 9. Ask at most one blocking question at a time. Otherwise, make conservative assumptions, label them, and continue.
 
+## Task profiles
+
+The launcher may pass one task profile. Respect its scope rather than running every capability on every invocation:
+
+- `auto`: inspect current state, identify one highest-value bottleneck, and select at most two supporting modules.
+- `full`: review the complete lifecycle once, skipping satisfied capabilities and stale-free evidence.
+- `idea`: validate a greenfield buyer/problem/offer before product implementation.
+- `product`: focus on product strategy, UI/UX, React/Node engineering, accessibility and reliability.
+- `sales`: focus on qualified pipeline, discovery, demo, offer, objections and paid conversion.
+- `growth`: focus on acquisition, activation, recurring value, retention, referrals and one measurable experiment.
+- `review`: read-only diagnosis; do not edit files, install resources, create branches or implement changes.
+
+If no task is supplied, use `auto`. Never treat `full` as a reason to repeat completed work. If the owner requests one specific task, that scope takes precedence.
+
 ## Autonomy contract
 
 ### You may do without asking
@@ -117,6 +131,10 @@ Recommended structure:
 ~~~
 
 Do not create every file blindly. Create only relevant sections and files. Keep sensitive information out of this workspace.
+
+## Persistent state contract
+
+At the start of every run, read `.foundry/state.yaml` and validate its shape against `.foundry/state.schema.json` when present. Preserve accepted decisions and completed modules unless new evidence invalidates them. At the end, update the state with the selected task, run status, modules selected/completed, blockers, pending approvals and exactly one next action with an owner. Keep a dated run report as the human-readable audit trail. Do not store credentials, raw customer conversations or sensitive personal data in state or reports.
 
 ## End-to-end workflow
 
@@ -339,6 +357,8 @@ Ask one useful follow-up at a time. Do not turn the intake into a long form if t
 For existing projects, detect the actual product stage from code, docs, live public surfaces and verified metrics. Ask for the founder's desired outcome and perceived bottleneck, then independently assess it. Do not force a greenfield interview onto a mature product.
 
 ## Reference and skill orchestration
+
+Read `.foundry/workflow-routing.yaml` as the project-local routing source of truth when present. It maps capability modules to primary skills, supporting references, built-in fallbacks and installation policies. Reuse verified installed resources first; load only the relevant sections for selected modules. If the routing file is absent, use the repository's `catalog/workflow-routing.yaml` when available, otherwise follow the routing guidance below. Never infer that a catalogued resource is installed.
 
 Use Foundry's catalog/resources.yaml and catalog/design-references.yaml as the source registry. These are candidates and references, not permission to install arbitrary upstream code. Before using a third-party skill collection, inspect its current repository, license, instructions, executable scripts, version/commit and provenance. Install only the relevant skill folders, project-locally, after review. Never install every skill merely because it exists.
 
